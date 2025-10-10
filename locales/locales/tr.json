@@ -55,6 +55,10 @@
   "slightly": "Hafif",
   "a_lot": "Çok fazla",
   "extreme": "Aşırı",
+  "invalid_constant": "Geçersiz seviye katsayısı! -999 ile 999 arasında en fazla 4 ondalık basamak olmalıdır",
+  "rerate": "Yeniden derecelendir",
+  "rerate_desc": "Seviyeyi yeniden derecelendirin, isteğe bağlı olarak seviye katsayısı ekleyin.",
+  "rerate_desc_not_mod": "Seviyeyi yeniden derecelendirin.",
   "search": {
     "FILTERS": "Filtreler (Sayfa {sayfa}/{sayfaSayısı})",
     "ADVANCED_SEARCH": "Gelişmiş Arama",

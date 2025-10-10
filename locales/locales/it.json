@@ -55,6 +55,10 @@
   "slightly": "Leggermente",
   "a_lot": "Molto",
   "extreme": "Estremo",
+  "invalid_constant": "Costante non valida! Deve avere un massimo di 4 decimali tra -999 e 999",
+  "rerate": "Rivaluta",
+  "rerate_desc": "Rivaluta il livello, aggiungendo eventualmente delle costanti.",
+  "rerate_desc_not_mod": "Rivaluta il livello.",
   "search": {
     "FILTERS": "Filtri (Pagina {page}/{pageCount})",
     "ADVANCED_SEARCH": "Ricerca avanzata",
