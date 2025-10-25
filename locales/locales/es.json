@@ -47,7 +47,7 @@
   "default_engine": "Motor de Servidor",
   "default_engine_desc": "¡Elige el motor de servidor que deseas utilizar!",
   "default_skin": "Skin del Servidor",
-  "default_skin_desc": "Elige el tipo de diseño predeterminado. El diseño variará según el motor (p. ej., el diseño de la versión 1 es ligeramente diferente en Rush que en Next), pero se aplicará a todos los motores.\n\nNOTA: Si un motor no tiene el diseño compatible, se usará el predeterminado.",
+  "default_skin_desc": "Elige el tema de skin predeterminado. El predeterminado siempre es el skin predeterminado del motor.\n\nNOTA: Si un motor no tiene el tema de skin compatible, se usará el predeterminado.",
   "notifications_plural": "¡Tienes {num} notificaciones nuevas!\nLas notificaciones del sistema se encuentran en \"Publicaciones\".\nPor favor, léelas para continuar con el servidor.",
   "notifications_singular": "¡Tienes {num} notificacion nueva!\nLas notificaciones del sistema se encuentran en \"Publicaciones\".\nPor favor, léelas para continuar con el servidor.",
   "uwu": "UwU >.<",
