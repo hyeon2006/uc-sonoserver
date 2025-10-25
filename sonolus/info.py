@@ -109,15 +109,17 @@ async def main(request: Request):
         themes = item["themes"]
         for theme in themes:
             if theme not in seen_themes:
-                unique_themes.append({"name": theme, "title": theme.upper()})
+                unique_themes.append(theme)
                 seen_themes.add(theme)
+    unique_themes = sorted(unique_themes)
     options.append(
         ServerFormOptionsFactory.server_select_option(
             query="defaultskin",
             name=locale.default_skin,
             required=False,
             default="engine_default",
-            values=[{"name": "engine_default", "title": "#DEFAULT"}] + unique_themes,
+            values=[{"name": "engine_default", "title": "#DEFAULT"}]
+            + [{"name": theme, "title": theme} for theme in unique_themes],
             description=handle_uwu(
                 locale.default_skin_desc, request.state.localization, uwu_level
             ),

@@ -103,9 +103,7 @@ class SonolusMiddleware(BaseHTTPMiddleware):
         request.state.particle = request.query_params.get(
             "defaultparticle", "engine_default"
         ).lower()
-        request.state.skin = request.query_params.get(
-            "defaultskin", "engine_default"
-        ).lower()
+        request.state.skin = request.query_params.get("defaultskin", "engine_default")
         skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
         supported_skins = list(set(theme for skin in skins for theme in skin["themes"]))
         engines = await request.app.run_blocking(

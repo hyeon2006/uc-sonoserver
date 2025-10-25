@@ -88,7 +88,6 @@ def api_level_to_level(
             if skin_name in skin.get("themes", [])
             and ("engines" not in skin or engine_name in skin["engines"])
         ]
-
         if not candidates:
             raise KeyError("no matching theme/engine for skin found")
 
