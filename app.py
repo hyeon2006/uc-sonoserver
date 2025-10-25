@@ -107,7 +107,7 @@ class SonolusMiddleware(BaseHTTPMiddleware):
             "defaultskin", "engine_default"
         ).lower()
         skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
-        supported_skins = list(set([skin["theme"] for skin in skins]))
+        supported_skins = list(set(theme for skin in skins for theme in skin["themes"]))
         engines = await request.app.run_blocking(
             compile_engines_list, request.app.base_url, request.state.localization
         )
@@ -117,29 +117,33 @@ class SonolusMiddleware(BaseHTTPMiddleware):
         request.state.loc, request.state.localization = Locale.get_messages(
             request.state.localization
         )
-        try:
-            assert request.state.levelbg in [
-                "default_or_v3",
-                "default_or_v1",
-                "v1",
-                "v3",
-            ]
-            assert request.state.uwu in ["off", "uwu", "owo", "uvu"]
-            assert request.state.staff_pick in ["off", "true", "false"]
-            particles = await request.app.run_blocking(
-                compile_particles_list, request.app.base_url
-            )
-            assert request.state.particle in [
-                "engine_default",
-                *[item["name"] for item in particles],
-            ]
-            assert request.state.engine in [item["name"] for item in engines]
-            assert request.state.skin in ["engine_default", *supported_skins]
-        except AssertionError:
-            return JSONResponse(
-                content={"message": "Invalid configuration"},
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
+        if not request.state.levelbg in [
+            "default_or_v3",
+            "default_or_v1",
+            "v1",
+            "v3",
+        ]:
+            request.state.levelbg = "default_or_v3"
+        if not request.state.uwu in ["off", "uwu", "owo", "uvu"]:
+            request.state.uwu = "off"
+        if not request.state.staff_pick in ["off", "true", "false"]:
+            request.state.staff_pick = "off"
+        particles = await request.app.run_blocking(
+            compile_particles_list, request.app.base_url
+        )
+        if not request.state.particle in [
+            "engine_default",
+            *[item["name"] for item in particles],
+        ]:
+            request.state.particle = "engine_default"
+        if not request.state.engine in [item["name"] for item in engines]:
+            request.state.engine = engines[0]["name"]
+        if not request.state.skin in ["engine_default", *supported_skins]:
+            request.state.skin = "engine_default"
+            # return JSONResponse(
+            #     content={"message": "Invalid configuration"},
+            #     status_code=status.HTTP_400_BAD_REQUEST,
+            # )
         query_params = dict(request.query_params)
         for item in request.app.remove_config_queries:
             query_params.pop(item, None)

@@ -85,7 +85,7 @@ def api_level_to_level(
         candidates = [
             skin
             for skin in skins
-            if skin.get("theme") == skin_name
+            if skin_name in skin.get("themes", [])
             and ("engines" not in skin or engine_name in skin["engines"])
         ]
 

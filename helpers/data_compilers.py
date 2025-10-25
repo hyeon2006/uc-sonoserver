@@ -246,7 +246,7 @@ def compile_skins_list(source: str = None) -> List[SkinItem]:
             "subtitle",
             "author",
             "engines",
-            "theme",
+            "themes",
             "locale",
         ]
         for key in item_keys:

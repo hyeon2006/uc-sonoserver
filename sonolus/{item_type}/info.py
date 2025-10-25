@@ -62,7 +62,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#ENGINE",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 description=handle_uwu(
                     locale.server_description or request.app.config["description"],
                     request.state.localization,
@@ -86,7 +86,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#SKIN",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 description=handle_uwu(
                     locale.server_description or request.app.config["description"],
                     request.state.localization,
@@ -105,7 +105,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#BACKGROUND",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 description=handle_uwu(
                     locale.server_description or request.app.config["description"],
                     request.state.localization,
@@ -122,7 +122,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#EFFECT",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 description=handle_uwu(
                     locale.server_description or request.app.config["description"],
                     request.state.localization,
@@ -139,7 +139,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#PARTICLE",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 description=handle_uwu(
                     locale.server_description or request.app.config["description"],
                     request.state.localization,
@@ -157,7 +157,7 @@ async def main(request: Request, item_type: ItemType):
             create_section(
                 "#NEWEST",
                 item_type,
-                handle_item_uwu(data[:5], request.state.localization, uwu_level),
+                handle_item_uwu(data[:10], request.state.localization, uwu_level),
                 icon="post",
             )
         ]
@@ -572,7 +572,7 @@ async def main(request: Request, item_type: ItemType):
     #     data = await request.app.run_blocking(compile_replays_list, request.app.base_url)
     #     sections: List[ReplayItemSection] = [
     #         create_section(
-    #             "Replays", item_type, data[:5], description=handle_uwu(
+    #             "Replays", item_type, data[:10], description=handle_uwu(
     #     locale.server_description or request.app.config["description"], request.state.localization,
     #     uwu_level,
     # ), icon="replay"
@@ -582,7 +582,7 @@ async def main(request: Request, item_type: ItemType):
     #     data = await request.app.run_blocking(compile_rooms_list, request.app.base_url)
     #     sections: List[RoomItemSection] = [
     #         create_section(
-    #             "Rooms", item_type, data[:5], description=handle_uwu(
+    #             "Rooms", item_type, data[:10], description=handle_uwu(
     #     locale.server_description or request.app.config["description"], request.state.localization,
     #     uwu_level,
     # ), icon="room"

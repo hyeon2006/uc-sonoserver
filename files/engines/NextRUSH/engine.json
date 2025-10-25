@@ -1,15 +1,15 @@
 {
     "version": 13,
-    "title": "NextRUSH",
-    "subtitle": "NextSEKAI R",
-    "author": "NextSEKAI R",
-    "skin_name": "PR-S1-3",
+    "title": "NextRUSH+",
+    "subtitle": "NextSEKAI R+",
+    "author": "NextSEKAI R+",
+    "skin_name": "NR-V3-S1-JP",
     "skin_name_locale": {
-        "en": "PR-S1-3-EN"
+        "en": "NR-V3-S1-EN"
     },
     "background_name": "PLEASE-SELECT",
     "effect_name": "coconut-next-sekai-1",
     "particle_name": "coconut-next-sekai-1",
-    "description": "\nNext SEKAI's expansion engine, with a visual extension\nVersion: 1.0.7\n\nhttps://github.com/UntitledCharts/sonolus-next-sekai-rush",
+    "description": "\nNext SEKAI's expansion engine, with a visual extension!\n\nhttps://github.com/hyeon2006/sonolus-next-rush-plus-engine",
     "engine_sort_order": 1
 }

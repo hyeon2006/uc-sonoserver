@@ -102,25 +102,22 @@ async def main(request: Request):
         )
     )
     skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
-    unique = []
-    seen = set()
+    unique_themes = []
+    seen_themes = set()
 
     for item in skins:
-        theme = item["theme"]
-        if theme not in seen:
-            unique.append({"name": theme, "title": theme.upper()})
-            seen.add(theme)
+        themes = item["themes"]
+        for theme in themes:
+            if theme not in seen_themes:
+                unique_themes.append({"name": theme, "title": theme.upper()})
+                seen_themes.add(theme)
     options.append(
         ServerFormOptionsFactory.server_select_option(
             query="defaultskin",
             name=locale.default_skin,
             required=False,
             default="engine_default",
-            values=[{"name": "engine_default", "title": "#DEFAULT"}]
-            + [
-                {"name": k, "title": k.upper()}
-                for k in {item["theme"]: None for item in skins}
-            ],
+            values=[{"name": "engine_default", "title": "#DEFAULT"}] + unique_themes,
             description=handle_uwu(
                 locale.default_skin_desc, request.state.localization, uwu_level
             ),
