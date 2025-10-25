@@ -50,6 +50,7 @@ class SonolusFastAPI(FastAPI):
             "defaultparticle",
             "defaultengine",
             "defaultskin",
+            "showresourcebuttons",
         ]
 
         self.repository = repo
@@ -103,6 +104,9 @@ class SonolusMiddleware(BaseHTTPMiddleware):
         request.state.particle = request.query_params.get(
             "defaultparticle", "engine_default"
         ).lower()
+        request.state.showresourcebuttons = request.query_params.get(
+            "showresourcebuttons", "off"
+        )
         request.state.skin = request.query_params.get("defaultskin", "engine_default")
         skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
         supported_skins = list(set(theme for skin in skins for theme in skin["themes"]))
@@ -115,6 +119,8 @@ class SonolusMiddleware(BaseHTTPMiddleware):
         request.state.loc, request.state.localization = Locale.get_messages(
             request.state.localization
         )
+        if not request.state.showresourcebuttons in ["on", "off"]:
+            request.state.showresourcebuttons = "off"
         if not request.state.levelbg in [
             "default_or_v3",
             "default_or_v1",

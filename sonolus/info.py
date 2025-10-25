@@ -35,20 +35,19 @@ async def main(request: Request):
     uwu_supported = ["en", "tr"]
 
     banner_srl = await request.app.run_blocking(compile_banner)
-    button_list = [
-        "authentication",
-        "post",
-        "level",
-        "configuration",
-        # "playlist",
-        # "skin",
-        # "background",
-        # "effect",
-        # "particle",
-        # "engine",
-    ]
+    button_list = ["authentication", "post", "level", "configuration"]
     if logged_in:
         button_list.append("playlist")
+    if request.state.showresourcebuttons:
+        button_list.extend(
+            [
+                "skin",
+                "background",
+                "effect",
+                "particle",
+                "engine",
+            ]
+        )
     options = []
     if request.state.localization in uwu_supported:
         option = ServerFormOptionsFactory.server_select_option(
@@ -161,6 +160,18 @@ async def main(request: Request):
                 request.state.localization,
                 uwu_level,
             ),
+        )
+    )
+    options.append(
+        ServerFormOptionsFactory.server_toggle_option(
+            query="showresourcebuttons",
+            name=locale.show_resource_buttons,
+            required=False,
+            default="off",
+            values=[
+                {"name": "off", "title": locale.off},
+                {"name": "on", "title": locale.on},
+            ],
         )
     )
     desc = locale.server_description or request.app.config["description"]

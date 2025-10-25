@@ -53,6 +53,7 @@
     "rerate": "Rerate",
     "rerate_desc": "Rerate the level, optionally adding constants.",
     "rerate_desc_not_mod": "Rerate the level.",
+    "show_resource_buttons": "Show Server Resource Buttons",
     "search": {
         "FILTERS": "Filters (Page {page}/{pageCount})",
         "ADVANCED_SEARCH": "Advanced Search",
