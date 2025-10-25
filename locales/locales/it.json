@@ -47,7 +47,7 @@
   "default_engine": "Motore del server",
   "default_engine_desc": "Scegli il motore del server da utilizzare!",
   "default_skin": "Skin del server",
-  "default_skin_desc": "Scegli il tipo di skin predefinito da utilizzare! La skin sarà diversa a seconda del motore (ad esempio, la skin V1 è leggermente diversa su Rush rispetto a Next), ma verrà applicata a tutti i motori.\n\nNOTA: se un motore non ha la skin supportata, utilizzerà quella predefinita.",
+  "default_skin_desc": "Scegli il tema skin predefinito da utilizzare! Il tema predefinito è sempre quello del motore.\n\nNOTA: se un motore non ha il tema skin supportato, utilizzerà quello predefinito.",
   "notifications_plural": "Hai ricevuto {num} nuove notifiche!\nLe notifiche di sistema si trovano in \"Posts\".\nLeggile per proseguire sul server.",
   "notifications_singular": "Hai ricevuto {num} nuove notifiche!\nLe notifiche di sistema si trovano in \"Posts\".\nLeggile per proseguire sul server.",
   "uwu": "UwU >.<",
