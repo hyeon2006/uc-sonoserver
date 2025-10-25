@@ -47,7 +47,7 @@
   "default_engine": "Sunucu Motoru",
   "default_engine_desc": "Kullanılacak sunucu motorunu seçin!",
   "default_skin": "Sunucu Dokusu",
-  "default_skin_desc": "Kullanılacak varsayılan doku türünü seçin! Doku, motora bağlı olarak farklılık gösterecektir (örneğin, V1 dokusu Rush'ta Next'ten biraz farklı); ancak tüm motorlar için geçerli olacaktır.\n\nNOT: Bir motorda desteklenen doku yoksa, varsayılan motor dokusu kullanılacaktır.",
+  "default_skin_desc": "Kullanılacak varsayılan temayı seçin! Varsayılan tema her zaman motor varsayılan temasıdır.\n\nNOT: Bir motor desteklenen temaya sahip değilse, motor varsayılanını kullanır.",
   "notifications_plural": "{num} yeni bildiriminiz var!\nSistem bildirimlerine \"Gönderiler\" bölümünden ulaşabilirsiniz.\nSunucuya devam etmek için lütfen bunları okuyun.",
   "notifications_singular": "{num} yeni bildiriminiz var!\nSistem bildirimlerine \"Gönderiler\" bölümünden ulaşabilirsiniz.\nSunucuya devam etmek için lütfen bunları okuyun.",
   "uwu": "UwU >.<",
@@ -59,6 +59,7 @@
   "rerate": "Yeniden derecelendir",
   "rerate_desc": "Seviyeyi yeniden derecelendirin, isteğe bağlı olarak seviye katsayısı ekleyin.",
   "rerate_desc_not_mod": "Seviyeyi yeniden derecelendirin.",
+  "show_resource_buttons": "Sunucu Kaynak Düğmelerini Göster",
   "search": {
     "FILTERS": "Filtreler (Sayfa {sayfa}/{sayfaSayısı})",
     "ADVANCED_SEARCH": "Gelişmiş Arama",
