@@ -47,7 +47,7 @@
   "default_engine": "伺服器引擎",
   "default_engine_desc": "選擇要使用的伺服器引擎！",
   "default_skin": "伺服器皮膚",
-  "default_skin_desc": "選擇要使用的預設皮膚類型！皮膚會根據引擎而有所不同（例如，Rush 上的 V1 皮膚與 Next 上的略有不同），但適用於所有引擎。\n\n注意：如果引擎沒有支援的皮膚，它將使用引擎預設皮膚。",
+  "default_skin_desc": "選擇要使用的預設主題！預設始終為引擎預設主題。\n\n注意：如果引擎沒有支援的主題，它將使用引擎預設主題。",
   "notifications_plural": "您有 {num} 條新通知！\n系統通知可在「貼文」中找到。\n請閱讀通知後繼續訪問伺服器。",
   "notifications_singular": "您有 {num} 條新通知！\n系統通知可在「貼文」中找到。\n請閱讀通知後繼續訪問伺服器。",
   "uwu": "UwU >.<",
