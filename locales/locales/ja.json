@@ -59,6 +59,7 @@
   "rerate": "難易度値の再設定",
   "rerate_desc": "難易度の数値を変更することができます。\n任意で小数値を付けることもできます。",
   "rerate_desc_not_mod": "難易度の数値を変更することができます。",
+  "show_resource_buttons": "サーバーリソースボタンを表示する",
   "search": {
     "FILTERS": "フィルター (ページ {page}/{pageCount})",
     "ADVANCED_SEARCH": "詳細検索",
