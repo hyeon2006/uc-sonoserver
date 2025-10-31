@@ -55,13 +55,14 @@ class Repository:
             self._map[sha1] = {"hash": sha1, "file": file_path}
         return sha1
 
-    def add_bytes(self, data: Union[IO[bytes], bytes]):
+    def add_bytes(self, data: Union[IO[bytes], bytes]) -> str:
         """
         Warning: cannot be updated!
         """
         sha1 = calculate_sha1(data)
-        if sha1 not in self._map.keys():
+        if not sha1 in self._map.keys():
             self._map[sha1] = {"hash": sha1, "file": data}
+        return sha1
 
     def pop_hash(self, hash: str) -> Optional[bytes]:
         file_data = self.get_file(hash)

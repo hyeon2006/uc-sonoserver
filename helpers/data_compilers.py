@@ -1,4 +1,5 @@
-import json, os
+import gzip, json, os
+from io import BytesIO
 
 from typing import Optional, List
 from helpers.datastructs import (
@@ -22,6 +23,7 @@ cached = {
     "particles": None,
     "banner": None,
     "static_posts": None,
+    "BACKGROUND_NO_SCOPE_SRL": None,
 }
 
 
@@ -187,6 +189,18 @@ def compile_backgrounds_list(
         for key, file in data_files.items():
             hash = repo.add_file(f"files/backgrounds/{background}/{file}")
             compiled_data[key] = repo.get_srl(hash)
+            if key == "configuration" and background == "PLEASE-SELECT":
+                if not cached["BACKGROUND_NO_SCOPE_SRL"]:
+                    with gzip.open(f"files/backgrounds/{background}/{file}", "rb") as f:
+                        data = json.load(f)
+                    if "scope" in data:
+                        del data["scope"]
+                    output_buffer = BytesIO()
+                    with gzip.GzipFile(fileobj=output_buffer, mode="wb") as gz_out:
+                        gz_out.write(json.dumps(data).encode("utf-8"))
+                    gzipped_bytes = output_buffer.getvalue()
+                    no_scope_hash = repo.add_bytes(gzipped_bytes)
+                    cached["BACKGROUND_NO_SCOPE_SRL"] = repo.get_srl(no_scope_hash)
         compiled_data_list.append(compiled_data)
     cached[f"backgrounds_{locale}"] = compiled_data_list
     return compiled_data_list

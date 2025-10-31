@@ -6,6 +6,7 @@ from helpers.data_compilers import (
     compile_backgrounds_list,
     compile_particles_list,
     compile_skins_list,
+    cached,
 )
 from locales.locale import Loc
 from helpers.owoify import handle_uwu
@@ -146,6 +147,7 @@ def api_level_to_level(
         title = loc.background.V1
     else:
         title = loc.background.UPLOADED
+        bg_item["configuration"] = cached["BACKGROUND_NO_SCOPE_SRL"]
     bg_item["title"] = handle_uwu(title, request.state.localization, request.state.uwu)
 
     if request.state.skin == "engine_default":
