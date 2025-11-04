@@ -59,6 +59,7 @@
   "rerate": "Rivaluta",
   "rerate_desc": "Rivaluta il livello, aggiungendo eventualmente delle costanti.",
   "rerate_desc_not_mod": "Rivaluta il livello.",
+  "show_resource_buttons": "Mostra pulsanti risorse server",
   "search": {
     "FILTERS": "Filtri (Pagina {page}/{pageCount})",
     "ADVANCED_SEARCH": "Ricerca avanzata",
