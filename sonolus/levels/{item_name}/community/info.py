@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 
 from typing import Optional
 
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 from helpers.models.api.comments import Comment, CommentList
 from helpers.models.sonolus.options import ServerForm, ServerTextAreaOption
@@ -38,7 +39,7 @@ def process_comment(comment: Comment, is_mod: Optional[bool], localization, uwu_
     )
 
 @router.get("/", response_model=ServerItemCommunityInfo)
-async def main(request: Request, item_name: str):
+async def main(request: SonolusRequest, item_name: str):
     uwu_level = request.state.uwu
     auth = request.headers.get("Sonolus-Session")
 

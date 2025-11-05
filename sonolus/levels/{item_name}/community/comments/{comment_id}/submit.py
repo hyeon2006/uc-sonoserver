@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 from typing import TypedDict, Optional
 
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.submit import ServerSubmitCommentIDActionRequest
 from helpers.models.sonolus.response import ServerSubmitItemCommunityCommentActionResponse
@@ -17,7 +18,7 @@ import aiohttp
 
 @router.post("/", response_model=ServerSubmitItemCommunityCommentActionResponse)
 async def main(
-    request: Request,
+    request: SonolusRequest,
     item_name: str,
     comment_id: int,
     data: ServerSubmitCommentIDActionRequest,

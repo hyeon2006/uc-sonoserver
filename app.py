@@ -1,154 +1,16 @@
-import os, importlib, asyncio
+import os, importlib
 from urllib.parse import urlparse
 
-from concurrent.futures import ThreadPoolExecutor
+from core import config, SonolusFastAPI, SonolusMiddleware
 
-import yaml
-
-with open("config.yml", "r") as f:
-    config = yaml.load(f, yaml.Loader)
-
-from fastapi import FastAPI, Request
-from fastapi import status, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 import uvicorn
 
-from helpers.repository_map import repo
-from helpers.data_compilers import (
-    compile_particles_list,
-    compile_engines_list,
-    compile_skins_list,
-)
-from locales.locale import Locale
-
 debug = config["server"]["debug"]
-
-
-class SonolusFastAPI(FastAPI):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.debug = kwargs["debug"]
-
-        self.executor = ThreadPoolExecutor(max_workers=16)
-
-        self.config = config["sonolus"]
-        self.api_config = config["api"]
-        self.base_url = kwargs["base_url"]
-
-        self.auth = self.api_config["auth"]
-        self.auth_header = self.api_config["auth-header"]
-
-        self.remove_config_queries = [
-            "localization",
-            "page",
-            "uwu",
-            "levelbg",
-            "stpickconfig",
-            "defaultparticle",
-            "defaultengine",
-            "defaultskin",
-        ]
-
-        self.repository = repo
-
-        self.exception_handlers.setdefault(HTTPException, self.http_exception_handler)
-
-    async def run_blocking(self, func, *args, **kwargs):
-        return await asyncio.get_event_loop().run_in_executor(
-            self.executor, lambda: func(*args, **kwargs)
-        )
-
-    def get_items_per_page(self, route: str) -> int:
-        return self.config["items-per-page"].get(
-            route, self.config["items-per-page"].get("default")
-        )
-
-    async def http_exception_handler(self, request: Request, exc: HTTPException):
-        if exc.status_code < 500:
-            return JSONResponse(
-                content={"message": exc.detail}, status_code=exc.status_code
-            )
-        else:
-            print(
-                "-" * 1000
-                + f"\nerror 500: {request.method} {str(request.url)}\n"
-                + "-" * 1000
-            )
-            return JSONResponse(content={}, status_code=exc.status_code)
-
+de = config["server"]["debug"].as_integer_ratio
 
 VERSION_REGEX = r"^\d+\.\d+\.\d+$"
-
-
-class SonolusMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        request.state.localization = request.query_params.get(
-            "localization", "en"
-        ).lower()
-        uwu_supported = ["tr", "en"]
-        request.state.uwu = (
-            request.query_params.get("uwu", "off").lower()
-            if request.state.localization in uwu_supported
-            else "off"
-        )
-        request.state.levelbg = request.query_params.get(
-            "levelbg", "default_or_v3"
-        ).lower()
-        request.state.staff_pick = request.query_params.get(
-            "stpickconfig", "off"
-        ).lower()
-        request.state.particle = request.query_params.get(
-            "defaultparticle", "engine_default"
-        ).lower()
-        request.state.skin = request.query_params.get(
-            "defaultskin", "engine_default"
-        ).lower()
-        skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
-        supported_skins = list(set([skin["theme"] for skin in skins]))
-        engines = await request.app.run_blocking(
-            compile_engines_list, request.app.base_url, request.state.localization
-        )
-        request.state.engine = request.query_params.get(
-            "defaultengine", engines[0]["name"]
-        )
-        request.state.loc, request.state.localization = Locale.get_messages(
-            request.state.localization
-        )
-        try:
-            assert request.state.levelbg in [
-                "default_or_v3",
-                "default_or_v1",
-                "v1",
-                "v3",
-            ]
-            assert request.state.uwu in ["off", "uwu", "owo", "uvu"]
-            assert request.state.staff_pick in ["off", "true", "false"]
-            particles = await request.app.run_blocking(
-                compile_particles_list, request.app.base_url
-            )
-            assert request.state.particle in [
-                "engine_default",
-                *[item["name"] for item in particles],
-            ]
-            assert request.state.engine in [item["name"] for item in engines]
-            assert request.state.skin in ["engine_default", *supported_skins]
-        except AssertionError:
-            return JSONResponse(
-                content={"message": "Invalid configuration"},
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        query_params = dict(request.query_params)
-        for item in request.app.remove_config_queries:
-            query_params.pop(item, None)
-        request.state.query_params = query_params
-        response = await call_next(request)
-        response.headers["Sonolus-Version"] = request.app.config[
-            "required-client-version"
-        ]
-        return response
 
 
 app = SonolusFastAPI(debug=debug, base_url=config["server"]["base-url"])

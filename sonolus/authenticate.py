@@ -6,6 +6,7 @@ from ecdsa import VerifyingKey, NIST256p, ellipticcurve
 from ecdsa.util import string_to_number, sigdecode_string
 from fastapi import APIRouter, Request, status, HTTPException
 
+from core import SonolusRequest
 from helpers.models.sonolus.account import ServerAuthenticateRequest
 
 from datetime import timedelta
@@ -41,7 +42,7 @@ def load_public_key(jwk_dict):
 
 
 @router.post("/")
-async def main(request: Request, data: ServerAuthenticateRequest):
+async def main(request: SonolusRequest, data: ServerAuthenticateRequest):
     """
     We support a maximum of 6 sessions:
     - 3 external (eg. website)

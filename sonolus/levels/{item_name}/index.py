@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.models.sonolus.response import ServerItemDetails
 from helpers.models.sonolus.options import ServerForm, ServerSelectOption, ServerTextOption, ServerToggleOption
 from helpers.models.api.levels import GetChartResponse
@@ -17,7 +18,7 @@ import aiohttp
 
 
 @router.get("/", response_model=ServerItemDetails)
-async def main(request: Request, item_name: str):
+async def main(request: SonolusRequest, item_name: str):
     locale: Loc = request.state.loc
     uwu_level = request.state.uwu
     uwu_handled = False

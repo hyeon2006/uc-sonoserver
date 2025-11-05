@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 
 import aiohttp
 
+from core import SonolusRequest
 from helpers.paginate import list_to_pages
 from helpers.models.api.notifications import NotificationList
 
@@ -19,7 +20,7 @@ type_func = type
 
 @router.get("/")
 async def main(
-    request: Request,
+    request: SonolusRequest,
     page: int = Query(0, ge=0),
 ):
     locale: Loc = request.state.loc

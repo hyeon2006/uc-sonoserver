@@ -1,6 +1,8 @@
 import base64, decimal
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
+
+from core import SonolusRequest
 from . import _like, _delete, _rerate, _staff_pick, _visibility
 
 from helpers.sonolus_typings import ItemType
@@ -16,7 +18,7 @@ from locales.locale import Loc
 
 @router.post("/", response_model=ServerSubmitItemActionResponse)
 async def main(
-    request: Request,
+    request: SonolusRequest,
     item_name: str,
     data: ServerSubmitLevelActionRequest,
 ):

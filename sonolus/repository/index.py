@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Request, status, Response
 from fastapi import HTTPException
 
+from core import SonolusRequest
 from helpers.repository_map import repo
 
 router = APIRouter()
 
 
 @router.get("/{hash}/")
-async def main(request: Request, hash: str):
+async def main(request: SonolusRequest, hash: str):
     # This only handles static!
     file_data = await request.app.run_blocking(repo.get_file, hash)
     if file_data:

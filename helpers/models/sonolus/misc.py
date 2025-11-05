@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from helpers.sonolus_typings import Icon, ServerInfoButtonType, Text
 
 class Tag(BaseModel):
-    title: str
+    title: Text | str
     icon: Icon | str | None = None
 
 

@@ -4,6 +4,7 @@ from typing import List
 
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.item_section import PostItemSection
 from helpers.models.sonolus.response import ServerItemInfo
@@ -24,7 +25,7 @@ import aiohttp
 
 
 @router.get("/")
-async def main(request: Request, item_type: ItemType):
+async def main(request: SonolusRequest, item_type: ItemType):
     locale: Loc = request.state.loc
     uwu_level = request.state.uwu
     banner_srl = await request.app.run_blocking(compile_banner)

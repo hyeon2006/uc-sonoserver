@@ -7,6 +7,7 @@ from typing import Literal, Optional, List
 
 import aiohttp
 
+from core import SonolusRequest
 from helpers.paginate import list_to_pages
 from helpers.sonolus_typings import ItemType
 from helpers.api_helpers import api_level_to_level
@@ -21,7 +22,7 @@ type_func = type
 
 @router.get("/")
 async def main(
-    request: Request,
+    request: SonolusRequest,
     item_type: ItemType,
     type: Literal["quick", "advanced"] = Query("quick"),
     page: int = Query(0, ge=0),
@@ -57,7 +58,7 @@ async def main(
     ),  # will only ever be PUBLIC here. anything else, go to playlists
     keywords: Optional[str] = Query(None),
 ):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     uwu_level = request.state.uwu
     searching = False
     generate_pages = True

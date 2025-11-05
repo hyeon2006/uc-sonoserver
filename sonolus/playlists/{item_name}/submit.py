@@ -2,6 +2,7 @@ import base64, decimal
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 
 from pydantic import BaseModel
@@ -21,7 +22,7 @@ class ServerSubmitItemActionRequest(BaseModel):
 
 @router.post("/")
 async def main(
-    request: Request,
+    request: SonolusRequest,
     item_name: str,
     data: ServerSubmitItemActionRequest,
 ):

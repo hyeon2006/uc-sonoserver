@@ -13,7 +13,7 @@ from helpers.models.sonolus.misc import SRL
 
 from helpers.repository_map import repo
 
-from locales.locale import Loc, Locale
+from locales.locale import Locale
 
 cached = {
     "skins": None,
@@ -207,8 +207,13 @@ def compile_backgrounds_list(
     cached[f"backgrounds_{locale}"] = compiled_data_list
     return compiled_data_list
 
+class ExtendedParticleItem(ParticleItem):
+    engine_specific: bool
 
-def compile_particles_list(source: str = None) -> list[tuple[ParticleItem, bool]]:
+    def to_particle_item(self) -> ParticleItem:
+        return ParticleItem.model_validate(self.model_dump())
+
+def compile_particles_list(source: str = None) -> list[ExtendedParticleItem]:
     if cached["particles"]:
         return cached["particles"]
     compiled_data_list = []
@@ -223,7 +228,7 @@ def compile_particles_list(source: str = None) -> list[tuple[ParticleItem, bool]
         if not particle_data.get("enabled", True):
             continue
 
-        compiled_data = ParticleItem(
+        compiled_data = ExtendedParticleItem(
             name=particle,
             source=source,
             version=particle_data["version"],
@@ -233,15 +238,23 @@ def compile_particles_list(source: str = None) -> list[tuple[ParticleItem, bool]
             tags=[],
             thumbnail=repo.get_srl(repo.add_file(f"files/particles/{particle}/thumbnail.png")),
             data=repo.get_srl(repo.add_file(f"files/particles/{particle}/data")),
-            texture=repo.get_srl(repo.add_file(f"files/particles/{particle}/texture"))
+            texture=repo.get_srl(repo.add_file(f"files/particles/{particle}/texture")),
+            engine_specific=particle_data["engine_specific"]
         )
 
-        compiled_data_list.append((compiled_data, particle_data["engine_specific"]))
+        compiled_data_list.append(compiled_data)
     cached["particles"] = compiled_data_list
     return compiled_data_list
 
+class ExtendedSkinItem(SkinItem):
+    engines: list[str]
+    theme: str
+    locale: str | None
 
-def compile_skins_list(source: str = None) -> list[tuple[SkinItem, list[str], str, str | None]]: # "engines", "theme", "locale"... probably a TODO
+    def to_skin_item(self) -> SkinItem:
+        return SkinItem.model_validate(self.model_dump())
+
+def compile_skins_list(source: str = None) -> list[ExtendedSkinItem]:
     if cached["skins"]:
         return cached["skins"]
     compiled_data_list = []
@@ -256,7 +269,7 @@ def compile_skins_list(source: str = None) -> list[tuple[SkinItem, list[str], st
         if not skin_data.get("enabled", True):
             continue
 
-        compiled_data = SkinItem(
+        compiled_data = ExtendedSkinItem(
             name=skin,
             source=source,
             version=skin_data["version"],
@@ -266,17 +279,25 @@ def compile_skins_list(source: str = None) -> list[tuple[SkinItem, list[str], st
             tags=[],
             thumbnail=repo.get_srl(repo.add_file(f"files/skins/{skin}/thumbnail.png")),
             data=repo.get_srl(repo.add_file(f"files/skins/{skin}/data")),
-            texture=repo.get_srl(repo.add_file(f"files/skins/{skin}/texture"))
+            texture=repo.get_srl(repo.add_file(f"files/skins/{skin}/texture")),
+            engines=skin_data.get("engines", []),
+            theme=skin_data["theme"],
+            locale=skin_data.get("locale")
         )
-        compiled_data_list.append((compiled_data, skin_data["engines"], skin_data["theme"], skin_data.get("locale")))
+        compiled_data_list.append(compiled_data)
     cached["skins"] = compiled_data_list
     return compiled_data_list
 
+class ExtendedEngineItem(EngineItem):
+    engine_sort_order: int | float
 
-def compile_engines_list(source: str = None, locale: str = "en") -> list[EngineItem]:
+    def to_engine_item(self) -> EngineItem:
+        return EngineItem.model_validate(self.model_dump())
+
+def compile_engines_list(source: str = None, locale: str = "en") -> list[ExtendedEngineItem]:
     if cached.get(f"engines_{locale}"):
         return cached[f"engines_{locale}"]
-    compiled_data_list: list[tuple[EngineItem, int | float]] = []
+    compiled_data_list: list[ExtendedEngineItem] = []
     for engine in os.listdir("files/engines"):
         if not os.path.isdir(os.path.join("files", "engines", engine)):
             continue
@@ -295,7 +316,7 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[EngineI
             skins = compile_skins_list(source)
             skin_data = next(
                 skin
-                for (skin, _, _) in skins
+                for skin in skins
                 if skin.name == get_skin_name(engine_data, locale)
             )
             effects = compile_effects_list(source)
@@ -307,7 +328,7 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[EngineI
             particles = compile_particles_list(source)
             particle_data = next(
                 particle
-                for (particle, _) in particles
+                for particle in particles
                 if particle.name == engine_data["particle_name"]
             )
             backgrounds = compile_backgrounds_list(source, locale)
@@ -321,37 +342,35 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[EngineI
                 "StopIteration raised: incorrect key name! Make sure your engine file names and resource file names match."
             )
         
-        compiled_data = (
-            EngineItem(
-                name=engine,
-                version=engine_data.get("key"),
-                title=engine_data.get("title"),
-                subtitle=engine_data.get("subtitle"),
-                source=source,
-                author=engine_data.get("author"),
-                tags=[],
-                description=engine_data.get("description"),
-                skin=skin_data,
-                background=background_data,
-                effect=effect_data,
-                particle=particle_data,
-                thumbnail=repo.get_srl(repo.add_file(f"files/engines/{engine}/thumbnail.png")),
-                playData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EnginePlayData")),
-                watchData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineWatchData")),
-                previewData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EnginePreviewData")),
-                tutorialData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineTutorialData")),
-                rom=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineRom", error_on_file_nonexistent=False)),
-                configuration=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineConfiguration"))
-            ), 
-            engine_data.get("engine_sort_order", float("inf")) # last, if no sort order
+        compiled_data = ExtendedEngineItem(
+            name=engine,
+            version=engine_data.get("key"),
+            title=engine_data.get("title"),
+            subtitle=engine_data.get("subtitle"),
+            source=source,
+            author=engine_data.get("author"),
+            tags=[],
+            description=engine_data.get("description"),
+            skin=skin_data.to_skin_item(),
+            background=background_data,
+            effect=effect_data,
+            particle=particle_data.to_particle_item(),
+            thumbnail=repo.get_srl(repo.add_file(f"files/engines/{engine}/thumbnail.png")),
+            playData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EnginePlayData")),
+            watchData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineWatchData")),
+            previewData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EnginePreviewData")),
+            tutorialData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineTutorialData")),
+            rom=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineRom", error_on_file_nonexistent=False)),
+            configuration=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineConfiguration")),
+            engine_sort_order=engine_data.get("engine_sort_order", float("inf")) # last, if no sort order
         )
 
         compiled_data_list.append(compiled_data)
     compiled_data_list = sorted(
         compiled_data_list,
         key=lambda item: (
-            item[1],  # engine_sort_order
-            item[0].title.lower(),  # abc
+            item.engine_sort_order,
+            item.title.lower(),  # abc
         ),
     )
     cached[f"engines_{locale}"] = compiled_data_list

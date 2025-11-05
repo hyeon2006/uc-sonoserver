@@ -1,10 +1,11 @@
+from core import SonolusRequest
 from helpers.models.sonolus.response import ServerSubmitItemActionResponse
 from fastapi import HTTPException
 from typing import Literal
 from locales.locale import Loc
 import aiohttp
 
-async def like(headers: dict, request, item_name: str, type: Literal["like", "unlike"], locale: Loc) -> ServerSubmitItemActionResponse: # TODO some typing for app and request
+async def like(headers: dict, request: SonolusRequest, item_name: str, type: Literal["like", "unlike"], locale: Loc) -> ServerSubmitItemActionResponse:
     async with aiohttp.ClientSession(headers=headers) as cs:
         async with cs.post(
             request.app.api_config["url"]

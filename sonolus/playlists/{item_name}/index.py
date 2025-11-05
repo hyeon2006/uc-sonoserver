@@ -4,6 +4,7 @@ from urllib.parse import parse_qs
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.data_compilers import compile_playlists_list
 from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.response import ServerItemDetails
@@ -18,7 +19,7 @@ from helpers.owoify import handle_item_uwu, handle_uwu
 import aiohttp
 
 @router.get("/")
-async def main(request: Request, item_type: ItemType, item_name: str):
+async def main(request: SonolusRequest, item_type: ItemType, item_name: str):
     locale: Loc = request.state.loc
     uwu_level = request.state.uwu
     community = False

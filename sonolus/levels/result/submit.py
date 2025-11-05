@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 from pydantic import BaseModel
 from typing import Optional
@@ -22,7 +23,7 @@ from locales.locale import Loc
 # TODO
 
 @router.post("/")
-async def main(request: Request, item_type: ItemType, data: ServerSubmitLevelResultRequest):
+async def main(request: SonolusRequest, item_type: ItemType, data: ServerSubmitLevelResultRequest):
     locale: Loc = request.state.loc
 
     if item_type != "levels":

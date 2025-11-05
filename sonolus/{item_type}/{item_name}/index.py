@@ -4,6 +4,7 @@ from urllib.parse import parse_qs
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.data_compilers import (
     compile_engines_list,
     compile_backgrounds_list,
@@ -23,17 +24,17 @@ from locales.locale import Loc
 
 
 @router.get("/")
-async def main(request: Request, item_type: ItemType, item_name: str):
+async def main(request: SonolusRequest, item_type: ItemType, item_name: str):
     locale: Loc = request.state.loc
     item_data: ServerItem = None
 
     match item_type:
         case "engines":
-            data = await request.app.run_blocking(
+            data = [item.to_engine_item() for item in await request.app.run_blocking(
                 compile_engines_list, request.app.base_url, request.state.localization
-            )
+            )]
         case "skins":
-            data = await request.app.run_blocking(compile_skins_list, request.app.base_url)
+            data = [item.to_skin_item() for item in await request.app.run_blocking(compile_skins_list, request.app.base_url)]
         case "backgrounds":
             item_data = (
                 await request.app.run_blocking(
@@ -47,9 +48,9 @@ async def main(request: Request, item_type: ItemType, item_name: str):
                 compile_effects_list, request.app.base_url
             )     
         case "particles":
-            data = await request.app.run_blocking(
+            data = [item.to_particle_item() for item in await request.app.run_blocking(
                 compile_particles_list, request.app.base_url
-            )
+            )]
         # case "replays":
         #     data = await request.app.run_blocking(compile_replays_list, request.app.base_url)
         # case "rooms":

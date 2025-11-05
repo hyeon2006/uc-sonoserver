@@ -2,6 +2,7 @@ import aiohttp
 
 from fastapi import APIRouter, Request, HTTPException, status
 
+from core import SonolusRequest
 from helpers.data_compilers import (
     compile_banner,
     compile_particles_list,
@@ -9,6 +10,7 @@ from helpers.data_compilers import (
     compile_skins_list,
 )
 from helpers.models.sonolus.misc import ServerInfoButton
+from helpers.models.sonolus.options import ServerSelectOption, ServerOption_Value
 from helpers.data_helpers import (
     ServerFormOptionsFactory,
 )
@@ -22,8 +24,8 @@ router = APIRouter()
 
 
 @router.get("/")
-async def main(request: Request):
-    locale: Loc = request.state.loc
+async def main(request: SonolusRequest):
+    locale = request.state.loc
     uwu_level = request.state.uwu
     # Assume logged in
     # We only need to validate the session
@@ -89,63 +91,71 @@ async def main(request: Request):
     engines = await request.app.run_blocking(
         compile_engines_list, request.app.base_url, request.state.localization
     )
+
     options.append(
-        ServerFormOptionsFactory.server_select_option(
+        ServerSelectOption(
             query="defaultengine",
             name=locale.default_engine,
-            required=False,
-            default=engines[0]["name"],
-            values=[{"name": item["name"], "title": item["title"]} for item in engines],
             description=handle_uwu(
                 locale.default_engine_desc, request.state.localization, uwu_level
             ),
+            required=False,
+            default=engines[0].name,
+            values=[ServerOption_Value(item=item.name, title=item.title) for item in engines]
         )
     )
+
     skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
-    unique = []
-    seen = set()
+    unique_themes = []
 
     for item in skins:
-        theme = item["theme"]
-        if theme not in seen:
-            unique.append({"name": theme, "title": theme.upper()})
-            seen.add(theme)
+        if item.theme not in unique_themes:
+            unique_themes.append(item.theme)
+
+    # TODO: original repo replaced "theme" with "themes"
+    # maybe there are some better approaches using itertools.chain
+
+    unique_themes.sort()
+
     options.append(
-        ServerFormOptionsFactory.server_select_option(
+        ServerSelectOption(
             query="defaultskin",
             name=locale.default_skin,
+            descriptiion=handle_uwu(
+                locale.default_skin_desc, request.state.localization
+            ),
             required=False,
             default="engine_default",
-            values=[{"name": "engine_default", "title": "#DEFAULT"}]
+            values=[ServerOption_Value(name="engine_default", title="#DEFAULT")]
             + [
-                {"name": k, "title": k.upper()}
-                for k in {item["theme"]: None for item in skins}
-            ],
-            description=handle_uwu(
-                locale.default_skin_desc, request.state.localization, uwu_level
-            ),
+                ServerOption_Value(name=theme, title=theme.upper())
+                for theme in unique_themes
+            ]
         )
     )
+
     particles = await request.app.run_blocking(
         compile_particles_list, request.app.base_url
     )
     options.append(
-        ServerFormOptionsFactory.server_select_option(
+        ServerSelectOption(
             query="defaultparticle",
             name=locale.default_particle,
-            required=False,
-            default="engine_default",
-            values=[{"name": "engine_default", "title": "#DEFAULT"}]
-            + [
-                {"name": item["name"], "title": item["title"]}
-                for item in particles
-                if item.get("engine_specific", False) == False # TODO uhh there is no engine_specific anymore
-            ],
             description=handle_uwu(
                 locale.default_particle_desc, request.state.localization, uwu_level
             ),
+            required=False,
+            default="engine_default",
+            values=[ServerOption_Value(name="engine_default", title="#DEFAULT")]
+            + [
+                ServerOption_Value(name=item.name, title=item.title)
+                for item in particles
+                if not item.engine_specific
+            ]
+
         )
     )
+
     options.append(
         ServerFormOptionsFactory.server_select_option(
             query="stpickconfig",

@@ -1,5 +1,6 @@
 import collections.abc, random, re
 
+# TODO: figure out for russian
 
 def flatten(arr: collections.abc.Iterable):
     """

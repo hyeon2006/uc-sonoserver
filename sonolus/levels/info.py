@@ -3,6 +3,7 @@ import asyncio
 from typing import List
 
 from fastapi import APIRouter, Request
+from core import SonolusRequest
 from helpers.models.sonolus.item_section import LevelItemSection
 from helpers.models.sonolus.response import ServerItemInfo
 from helpers.models.sonolus.options import ServerForm
@@ -25,8 +26,8 @@ import aiohttp
 
 
 @router.get("/")
-async def main(request: Request):
-    locale: Loc = request.state.loc
+async def main(request: SonolusRequest):
+    locale = request.state.loc
     uwu_level = request.state.uwu
     banner_srl = await request.app.run_blocking(compile_banner)
     searches = []
@@ -99,11 +100,10 @@ async def main(request: Request):
         # )
     asset_base_url = random_response.asset_base_url.removesuffix("/")
     random_staff_pick = await request.app.run_blocking(
-        api_level_to_level,
+        staffpick_req.data[0].to_level,
         request,
         asset_base_url,
-        staffpick_req["data"][0] if len(staffpick_req) > 0 else [],
-        request.state.levelbg,
+        request.state.levelbg
     )
     random = await asyncio.gather(
         *[

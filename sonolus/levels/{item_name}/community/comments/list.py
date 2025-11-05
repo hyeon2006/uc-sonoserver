@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
 
 from helpers.models.sonolus.response import ServerItemCommunityCommentList
@@ -40,7 +41,7 @@ def process_comment(comment: Comment, is_mod: Optional[bool], localization, uwu_
     )
 
 @router.get("/", response_model=ServerItemCommunityCommentList)
-async def main(request: Request, item_name: str):
+async def main(request: SonolusRequest, item_name: str):
     locale: Loc = request.state.loc
     page = request.state.query_params.get("page", 0)
     uwu_level = request.state.uwu

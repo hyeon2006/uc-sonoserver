@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, Query
 from fastapi import HTTPException, status
 
+from core import SonolusRequest
 from helpers.data_compilers import (
     compile_engines_list,
     compile_backgrounds_list,
@@ -24,7 +25,7 @@ type_func = type
 
 @router.get("/", response_model=ServerItemList)
 async def main(
-    request: Request,
+    request: SonolusRequest,
     item_type: ItemType,
     page: int = Query(0, ge=0),
 ):
@@ -34,19 +35,16 @@ async def main(
 
     match item_type:
         case "engines":
-            data = await request.app.run_blocking(
+            data = [item.to_engine_item() for item in await request.app.run_blocking(
                 compile_engines_list, request.app.base_url, request.state.localization
-            )
+            )]
         case "skins":
             data = await request.app.run_blocking(compile_skins_list, request.app.base_url)
             data = [
-                item
+                item.to_skin_item()
                 for item in data
-                if (item.get("engines") == None)
-                or (
-                    (type_func(item.get("engines")) in [list, tuple])
-                    and (request.state.engine in item.get("engines"))
-                )
+                if (not item.engines)
+                or (request.state.engine in item.engines)
             ]
 
         case "backgrounds":
@@ -60,9 +58,9 @@ async def main(
                 compile_effects_list, request.app.base_url
             )
         case "particles":
-            data = await request.app.run_blocking(
+            data = [item.to_particle_item() for item in await request.app.run_blocking(
                 compile_particles_list, request.app.base_url
-            )
+            )]
         case _:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

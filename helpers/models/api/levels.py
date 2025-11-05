@@ -1,11 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from typing import Literal, TypeVar
 from pydantic import BaseModel, Field
 
 from helpers.data_compilers import *
-from helpers.models.sonolus.item import LevelItem
+from helpers.models.sonolus.item import LevelItem, UseItem
+from helpers.models.sonolus.misc import Tag
+from helpers.owoify import handle_uwu
 
 
 M = TypeVar("M", bound=BaseModel)
@@ -37,51 +39,74 @@ class Chart(BaseModel):
     is_first_publish: bool | None = None  # only returned on update_status
     liked: bool | None = None
 
-    @lru_cache
     @staticmethod
-    def _get_cached_particle(self, base_url: str, particle_name: str):
+    @lru_cache(maxsize=None)
+    def _get_cached_particle(base_url: str, particle_name: str) -> ParticleItem:
         particles = compile_particles_list(base_url)
         particle_data = next(
-            (particle, engine_specific) for (particle, engine_specific) in particles if particle.name == particle_name
+            particle for particle in particles if particle.name == particle_name
         )
-        return particle_data
+        return particle_data.to_particle_item()
     
+    @staticmethod
+    @lru_cache(maxsize=None)
     def _get_cached_skin(
         base_url: str, skin_name: str, engine_name: str, localization: str
-    ) -> tuple[SkinItem, list[str], str, str | None]:
+    ) -> SkinItem:
         skins = compile_skins_list(base_url)
 
         candidates = [
-            (skin, engines, theme, locale)
-            for (skin, engines, theme, locale) in skins
-            if theme == skin_name and engine_name in engines
+            skin
+            for skin in skins
+            if skin.theme == skin_name and engine_name in skin.engines
         ]
 
         if not candidates:
             raise KeyError("no matching theme/engine for skin found")
 
         #  try to match locale
-        for (skin, engines, theme, locale) in candidates:
-            if locale == localization:
-                return skin, engines, theme, locale
+        for skin in candidates:
+            if skin.locale == localization:
+                return skin.to_skin_item()
 
         # fallback: find skin where no locale is set (some global skin)
-        for (skin, engines, theme, locale) in candidates:
-            if locale is None:
-                return skin, engines, theme, locale
+        for skin in candidates:
+            if skin.locale is None:
+                return skin.to_skin_item()
 
         # fallback 2: just return first item
-        return candidates[0]
+        return candidates[0].to_skin_item()
 
+    @staticmethod
+    @lru_cache(maxsize=None)
     def _get_cached_background(base_url: str, localization: str):
         return compile_backgrounds_list(base_url, localization)[0].model_copy()
 
+    @staticmethod
+    @lru_cache(maxsize=None)
     def _get_cached_engine(base_url: str, engine_name: str, locale: str):
         engines = compile_engines_list(base_url, locale)
         engine_data = next(
             engine for engine in engines if engine.name == engine_name
         )
-        return engine_data
+        return engine_data.to_engine_item()
+
+    def _make_url(self, asset_base_url: str, file_hash: str) -> str:
+        return "/".join([asset_base_url, self.author, self.id, file_hash])
+
+    def _datetime_to_str(self, datetime_: datetime) -> str:
+        delta = datetime.now() - datetime_
+
+        if delta >= timedelta(days=1):
+            return f"{delta.days}d"
+        elif delta >= timedelta(hours=1):
+            return f"{delta.seconds // 3600}h"
+        elif delta >= timedelta(minutes=1):
+            return f"{delta.seconds // 60}m"
+        elif delta >= timedelta(seconds=1):
+            return f"{delta.seconds}s"
+        
+        return "0s"
 
     def to_level(
         self, 
@@ -92,7 +117,10 @@ class Chart(BaseModel):
         disable_replace_missing_preview=False,
         context: Literal["list", "level"] = "list"
     ) -> tuple[LevelItem, str | None]:
+        loc = request.state.loc
+
         default = bgtype.startswith("default_or_")
+
         if default:
             bgtype = bgtype.removeprefix("default_or_")
             background_hash = self.background_file_hash
@@ -104,6 +132,128 @@ class Chart(BaseModel):
             background_hash: str = getattr(self, f"background_{bgtype}_file_hash")
 
         bg_item = self._get_cached_background(request.app.base_url, request.state.localization)
+        bg_item.image = SRL(
+            hash=background_hash,
+            url=self._make_url(asset_base_url, background_hash)
+        )
+        bg_item.thumbnail = SRL(
+            hash=self.jacket_file_hash,
+            url=self._make_url(asset_base_url, self.jacket_file_hash)
+        )
+        bg_item.name = "configured"
+
+        if not default and bgtype == "v3":
+            title = loc.background.V3
+        elif not default and bgtype == "v1":
+            title = loc.background.V3
+        else:
+            title = loc.background.UPLOADED
+        
+        bg_item.title = handle_uwu(title, request.state.localization, request.state.uwu)
+
+        if request.state.skin == "engine_default":
+            skin_option = UseItem(useDefault=True)
+        else:
+            try:
+                skin_option = UseItem(
+                    useDefault=False,
+                    item=self._get_cached_skin(
+                        request.app.base_url,
+                        request.state.skin,
+                        request.state.engine,
+                        request.state.localization
+                    )
+                )
+            except: # handles if an engine does not have a correctly-themed skin, KeyError | TODO check if it can be "except KeyError"
+                skin_option = UseItem(useDefault=True)
+
+        if request.state.particle == "engine_default":
+            particle_option = UseItem(useDefault=True)
+        else:
+            try:
+                particle_option = UseItem(
+                    useDefault=False,
+                    item=self._get_cached_particle(request.app.base_url, request.state.particle)
+                )
+            except: # same TODO here
+                particle_option = UseItem(useDefault=True)
+
+        time_str = self._datetime_to_str(self.published_at or self.created_at)
+        date_str = handle_uwu(
+            loc.time_ago(time_str) if self.published_at else loc.time_ago_not_published(time_str),
+            request.state.localization,
+            request.state.uwu
+        )
+
+        if context == "list":
+            additional = []
+            tags = [
+                Tag(title=handle_uwu(tag, request.state.localization, request.state.uwu)) for tag in self.tags
+            ]
+        else:
+            visibilities = {
+                "PUBLIC": Tag(title="#PUBLIC", icon="globe"),
+                "PRIVATE": Tag(title="#PRIVATE", icon="lock"),
+                "UNLISTED": Tag(title=loc.search.VISIBILITY_UNLISTED, icon="unlock")
+            }
+
+            additional = [visibilities[self.status]]
+            tags = [Tag(title=handle_uwu(tag, request.state.localization, request.state.uwu), icon="tag") for tag in self.tags]
+
+        metadata = [
+            Tag(title=date_str, icon="clock"),
+            Tag(title=str(self.like_count), icon=("heart" if self.liked else "heartHollow")),
+            Tag(title=str(self.comment_count), icon="comment")
+        ]
+
+        level_tags = additional + metadata + tags
+        if self.staff_pick:
+            level_tags.insert(0, Tag(
+                title=loc.staff_pick if context == "level" else "",
+                icon="trophy"
+            ))
+
+        return LevelItem(
+            name=f"UnCh-{self.id}",
+            source=request.app.base_url,
+            rating=self.rating,
+            title=handle_uwu(self.title, request.state.localization, request.state.uwu),
+            artists=handle_uwu(self.artists, request.state.localization, request.state.uwu),
+            author=self.author_full,
+            tags=level_tags,
+            engine=self._get_cached_engine(request.app.base_url, request.state.engine, request.state.localization),
+            useSkin=skin_option,
+            useBackground=UseItem(useDefault=False, item=bg_item),
+            useEffect=UseItem(useDefault=True),
+            useParticle=particle_option,
+            cover=SRL(
+                hash=self.jacket_file_hash,
+                url=self._make_url(asset_base_url, self.jacket_file_hash)
+            ),
+            bgm=SRL(
+                hash=self.music_file_hash,
+                url=self._make_url(asset_base_url, self.music_file_hash)
+            ),
+            preview=(
+                SRL(
+                    hash=self.preview_file_hash, 
+                    url=self._make_url(asset_base_url, self.preview_file_hash)
+                )
+                if self.preview_file_hash else
+                (
+                    None if disable_replace_missing_preview else
+                    SRL(
+                        hash=self.music_file_hash,
+                        url=self._make_url(asset_base_url, self.music_file_hash)
+                    )
+                )
+            ),
+            data=SRL(
+                hash=self.chart_file_hash,
+                url=self._make_url(asset_base_url, self.chart_file_hash)
+            )
+        ), (self.description if include_description else None)
+
 
 class GetChartResponse(BaseModel):
     data: Chart
