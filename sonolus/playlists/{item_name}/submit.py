@@ -3,6 +3,8 @@ from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
+
+from helpers.models.sonolus.response import ServerSubmitItemActionResponse
 from helpers.sonolus_typings import ItemType
 
 from pydantic import BaseModel
@@ -20,12 +22,12 @@ class ServerSubmitItemActionRequest(BaseModel):
     values: str
 
 
-@router.post("/")
+@router.post("/", response_model=ServerSubmitItemActionResponse)
 async def main(
     request: SonolusRequest,
     item_name: str,
     data: ServerSubmitItemActionRequest,
-):
+) -> ServerSubmitItemActionResponse:
     locale: Loc = request.state.loc
     uwu_level = request.state.uwu
     auth = request.headers.get("Sonolus-Session")

@@ -1,7 +1,4 @@
 from fastapi import APIRouter, Request
-from fastapi import HTTPException, status
-
-from typing import Optional
 
 from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
@@ -17,7 +14,7 @@ from helpers.owoify import handle_uwu
 
 import aiohttp
 
-def process_comment(comment: Comment, is_mod: Optional[bool], localization, uwu_level, comment_delete_action: ServerForm) -> ServerItemCommunityComment:
+def process_comment(comment: Comment, is_mod: bool | None, localization, uwu_level, comment_delete_action: ServerForm) -> ServerItemCommunityComment:
     return ServerItemCommunityComment(
         name=str(comment.id),
         author=handle_uwu(

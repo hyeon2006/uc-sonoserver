@@ -38,8 +38,7 @@ async def main(
             detail=locale.not_logged_in,
         )
 
-    type = parsed_data.type
-    if type not in ["comment"]:
+    if parsed_data.type not in ["comment"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=locale.not_found
         )

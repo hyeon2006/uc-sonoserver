@@ -2,8 +2,6 @@ from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
 from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
-from pydantic import BaseModel
-from typing import Optional
 from helpers.models.sonolus.item import ReplayItem
 import aiohttp
 import json

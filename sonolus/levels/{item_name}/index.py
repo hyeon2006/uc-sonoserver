@@ -7,7 +7,7 @@ from helpers.models.sonolus.options import ServerForm, ServerSelectOption, Serve
 from helpers.models.api.levels import GetChartResponse
 from helpers.models.sonolus.item import LevelItem
 from helpers.data_helpers import create_server_form, ServerFormOptionsFactory
-from helpers.api_helpers import api_level_to_level
+from helpers.api_helpers import api_level_to_level_item
 
 router = APIRouter()
 
@@ -45,7 +45,7 @@ async def main(request: SonolusRequest, item_name: str):
     liked = response.data.liked
     like_count = response.data.like_count
     item_data, desc = await request.app.run_blocking(
-        api_level_to_level,
+        api_level_to_level_item,
         request,
         asset_base_url,
         response.data,

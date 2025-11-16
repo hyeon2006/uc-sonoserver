@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
-from typing import TypedDict, Optional
 
 from core import SonolusRequest
 from helpers.sonolus_typings import ItemType
@@ -23,7 +22,7 @@ async def main(
     comment_id: int,
     data: ServerSubmitCommentIDActionRequest,
 ):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     auth = request.headers.get("Sonolus-Session")
 
     parsed_data = data.parse()
@@ -37,9 +36,7 @@ async def main(
             detail=locale.not_logged_in,
         )
     
-    # parse data.values, www-form
-    type = parsed_data.type
-    if type not in ["delete"]:
+    if parsed_data.type not in ["delete"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=locale.not_found
         )
@@ -61,7 +58,7 @@ async def main(
                     json=NotificationRequest(
                         user_id=del_data.commenter,
                         title="Comment Deleted",
-                        content=f"#COMMENT_DELETED\n{data['content']}"
+                        content=f"#COMMENT_DELETED\n{del_data.content}"
                     ).model_dump(),
                 ) as req:
                     if req.status != 200:

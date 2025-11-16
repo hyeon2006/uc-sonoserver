@@ -6,10 +6,13 @@ from fastapi import HTTPException, status
 
 from core import SonolusRequest
 from helpers.data_compilers import compile_playlists_list
+from helpers.models.sonolus.options import ServerForm, ServerOption_Value, ServerSelectOption, ServerSliderOption, ServerTextOption, ServerToggleOption
+from helpers.models.sonolus.submit import ServerSubmitPlaylistActionRequest
 from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.response import ServerItemDetails
+from helpers.models.api.levels import LevelList
 from helpers.data_helpers import create_server_form, ServerFormOptionsFactory
-from helpers.api_helpers import api_level_to_level
+from helpers.api_helpers import api_level_to_level_item
 
 router = APIRouter()
 
@@ -19,540 +22,307 @@ from helpers.owoify import handle_item_uwu, handle_uwu
 import aiohttp
 
 @router.get("/")
-async def main(request: SonolusRequest, item_type: ItemType, item_name: str):
+async def main(request: SonolusRequest, item_name: str):
     locale: Loc = request.state.loc
     uwu_level = request.state.uwu
-    community = False
-    uwu_handled = False
-    item_data = None
     auth = request.headers.get("Sonolus-Session")
     actions = []
 
-    if item_type == "playlists":
-        session = request.headers.get("Sonolus-Session")
-        if not session:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=locale.not_logged_in
-            )
-        if item_name == "uploaded":
-            item_name = "uploaded_cGFnZT0x"  # page=1
-        parts = item_name.split("_", 1)
-        if parts[0] != "uploaded" or len(parts) != 2 or len(item_name) > 500:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="huh")
-        parsed = parse_qs(base64.b64decode(parts[1].encode()).decode())
-        flattened_data = {k: v[0] for k, v in parsed.items()}
-        headers = {request.app.auth_header: request.app.auth}
-        headers["authorization"] = auth
-        params = {
-            "type": "advanced",
-        }
-        sort_by = flattened_data.get("sort_by", "created_at")
-        allowed_sort_by = [
-            "created_at",
-            "rating",
-            "likes",
-            "comments",
-            "decaying_likes",
-            "abc",
-            "random",
-        ]
-        if sort_by not in allowed_sort_by:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid value for sort_by. Allowed values are: {', '.join(allowed_sort_by)}.",
-            )
-        params["sort_by"] = sort_by
-        page = flattened_data.get("page") if sort_by != "random" else 1
-        if page is not None:
-            if page.isdigit():
-                page = int(page)
-            if not isinstance(page, int) or page < 1:
-                raise HTTPException(
-                    status_code=400, detail="page must be a non-negative integer."
-                )
-            params["page"] = page - 1
-        else:
-            page = 1
-        staff_pick = flattened_data.get("staff_pick", "off")
-        if staff_pick not in ["off", "default", "true", "false"]:
-            raise HTTPException(status_code=400, detail="Invalid staff_pick.")
-        params["staff_pick"] = {"off": None, "true": True, "false": False}[
-            (
-                staff_pick
-                if staff_pick not in ["default", None]
-                else request.state.staff_pick
-            )
-        ]
-        min_rating = flattened_data.get("min_rating")
-        max_rating = flattened_data.get("max_rating")
-        if min_rating is not None:
-            if min_rating.isdigit():
-                min_rating = int(min_rating)
-            if not isinstance(min_rating, int):
-                raise HTTPException(
-                    status_code=400, detail="min_rating must be an integer."
-                )
-            params["min_rating"] = min_rating
-        if max_rating is not None:
-            if max_rating.isdigit():
-                max_rating = int(max_rating)
-            if not isinstance(max_rating, int):
-                raise HTTPException(
-                    status_code=400, detail="max_rating must be an integer."
-                )
-            params["max_rating"] = max_rating
-        if (
-            min_rating is not None
-            and max_rating is not None
-            and min_rating > max_rating
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail="min_rating cannot be greater than max_rating.",
-            )
-        tags = flattened_data.get("tags")
-        if tags is not None:
-            if not isinstance(tags, list):
-                raise HTTPException(
-                    status_code=400, detail="tags must be a list of strings."
-                )
-            for tag in tags:
-                if not isinstance(tag, str):
-                    raise HTTPException(
-                        status_code=400, detail="Each tag must be a string."
-                    )
-            params["tags"] = tags
-        min_likes = flattened_data.get("min_likes")
-        max_likes = flattened_data.get("max_likes")
-        if min_likes is not None:
-            if min_likes.isdigit():
-                min_likes = int(min_likes)
-            if not isinstance(min_likes, int):
-                raise HTTPException(
-                    status_code=400, detail="min_likes must be an integer."
-                )
-            params["min_likes"] = min_likes
-        if max_likes is not None:
-            if max_likes.isdigit():
-                max_likes = int(max_likes)
-            if not isinstance(max_likes, int):
-                raise HTTPException(
-                    status_code=400, detail="max_likes must be an integer."
-                )
-            params["max_likes"] = max_likes
-        if min_likes is not None and max_likes is not None and min_likes > max_likes:
-            raise HTTPException(
-                status_code=400,
-                detail="min_likes cannot be greater than max_likes.",
-            )
-        min_comments = flattened_data.get("min_comments")
-        max_comments = flattened_data.get("max_comments")
-        if min_comments is not None:
-            if min_comments.isdigit():
-                min_comments = int(min_comments)
-            if not isinstance(min_comments, int):
-                raise HTTPException(
-                    status_code=400, detail="min_comments must be an integer."
-                )
-            params["min_comments"] = min_comments
-        if max_comments is not None:
-            if max_comments.isdigit():
-                max_comments = int(max_comments)
-            if not isinstance(max_comments, int):
-                raise HTTPException(
-                    status_code=400, detail="max_comments must be an integer."
-                )
-            params["max_comments"] = max_comments
-        if (
-            min_comments is not None
-            and max_comments is not None
-            and min_comments > max_comments
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail="min_comments cannot be greater than max_comments.",
-            )
-        liked_by = flattened_data.get("liked_by", False)
-        if type(liked_by) == str and liked_by.isdigit():
-            liked_by = bool(liked_by)
-        if not isinstance(liked_by, bool):
-            raise HTTPException(status_code=400, detail="liked_by must be a boolean.")
-        params["liked_by"] = liked_by
-        commented_on = flattened_data.get("commented_on", False)
-        if type(commented_on) == str and commented_on.isdigit():
-            commented_on = bool(commented_on)
-        if not isinstance(commented_on, bool):
-            raise HTTPException(
-                status_code=400, detail="commented_on must be a boolean."
-            )
-        params["commented_on"] = commented_on
-        title_includes = flattened_data.get("title_includes")
-        if title_includes is not None:
-            if not isinstance(title_includes, str):
-                raise HTTPException(
-                    status_code=400, detail="title_includes must be a string."
-                )
-            params["title_includes"] = title_includes
-        description_includes = flattened_data.get("description_includes")
-        if description_includes is not None:
-            if not isinstance(description_includes, str):
-                raise HTTPException(
-                    status_code=400, detail="description_includes must be a string."
-                )
-            params["description_includes"] = description_includes
-        author_includes = flattened_data.get("author_includes")
-        if author_includes is not None:
-            if not isinstance(author_includes, str):
-                raise HTTPException(
-                    status_code=400, detail="author_includes must be a string."
-                )
-            params["author_includes"] = author_includes
-        artists_includes = flattened_data.get("artists_includes")
-        if artists_includes is not None:
-            if not isinstance(artists_includes, str):
-                raise HTTPException(
-                    status_code=400, detail="artists_includes must be a string."
-                )
-            params["artists_includes"] = artists_includes
-        sort_order = flattened_data.get("sort_order", "desc")
-        allowed_sort_order = ["desc", "asc"]
-        if sort_order not in allowed_sort_order:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid value for sort_order. Allowed values are: {', '.join(allowed_sort_order)}.",
-            )
-        params["sort_order"] = sort_order
-        level_status = flattened_data.get("status", "ALL")
-        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]:
-            raise HTTPException(status_code=400, detail="Invalid level_status.")
-        params["status"] = level_status
-        keywords = flattened_data.get("keywords")
-        if keywords is not None:
-            if not isinstance(keywords, str):
-                raise HTTPException(
-                    status_code=400, detail="keywords must be a string."
-                )
-            params["meta_includes"] = keywords
-        params = {k: v for k, v in params.items() if v is not None}
-
-        async with aiohttp.ClientSession(headers=headers) as cs:
-            async with cs.get(
-                request.app.api_config["url"] + f"/api/charts/",
-                params={
-                    k: (int(v) if isinstance(v, bool) else v)
-                    for k, v in params.items()
-                    if v is not None
-                },
-            ) as req:
-                response = await req.json()
-        asset_base_url = response["asset_base_url"].removesuffix("/")
-        levels = await asyncio.gather(
-            *[
-                request.app.run_blocking(
-                    api_level_to_level,
-                    request,
-                    asset_base_url,
-                    level,
-                    request.state.levelbg,
-                )
-                for level in response["data"]
-            ]
+    session = request.headers.get("Sonolus-Session")
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=locale.not_logged_in
         )
-        pageCount = response["pageCount"]
-        if sort_by == "random" and pageCount != 0 and len(response["data"]) == 10:
-            pageCount = (
-                page + 2
-            )  # always have one extra page, random will not run out and there may be duplicates
-            # only if pageCount isn't 0 of course, and the api actually returned a full list (so there likely is more)
-        if page > pageCount or page < 0:
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    locale.invalid_page_plural(page, pageCount)
-                    if pageCount != 1
-                    else locale.invalid_page_singular(page, pageCount)
-                ),
+    if item_name == "uploaded":
+        item_name = "uploaded_cGFnZT0x"  # page=1
+    parts = item_name.split("_", 1)
+    if parts[0] != "uploaded" or len(parts) != 2 or len(item_name) > 500:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="huh")
+    headers = {request.app.auth_header: request.app.auth}
+    headers["authorization"] = auth
+    action_request = ServerSubmitPlaylistActionRequest(parts[1]).parse(request)
+    params = action_request.model_dump()
+    params["type"] = "advanced"
+
+    page = action_request.page or 1
+
+    async with aiohttp.ClientSession(headers=headers) as cs:
+        async with cs.get(
+            request.app.api_config["url"] + f"/api/charts/",
+            params={
+                k: (int(v) if isinstance(v, bool) else v)
+                for k, v in params.items()
+                if v is not None
+            },
+        ) as req:
+            response = LevelList.model_validate(await req.json())
+    asset_base_url = response.asset_base_url.removesuffix("/")
+    levels = await asyncio.gather(
+        *[
+            request.app.run_blocking(
+                level.to_level_item,
+                request,
+                asset_base_url,
+                request.state.levelbg,
             )
-        elif pageCount == 0:
-            raise HTTPException(
-                status_code=400, detail=locale.items_not_found_search("uploaded")
+            for level in response.data
+        ]
+    )
+    pageCount = response.pageCount
+    if action_request.sort_by == "random" and pageCount != 0 and len(response.data) == 10:
+        pageCount = (
+            page + 2
+        )  # always have one extra page, random will not run out and there may be duplicates
+        # only if pageCount isn't 0 of course, and the api actually returned a full list (so there likely is more)
+    if page > pageCount or page < 0:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                locale.invalid_page_plural(page, pageCount)
+                if pageCount != 1
+                else locale.invalid_page_singular(page, pageCount)
+            ),
+        )
+    elif pageCount == 0:
+        raise HTTPException(
+            status_code=400, detail=locale.items_not_found_search("uploaded")
+        )
+    item_data = (
+        await request.app.run_blocking(
+            compile_playlists_list,
+            request.app.base_url,
+            request.state.localization,
+        )
+    )[0].model_copy()
+    item_data.name = (
+        f"uploaded_{base64.urlsafe_b64encode(parts[1].encode()).decode()}"
+    )
+    item_data.levels = levels
+    options = [
+        ServerSelectOption(
+            query="status",
+            name=locale.search.VISIBILITY,
+            required=False,
+            default=action_request.level_status,
+            values=[
+                ServerOption_Value(name="ALL", title=locale.search.VISIBILITY_ALL),
+                ServerOption_Value(name="PUBLIC_MINE", title=locale.search.VISIBILITY_PUBLIC),
+                ServerOption_Value(name="UNLISTED", title=locale.search.VISIBILITY_UNLISTED),
+                ServerOption_Value(name="PRIVATE", title=locale.search.VISIBILITY_PRIVATE),
+            ],
+        ),
+        ServerSelectOption(
+            query="staff_pick",
+            name=locale.staff_pick,
+            description=handle_uwu(
+                locale.search.STAFF_PICK_DESC, request.state.localization, uwu_level
+            ),
+            required=False,
+            default=action_request.staff_pick,
+            values=[
+                ServerOption_Value(name="default", title="#DEFAULT"),
+                ServerOption_Value(name="off", title=locale.search.STAFF_PICK_OFF),
+                ServerOption_Value(name="true", title=locale.search.STAFF_PICK_TRUE),
+                ServerOption_Value(name="false", title=locale.search.STAFF_PICK_FALSE),
+            ],
+        ),
+        ServerTextOption(
+            query="keywords",
+            name="#KEYWORDS",
+            required=False,
+            default=action_request.keywords or "",
+            placeholder=locale.search.ENTER_TEXT,
+            limit=100,
+            shortcuts=[],
+        ),
+        ServerSliderOption(
+            query="min_rating",
+            name=locale.search.MIN_RATING,
+            required=False,
+            default=action_request.min_rating or -999,
+            min=-999,
+            max=999,
+            step=1,
+        ),
+        ServerSliderOption(
+            query="max_rating",
+            name=locale.search.MAX_RATING,
+            required=False,
+            default=action_request.max_rating or 999,
+            min=-999,
+            max=999,
+            step=1,
+        ),
+        ServerTextOption(
+            query="title_includes",
+            name=locale.search.TITLE_CONTAINS,
+            required=False,
+            default=action_request.title_includes or "",
+            placeholder=locale.search.ENTER_TEXT,
+            limit=100,
+            shortcuts=[],            
+        ),
+        ServerTextOption(
+            query="author_includes",
+            name=locale.search.AUTHOR_CONTAINS,
+            required=False,
+            default=action_request.author_includes or "",
+            placeholder=locale.search.ENTER_TEXT,
+            limit=60,
+            shortcuts=[],
+        ),
+        ServerTextOption(
+            query="description_includes",
+            name=locale.search.DESCRIPTION_CONTAINS,
+            required=False,
+            default=action_request.description_includes or "",
+            placeholder=locale.search.ENTER_TEXT,
+            limit=200,
+            shortcuts=[],
+        ),
+        ServerTextOption(
+            query="artists_includes",
+            name=locale.search.ARTISTS_CONTAINS,
+            required=False,
+            default=action_request.artists_includes or "",
+            placeholder=locale.search.ENTER_TEXT,
+            limit=100,
+            shortcuts=[],
+        )
+    ]
+
+    if auth:
+        options.append(
+            ServerToggleOption(
+                query="liked_by",
+                name=locale.search.ONLY_LEVELS_I_LIKED,
+                required=False,
+                default=action_request.liked_by,
             )
-        item_data = (
-            await request.app.run_blocking(
-                compile_playlists_list,
-                request.app.base_url,
+        )
+
+        options.append(
+            ServerToggleOption(
+                query="commented_on",
+                name=locale.search.ONLY_LEVELS_I_COMMENTED_ON,
+                required=False,
+                default=action_request.commented_on,    
+            )
+        )
+
+    options.append(
+        ServerSliderOption(
+            query="min_likes",
+            name=locale.search.MIN_LIKES,
+            required=False,
+            default=action_request.min_likes or 0,
+            min=0,
+            max=9999,
+            step=1,
+        )
+    )
+    options.append(
+        ServerSliderOption(
+            query="max_likes",
+            name=locale.search.MAX_LIKES,
+            required=False,
+            default=action_request.max_likes or 9999,
+            min=0,
+            max=9999,
+            step=1,
+        )
+    )
+    options.append(
+        ServerSliderOption(
+            query="min_comments",
+            name=locale.search.MIN_COMMENTS,
+            required=False,
+            default=action_request.min_comments or 0,
+            min=0,
+            max=9999,
+            step=1,
+        )
+    )
+    options.append(
+        ServerSliderOption(
+            query="max_comments",
+            name=locale.search.MAX_COMMENTS,
+            required=False,
+            default=action_request.max_comments or 9999,
+            min=0,
+            max=9999,
+            step=1,
+        )
+    )
+    options.append(
+        ServerTextOption(
+            query="tags",
+            name=locale.search.TAGS_COMMA_SEPARATED,
+            required=False,
+            default=action_request.tags or "",
+            placeholder=locale.search.ENTER_TAGS,
+            limit=200,
+            shortcuts=[],
+        )
+    )
+    options.append(
+        ServerSelectOption(
+            query="sort_by",
+            name=locale.search.SORT_BY,
+            description=handle_uwu(
+                locale.search.SORT_BY_DESCRIPTION,
                 request.state.localization,
-            )
-        )[0].copy()
-        item_data["name"] = (
-            f"uploaded_{base64.urlsafe_b64encode(parts[1].encode()).decode()}"
+                uwu_level,
+            ),
+            required=False,
+            default=action_request.sort_by,
+            values=[
+                ServerOption_Value(name="created_at", title=locale.search.DATE_CREATED),
+                ServerOption_Value(name="random", title="#RANDOM"),
+                ServerOption_Value(name="rating", title=locale.search.RATING),
+                ServerOption_Value(name="likes", title=locale.search.LIKES),
+                ServerOption_Value(name="comments", title=locale.search.COMMENTS),
+                ServerOption_Value(name="decaying_likes", title=locale.search.DECAYING_LIKES),
+                ServerOption_Value(name="abc", title=locale.search.TITLE_A_Z),
+            ],
         )
-        item_data["levels"] = levels
-        options = []
-        options.append(
-            ServerFormOptionsFactory.server_select_option(
-                query="status",
-                name=locale.search.VISIBILITY,
-                required=False,
-                default=level_status or "ALL",
-                values=[
-                    {"name": "ALL", "title": locale.search.VISIBILITY_ALL},
-                    {
-                        "name": "PUBLIC_MINE",
-                        "title": locale.search.VISIBILITY_PUBLIC,
-                    },
-                    {
-                        "name": "UNLISTED",
-                        "title": locale.search.VISIBILITY_UNLISTED,
-                    },
-                    {"name": "PRIVATE", "title": locale.search.VISIBILITY_PRIVATE},
-                ],
-            )
+    )
+    options.append(
+        ServerSelectOption(
+            query="sort_order",
+            name=locale.search.SORT_ORDER,
+            required=False,
+            default=action_request.sort_order,
+            values=[
+                ServerOption_Value(name="desc", title=locale.search.DESCENDING),
+                ServerOption_Value(name="asc", title=locale.search.ASCENDING),
+            ],
         )
-        options.append(
-            ServerFormOptionsFactory.server_select_option(
-                query="staff_pick",
-                name=locale.staff_pick,
-                required=False,
-                default=staff_pick,
-                description=handle_uwu(
-                    locale.search.STAFF_PICK_DESC, request.state.localization, uwu_level
-                ),
-                values=[
-                    {"name": "default", "title": "#DEFAULT"},
-                    {"name": "off", "title": locale.search.STAFF_PICK_OFF},
-                    {"name": "true", "title": locale.search.STAFF_PICK_TRUE},
-                    {"name": "false", "title": locale.search.STAFF_PICK_FALSE},
-                ],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="keywords",
-                name="#KEYWORDS",
-                required=False,
-                default=keywords or "",
-                placeholder=locale.search.ENTER_TEXT,
-                limit=100,
-                shortcuts=[],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="min_rating",
-                name=locale.search.MIN_RATING,
-                required=False,
-                default=min_rating or -999,
-                min_value=-999,
-                max_value=999,
-                step=1,
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="max_rating",
-                name=locale.search.MAX_RATING,
-                required=False,
-                default=max_rating or 999,
-                min_value=-999,
-                max_value=999,
-                step=1,
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="title_includes",
-                name=locale.search.TITLE_CONTAINS,
-                required=False,
-                default=title_includes or "",
-                placeholder=locale.search.ENTER_TEXT,
-                limit=100,
-                shortcuts=[],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="author_includes",
-                name=locale.search.AUTHOR_CONTAINS,
-                required=False,
-                default=author_includes or "",
-                placeholder=locale.search.ENTER_TEXT,
-                limit=60,
-                shortcuts=[],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="description_includes",
-                name=locale.search.DESCRIPTION_CONTAINS,
-                required=False,
-                default=description_includes or "",
-                placeholder=locale.search.ENTER_TEXT,
-                limit=200,
-                shortcuts=[],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="artists_includes",
-                name=locale.search.ARTISTS_CONTAINS,
-                required=False,
-                default=artists_includes or "",
-                placeholder=locale.search.ENTER_TEXT,
-                limit=100,
-                shortcuts=[],
-            )
-        )
-        if auth:
-            options.append(
-                ServerFormOptionsFactory.server_toggle_option(
-                    query="liked_by",
-                    name=locale.search.ONLY_LEVELS_I_LIKED,
+    )
+    actions.append(
+        ServerForm(
+            type="filter",
+            title=locale.search.FILTERS(page, pageCount),
+            requireConfirmation=False,
+            options=[
+                ServerSliderOption(
+                    query="page",
+                    name="Page",
+                    default=page,
+                    min=1,
+                    max=pageCount,
+                    step=1,
                     required=False,
-                    default=liked_by,
                 )
-            )
-            options.append(
-                ServerFormOptionsFactory.server_toggle_option(
-                    query="commented_on",
-                    name=locale.search.ONLY_LEVELS_I_COMMENTED_ON,
-                    required=False,
-                    default=commented_on,
-                )
-            )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="min_likes",
-                name=locale.search.MIN_LIKES,
-                required=False,
-                default=min_likes or 0,
-                min_value=0,
-                max_value=9999,
-                step=1,
-            )
+            ]
+            + options,
         )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="max_likes",
-                name=locale.search.MAX_LIKES,
-                required=False,
-                default=max_likes or 9999,
-                min_value=0,
-                max_value=9999,
-                step=1,
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="min_comments",
-                name=locale.search.MIN_COMMENTS,
-                required=False,
-                default=min_comments or 0,
-                min_value=0,
-                max_value=9999,
-                step=1,
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_slider_option(
-                query="max_comments",
-                name=locale.search.MAX_COMMENTS,
-                required=False,
-                default=max_comments or 9999,
-                min_value=0,
-                max_value=9999,
-                step=1,
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_text_option(
-                query="tags",
-                name=locale.search.TAGS_COMMA_SEPARATED,
-                required=False,
-                default=tags or "",
-                placeholder=locale.search.ENTER_TAGS,
-                limit=200,
-                shortcuts=[],
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_select_option(
-                query="sort_by",
-                name=locale.search.SORT_BY,
-                required=False,
-                default=sort_by or "created_at",
-                values=[
-                    {"name": "created_at", "title": locale.search.DATE_CREATED},
-                    {"name": "random", "title": "#RANDOM"},
-                    {"name": "rating", "title": locale.search.RATING},
-                    {"name": "likes", "title": locale.search.LIKES},
-                    {"name": "comments", "title": locale.search.COMMENTS},
-                    {
-                        "name": "decaying_likes",
-                        "title": locale.search.DECAYING_LIKES,
-                    },
-                    {"name": "abc", "title": locale.search.TITLE_A_Z},
-                ],
-                description=handle_uwu(
-                    locale.search.SORT_BY_DESCRIPTION,
-                    request.state.localization,
-                    uwu_level,
-                ),
-            )
-        )
-        options.append(
-            ServerFormOptionsFactory.server_select_option(
-                query="sort_order",
-                name=locale.search.SORT_ORDER,
-                required=False,
-                default=sort_order or "desc",
-                values=[
-                    {"name": "desc", "title": locale.search.DESCENDING},
-                    {"name": "asc", "title": locale.search.ASCENDING},
-                ],
-            )
-        )
-        actions.append(
-            create_server_form(
-                type="filter",
-                title=locale.search.FILTERS(page, pageCount),
-                require_confirmation=False,
-                options=[
-                    ServerFormOptionsFactory.server_slider_option(
-                        query="page",
-                        name="Page",
-                        default=page,
-                        min_value=1,
-                        max_value=pageCount,
-                        step=1,
-                        required=False,
-                    )
-                ]
-                + options,
-            )
-        )
-   
-    if not item_data:
-        item_data = next((i for i in data if i["name"] == item_name), None)
-        if not item_data:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=locale.item_not_found(
-                    item_type.capitalize().removesuffix("s"), item_name
-                ),
-            )
+    )
 
-    if uwu_handled:
-        data = item_data
-    else:
-        data = handle_item_uwu([item_data], request.state.localization, uwu_level)[0]
-    detail: ServerItemDetails = {
-        "item": data,
-        "actions": actions,
-        "hasCommunity": community,
-        "leaderboards": [],
-        "sections": [],
-    }
-    if data.get("description"):
-        detail["description"] = data["description"]
-    return detail
+    return ServerItemDetails(
+        item=handle_item_uwu([item_data], request.state.localization, uwu_level)[0],
+        actions=actions,
+        hasCommunity=False,
+        leaderboards=[],
+        sections=[]
+    )

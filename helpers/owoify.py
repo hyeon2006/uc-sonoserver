@@ -1,4 +1,6 @@
 import collections.abc, random, re
+from helpers.models.sonolus.item import *
+from typing import TypeVar
 
 # TODO: figure out for russian
 
@@ -639,31 +641,47 @@ def uvuify(source: str, locale: str = "en") -> str:
 
 
 def handle_uwu(source: str, locale: str, uwu_level: str, symbols: bool = True) -> str:
-    if uwu_level == "off":
-        return source
-    elif uwu_level == "owo":
-        return owoify(source, locale=locale, symbols=symbols)
-    elif uwu_level == "uwu":
-        return owoify(source, level=1, locale=locale, symbols=symbols)
-    elif uwu_level == "uvu":
-        return owoify(source, level=2, locale=locale, symbols=symbols)
+    match uwu_level:
+        case "owo":
+            return owoify(source, locale=locale, symbols=symbols)
+        case "uwu":
+            return owoify(source, level=1, locale=locale, symbols=symbols)
+        case "uvu":
+            return owoify(source, level=2, locale=locale, symbols=symbols)
+        
     return source
 
-# TODO: typevars or something
+T = TypeVar("T",     
+    PostItem,
+    RoomItem,
+    SkinItem,
+    BackgroundItem,
+    ParticleItem,
+    EffectItem,
+    RoomItem,
+    PlaylistItem,
+    ReplayItem,
+    LevelItem,
+    EngineItem
+)
 
-def handle_item_uwu(source_items: list, locale: str, uwu_level: str) -> list:
+def handle_item_uwu(source_items: list[T], locale: str, uwu_level: str) -> list[T]:
     returned = []
     for item in source_items:
-        item = item.copy()
+        item = item.model_copy()
         include_symbols = ["title", "subtitle", "description"]
         always_assume_en = ["title", "subtitle", "description"]
         for key in ["title", "author", "subtitle", "description"]:
-            if key in item:
-                item[key] = handle_uwu(
-                    item[key],
-                    locale if locale not in always_assume_en else "en",
-                    uwu_level,
-                    symbols=key in include_symbols,
+            if hasattr(item, key) and getattr(item, key):
+                setattr(
+                    item, 
+                    key, 
+                    handle_uwu(
+                        item[key],
+                        locale if locale not in always_assume_en else "en",
+                        uwu_level,
+                        symbols=key in include_symbols,
+                    )
                 )
         returned.append(item)
     return returned

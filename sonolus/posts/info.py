@@ -1,6 +1,5 @@
 import asyncio
 
-from typing import List
 
 from fastapi import APIRouter, Request
 from fastapi import HTTPException, status
@@ -38,7 +37,7 @@ async def main(request: SonolusRequest, item_type: ItemType):
             compile_static_posts_list, request.app.base_url
         )
         data = sort_posts_by_newest(data)
-        sections: List[PostItemSection] = [
+        sections: list[PostItemSection] = [
             PostItemSection(
                 title="#NEWEST",
                 icon="post",

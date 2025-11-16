@@ -15,8 +15,6 @@ from helpers.data_helpers import (
     ServerFormOptionsFactory,
 )
 
-from typing import List
-
 from locales.locale import Loc
 from helpers.owoify import handle_uwu
 
@@ -216,7 +214,7 @@ async def main(request: SonolusRequest):
         desc = locale.server_description or request.app.config["description"]
         desc += "\n\n" + ("-" * 40) + "\n"
         desc += "\n" + locale.not_logged_in
-    buttons: List[ServerInfoButton] = [{"type": button} for button in button_list]
+    buttons: list[ServerInfoButton] = [{"type": button} for button in button_list]
     data = {
         "title": request.app.config["name"],
         "description": handle_uwu(

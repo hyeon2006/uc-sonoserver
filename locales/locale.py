@@ -1,5 +1,4 @@
 import json
-from typing import Dict, Tuple
 
 class Loc:
     class Playlist:
@@ -318,7 +317,8 @@ class Loc:
         @property
         def SORT_BY_DESCRIPTION(self) -> str:
             """
-            Sort by options.\nNote: Title is sorted from A-Z when descending.
+            Sort by options.
+            Note: Title is sorted from A-Z when descending.
             """
             return self._get("SORT_BY_DESCRIPTION")
 
@@ -586,13 +586,17 @@ class Loc:
 
     def notifications_singular(self, num: int) -> str:
         """
-        You have {num} new notification!\nSystem notifications can be found in \"Posts\".\nPlease read them to continue to the server.
+        You have {num} new notification!
+        System notifications can be found in \"Posts\".
+        Please read them to continue to the server.
         """
         return self._get("notifications_singular").format(num=f"{num:,}")
 
     def notifications_plural(self, num: int) -> str:
         """
-        You have {num} new notifications!\nSystem notifications can be found in \"Posts\".\nPlease read them to continue to the server.
+        You have {num} new notifications!
+        System notifications can be found in \"Posts\".
+        Please read them to continue to the server.
         """
         return self._get("notifications_plural").format(num=f"{num:,}")
 
@@ -781,7 +785,9 @@ class Loc:
     @property
     def default_skin_desc(self) -> str:
         """
-        Choose the default skin type to use! The skin will be different depending on the engine (eg. V1 skin is slightly different on Rush compared to Next), but will apply to all engines.\n\nNOTE: if an engine does not have the supported skin, it'll use the engine default.
+        Choose the default skin type to use! The skin will be different depending on the engine (eg. V1 skin is slightly different on Rush compared to Next), but will apply to all engines.
+        
+        NOTE: if an engine does not have the supported skin, it'll use the engine default.
         """
         return self._get("default_skin_desc")
 
@@ -866,7 +872,7 @@ class Loc:
 class LocaleManager:
     def __init__(self, default_locale: str):
         self.default_locale = default_locale
-        self.locales: Dict[str, Loc] = {}
+        self.locales: dict[str, Loc] = {}
 
         self._default_locale = None
         self._default_locale = self.load_locale("en", overwrite_default={})
@@ -915,7 +921,7 @@ class LocaleManager:
         if locale not in supported:
             raise AssertionError(f"Locale '{locale}' is not supported.")
 
-    def get_messages(self, locale: str) -> Tuple[Loc, str]:
+    def get_messages(self, locale: str) -> tuple[Loc, str]:
         if locale == "zhs":
             locale = "zh-cn"
         elif locale == "zht":

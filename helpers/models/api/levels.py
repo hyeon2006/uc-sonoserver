@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
-from typing import Literal, TypeVar
+from typing import Literal, TypeVar, overload
 from pydantic import BaseModel, Field
 
 from helpers.data_compilers import *
 from helpers.models.sonolus.item import LevelItem, UseItem
 from helpers.models.sonolus.misc import Tag
 from helpers.owoify import handle_uwu
+from core import SonolusRequest
 
 
 M = TypeVar("M", bound=BaseModel)
@@ -108,15 +109,37 @@ class Chart(BaseModel):
         
         return "0s"
 
-    def to_level(
+    @overload
+    def to_level_item(
         self, 
-        request, 
+        request: SonolusRequest, 
+        asset_base_url: str, 
+        bgtype: str, 
+        include_description: Literal[False] = False, 
+        disable_replace_missing_preview: bool = False,
+        context: Literal["list", "level"] = "list"
+    ) -> LevelItem: ...
+
+    @overload
+    def to_level_item(
+        self, 
+        request: SonolusRequest, 
+        asset_base_url: str, 
+        bgtype: str, 
+        include_description: Literal[True], 
+        disable_replace_missing_preview=False,
+        context: Literal["list", "level"] = "list"
+    ) -> tuple[LevelItem, str]: ...
+
+    def to_level_item(
+        self, 
+        request: SonolusRequest, 
         asset_base_url: str, 
         bgtype: str, 
         include_description=False, 
         disable_replace_missing_preview=False,
         context: Literal["list", "level"] = "list"
-    ) -> tuple[LevelItem, str | None]:
+    ):
         loc = request.state.loc
 
         default = bgtype.startswith("default_or_")
@@ -213,7 +236,7 @@ class Chart(BaseModel):
                 icon="trophy"
             ))
 
-        return LevelItem(
+        item = LevelItem(
             name=f"UnCh-{self.id}",
             source=request.app.base_url,
             rating=self.rating,
@@ -252,7 +275,12 @@ class Chart(BaseModel):
                 hash=self.chart_file_hash,
                 url=self._make_url(asset_base_url, self.chart_file_hash)
             )
-        ), (self.description if include_description else None)
+        )
+
+        if include_description:
+            return item, self.description
+        
+        return item
 
 
 class GetChartResponse(BaseModel):
