@@ -5,11 +5,8 @@ from fastapi import HTTPException, status
 
 from typing import Literal
 
-import aiohttp
-
 from core import SonolusRequest
-from helpers.api_helpers import api_level_to_level_item
-from helpers.models.api.levels import LevelList
+from helpers.models.sonolus.response import ServerItemList
 
 router = APIRouter()
 
@@ -55,67 +52,52 @@ async def main(
 ):
     locale = request.state.loc
     uwu_level = request.state.uwu
-    searching = False
     auth = request.headers.get("Sonolus-Session")
 
     if type == "quick":
-        params = {
-            "type": type,
-            "page": page,
-            "meta_includes": keywords,
-            "sort_by": "published_at",
-            "staff_pick": {"off": None, "true": True, "false": False}[
+        response = await request.app.api.charts_quick_search(
+            page=page,
+            meta_includes=keywords,
+            sort_by="published_at",
+            staff_pick={"off": None, "true": True, "false": False}[
                 (
                     staff_pick
                     if staff_pick not in ["default", None]
                     else request.state.staff_pick
                 )
-            ],
-        }
+            ]
+        ).send(auth)
     else:
-        params = {
-            "type": type,
-            "page": page if sort_by != "random" else 1,
-            "staff_pick": {"off": None, "true": True, "false": False}[
+        response = await request.app.api.charts_advanced_search(
+            page=page,
+            staff_pick={"off": None, "true": True, "false": False}[
                 (
                     staff_pick
                     if staff_pick not in ["default", None]
                     else request.state.staff_pick
                 )
             ],
-            "min_rating": min_rating,
-            "max_rating": max_rating,
-            "status": level_status,
-            "tags": [tag.strip() for tag in tags] if tags else [],
-            "min_likes": min_likes,
-            "max_likes": max_likes,
-            "min_comments": min_comments,
-            "max_comments": max_comments,
-            "liked_by": liked_by,
-            "commented_on": commented_on,
-            "title_includes": title_includes,
-            "description_includes": description_includes,
-            "author_includes": author_includes,
-            "artists_includes": artists_includes,
-            "sort_by": sort_by,
-            "sort_order": sort_order,
-            "meta_includes": keywords,
-        }
-    headers = {request.app.auth_header: request.app.auth}
-    if auth:
-        headers["authorization"] = auth
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.get(
-            request.app.api_config["url"] + "/api/charts/",
-            params={
-                k: (int(v) if isinstance(v, bool) else v)
-                for k, v in params.items()
-                if v is not None
-            },
-        ) as req:
-            response = LevelList.model_validate(await req.json()) # await req.json()
+            min_rating=min_rating,
+            max_rating=max_rating,
+            status=level_status,
+            tags=[tag.strip() for tag in tags.split(",")] if tags else None,
+            min_likes=min_likes,
+            max_likes=max_likes,
+            min_comments=min_comments,
+            max_comments=max_comments,
+            liked_by=liked_by,
+            commented_on=commented_on,
+            title_includes=title_includes,
+            description_includes=description_includes,
+            author_includes=author_includes,
+            artists_includes=artists_includes,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            meta_includes=keywords
+        ).send(auth)
+
     pageCount = response.pageCount
-    if sort_by == "random" and pageCount != 0 and len(response.data) == 10:
+    if sort_by == "random" and pageCount != 0 and len(response.data.data) == 10:
         pageCount = (
             page + 2
         )  # always have one extra page, random will not run out and there may be duplicates
@@ -133,7 +115,7 @@ async def main(
         raise HTTPException(
             status_code=400, detail=locale.items_not_found_search("level")
         )
-    asset_base_url = response.asset_base_url.removesuffix("/")
+    asset_base_url = response.data.asset_base_url.removesuffix("/")
     data = await asyncio.gather(
         *[
             request.app.run_blocking(
@@ -142,21 +124,18 @@ async def main(
                 asset_base_url,
                 request.state.levelbg,
             )
-            for item in response.data
+            for item in response.data.data
         ]
     )
     num_pages = pageCount
     if len(data) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                locale.items_not_found("level")
-                if not searching
-                else locale.items_not_found_search("level")
-            ),
+            detail=locale.items_not_found("level"),
         )
     page_data = handle_item_uwu(data, request.state.localization, uwu_level)
-    return {
-        "pageCount": num_pages,
-        "items": page_data,
-    }
+
+    return ServerItemList(
+        pageCount=num_pages,
+        items=page_data
+    )

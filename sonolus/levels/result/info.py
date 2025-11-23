@@ -1,13 +1,9 @@
-from fastapi import APIRouter, Request
-from fastapi import HTTPException, status
-from helpers.sonolus_typings import ItemType
+from fastapi import APIRouter
 
 router = APIRouter()
 
-from locales.locale import Loc
-
 @router.get("/")
-async def main(): # TODO
+async def main(): # TODO (sonoserv)
     submit_form = {
         "type": "replay",
         "title": "#REPLAY",

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Query
+from fastapi import APIRouter, Query
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
@@ -17,7 +17,6 @@ from helpers.models.sonolus.response import ServerItemList
 
 router = APIRouter()
 
-from locales.locale import Loc
 from helpers.owoify import handle_item_uwu
 
 type_func = type
@@ -29,9 +28,8 @@ async def main(
     item_type: ItemType,
     page: int = Query(0, ge=0),
 ):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     uwu_level = request.state.uwu
-    searching = False
 
     match item_type:
         case "engines":
@@ -71,11 +69,7 @@ async def main(
     if len(pages) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                locale.items_not_found(item_type)
-                if not searching
-                else locale.items_not_found_search(item_type)
-            ),
+            detail=locale.items_not_found(item_type),
         )
     
     try:

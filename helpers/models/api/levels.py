@@ -187,7 +187,7 @@ class Chart(BaseModel):
                         request.state.localization
                     )
                 )
-            except: # handles if an engine does not have a correctly-themed skin, KeyError | TODO check if it can be "except KeyError"
+            except KeyError: # handles if an engine does not have a correctly-themed skin
                 skin_option = UseItem(useDefault=True)
 
         if request.state.particle == "engine_default":
@@ -198,7 +198,7 @@ class Chart(BaseModel):
                     useDefault=False,
                     item=self._get_cached_particle(request.app.base_url, request.state.particle)
                 )
-            except: # same TODO here
+            except KeyError:
                 particle_option = UseItem(useDefault=True)
 
         time_str = self._datetime_to_str(self.published_at or self.created_at)
@@ -287,7 +287,7 @@ class GetChartResponse(BaseModel):
     data: Chart
     asset_base_url: str
     mod: bool | None = None
-    admin: bool | None = None # TODO: Make optional fields non-optional (backend)
+    admin: bool | None = None # TODO (backend): Make optional fields non-optional
     owner: bool
 
 class DeleteChartResponse(Chart):
@@ -298,7 +298,11 @@ class VisibilityChangeResponse(Chart):
     mod: bool | None = None
     owner: bool | None = None
 
-class LevelList(BaseModel):
-    pageCount: int | None = None # TODO: split level lists into different routes (backend)
+class _BaseLevelList(BaseModel): # TODO (backend): split level lists into different routes
     data: list[Chart]
     asset_base_url: str
+
+class RandomLevelList(_BaseLevelList): ...
+
+class LevelList(_BaseLevelList):
+    pageCount: int 

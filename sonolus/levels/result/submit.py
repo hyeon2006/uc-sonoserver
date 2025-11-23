@@ -1,14 +1,10 @@
-from fastapi import APIRouter, Request
-from fastapi import HTTPException, status
+from fastapi import APIRouter
+from fastapi import HTTPException
 from core import SonolusRequest
-from helpers.sonolus_typings import ItemType
-from helpers.models.sonolus.item import ReplayItem
 import aiohttp
 import json
 
 router = APIRouter()
-
-from locales.locale import Loc
 
 # class ServerSubmitLevelResultRequest(BaseModel):
 #     replay: ReplayItem
@@ -18,23 +14,18 @@ from locales.locale import Loc
 #     key: str
 #     hashes: list[str]
 
-# TODO
+# TODO (sonoserv)
 
 @router.post("/")
-async def main(request: SonolusRequest, item_type: ItemType, data: ServerSubmitLevelResultRequest):
-    locale: Loc = request.state.loc
-
-    if item_type != "levels":
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=locale.item_type_not_found(item_type)
-        )
+async def main(request: SonolusRequest, data: ServerSubmitLevelResultRequest):
+    locale = request.state.loc
     
     auth = request.headers.get("Sonolus-Session")
 
-    async with aiohttp.ClientSession(headers=({"authorization": auth} if auth else None)) as session: # TODO: shared ClientSession
+    async with aiohttp.ClientSession(headers=({"authorization": auth} if auth else None)) as session:
         async with session.get(
             request.app.api_config["url"]
-            + f"/api/accounts/generate_upload_token/",
+            + f"/api/accounts/generate_upload_token/", # this needs to go
             params={"hashes": json.dumps({
                 "data": data.replay
             })}

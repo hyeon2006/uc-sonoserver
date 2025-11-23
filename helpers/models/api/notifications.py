@@ -1,24 +1,18 @@
 from datetime import datetime
 from pydantic import BaseModel
+from core import SonolusRequest
 from helpers.models.sonolus.item import PostItem
 from helpers.models.sonolus.misc import Tag
-from locales.locale import Loc
-
-class NotificationRequest(BaseModel):
-    user_id: str | None = None
-    chart_id: str | None = None
-    title: str
-    content: str | None = None
 
 class _BaseNotification(BaseModel):
     id: int
     title: str
     is_read: bool = False
     created_at: datetime = None
-    timestamp: int # TODO: remove timestamp (need to check frontend tho)
+    timestamp: int # TODO (backend): remove timestamp (need to check frontend tho)
 
-    def to_post(self, request) -> PostItem:
-        loc: Loc = request.state.loc
+    def to_post(self, request: SonolusRequest) -> PostItem:
+        loc = request.state.loc
         
         return PostItem(
             name=f"notification-{self.id}",
@@ -49,9 +43,9 @@ class Notification(_BaseNotification):
     content: str
 
 
-    def to_post(self, request) -> tuple[PostItem, str]:
+    def to_post(self, request: SonolusRequest) -> tuple[PostItem, str]:
         post = super().to_post(request)
-        loc: Loc = request.state.loc
+        loc = request.state.loc
 
         content_parts = self.content.splitlines()
         if content_parts[0].startswith("#"):

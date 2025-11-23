@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field
 
 from helpers.models.sonolus.item import ServerItem, ServerItemCommunityComment
 from helpers.models.sonolus.item_section import ServerItemSection
-from helpers.models.sonolus.misc import SRL, ServerItemLeaderboard
-from helpers.models.sonolus.options import ServerForm
+from helpers.models.sonolus.misc import SRL, ServerItemLeaderboard, ServerInfoButton, ServerConfiguration
+from helpers.models.sonolus.options import ServerForm, ServerOption
 
 
 class ServerItemCommunityCommentList(BaseModel):
@@ -50,3 +50,17 @@ class ServerItemList(BaseModel):
     cursor: str | None = None
     items: list[ServerItem]
     searches: list[ServerForm] | None = None
+
+class ServerConfiguration(BaseModel):
+    options: list[ServerOption]
+
+class ServerInfo(BaseModel):
+    title: str
+    description: str | None = None
+    buttons: list[ServerInfoButton]
+    configuration: ServerConfiguration
+    banner: SRL | None
+
+class ServerAuthenticateResponse(BaseModel):
+    session: str
+    expiration: int | float

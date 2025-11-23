@@ -1,64 +1,44 @@
-from fastapi import APIRouter, Request
-from fastapi import HTTPException, status
+from fastapi import APIRouter
 
 from core import SonolusRequest
 from helpers.models.sonolus.response import ServerItemDetails
-from helpers.models.sonolus.options import ServerForm, ServerSelectOption, ServerTextOption, ServerToggleOption
-from helpers.models.api.levels import GetChartResponse
+from helpers.models.sonolus.options import ServerForm, ServerOption_Value, ServerSelectOption, ServerTextOption, ServerToggleOption
 from helpers.models.sonolus.item import LevelItem
-from helpers.data_helpers import create_server_form, ServerFormOptionsFactory
-from helpers.api_helpers import api_level_to_level_item
 
 router = APIRouter()
 
-from locales.locale import Loc
 from helpers.owoify import handle_item_uwu
-
-import aiohttp
 
 
 @router.get("/", response_model=ServerItemDetails)
 async def main(request: SonolusRequest, item_name: str):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     uwu_level = request.state.uwu
     uwu_handled = False
     item_data: LevelItem = None
     auth = request.headers.get("Sonolus-Session")
     actions = []
     
-    headers = {request.app.auth_header: request.app.auth}
-    if auth:
-        headers["authorization"] = auth
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.get(
-            request.app.api_config["url"]
-            + f"/api/charts/{item_name.removeprefix('UnCh-')}/"
-        ) as req:
-            data = await req.json()
-            if req.status != 200:
-                raise HTTPException(
-                    status_code=req.status, detail=response["detail"]
-                )
-            response = GetChartResponse.model_validate_json(await req.json())
+    response = await request.app.api.get_chart(item_name).send(auth)
 
     asset_base_url = response.asset_base_url.removesuffix("/")
-    liked = response.data.liked
-    like_count = response.data.like_count
+    liked = response.data.data.liked
+    like_count = response.data.data.like_count
     item_data, desc = await request.app.run_blocking(
-        api_level_to_level_item,
+        response.data.data.to_level_item,
         request,
         asset_base_url,
-        response.data,
         request.state.levelbg,
         include_description=True,
         context="level",
     )
+
     if auth:
         if liked:
             actions.append(
                 ServerForm(
                     type="unlike",
-                    title=f"Unlike ({like_count:,})", # XXX shouldn't it be localised?
+                    title=f"Unlike ({like_count:,})", # XXX shouldn't it be localized?
                     icon="heart",
                     requireConfirmation=False,
                     options=[]
@@ -85,6 +65,7 @@ async def main(request: SonolusRequest, item_name: str):
                     options=[]
                 )
             )
+
         VISIBILITIES = {
             "PUBLIC": {"title": "#PUBLIC", "icon": "globe"},
             "PRIVATE": {"title": "#PRIVATE", "icon": "lock"},
@@ -93,10 +74,10 @@ async def main(request: SonolusRequest, item_name: str):
                 "icon": "unlock", # XXX maybe "hide" would be better
             },
         }
-        current = response["data"]["status"]
+        current = response.data.data.status
         visibility_values = []
         for s, meta in VISIBILITIES.items():
-            visibility_values.append({"name": s, "title": meta["title"]})
+            visibility_values.append(ServerOption_Value(name=s, title=meta["title"]))
 
         actions.append(ServerForm(
             type="visibility",
@@ -113,7 +94,7 @@ async def main(request: SonolusRequest, item_name: str):
                 )
             ]
         ))
-        if response.mod:
+        if response.data.mod:
             actions.append(
                 ServerForm(
                     type="rerate",
@@ -126,15 +107,15 @@ async def main(request: SonolusRequest, item_name: str):
                             name="#RATING",
                             required=True,
                             default="",
-                            placeholder=str(response.data.rating),
+                            placeholder=str(response.data.data.rating),
                             description=locale.rerate_desc,
-                            shortcuts=[str(response.data.rating)],
+                            shortcuts=[str(response.data.data.rating)],
                             limit=9 # -999.1234, 9 max possible characters
                         )
                     ]
                 )
             )
-            if response.data.staff_pick:
+            if response.data.data.staff_pick:
                 actions.append(
                     ServerForm(
                         type="staff_pick_delete",
@@ -182,6 +163,6 @@ async def main(request: SonolusRequest, item_name: str):
         description=desc,
         actions=actions,
         hasCommunity=True,
-        leaderboards=[], # TODO
+        leaderboards=[], # TODO (sonoserv)
         sections=[]
     )

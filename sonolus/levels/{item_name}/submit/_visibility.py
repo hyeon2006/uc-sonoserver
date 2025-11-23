@@ -1,40 +1,32 @@
 from fastapi import HTTPException
-from helpers.models.api.notifications import NotificationRequest
-from helpers.models.api.levels import VisibilityChangeResponse
+from core import SonolusRequest
 from helpers.models.sonolus.response import ServerSubmitItemActionResponse
 from locales.locale import Loc
 from typing import Literal
-import aiohttp
 
-async def visibility(headers: dict, request, item_name: str, visibility: Literal["UNLISTED", "PRIVATE", "PUBLIC"], locale: Loc) -> ServerSubmitItemActionResponse:
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.patch(
-            request.app.api_config["url"]
-            + f"/api/charts/{item_name.removeprefix('UnCh-')}/visibility/",
-            json={"status": visibility},
-        ) as req:
-            if req.status != 200:
-                raise HTTPException(
-                    status_code=req.status, detail=locale.not_mod_or_owner
-                )
-            data = VisibilityChangeResponse.model_validate(await req.json())
-        if (
-            visibility != "PUBLIC"
-            and data.mod
-            and not data.owner
-        ):
-            async with cs.post(
-                request.app.api_config["url"] + f"/api/accounts/notifications/",
-                json=NotificationRequest(
-                    user_id=data.author,
-                    title="Chart Visibility Update",
-                    content=f"#CHART_VISIBILITY_CHANGED\n{visibility}\n{data.title}"
-                )
-            ) as req:
-                if req.status != 200:
-                    raise HTTPException(
-                        status_code=req.status, detail=locale.not_mod
-                    )
+async def visibility(auth: str, request: SonolusRequest, item_name: str, visibility: Literal["UNLISTED", "PRIVATE", "PUBLIC"], locale: Loc) -> ServerSubmitItemActionResponse:
+    change_visibility_response = await request.app.api.change_chart_visibility(item_name, visibility).send(auth)
+
+    if change_visibility_response.status != 200:
+        raise HTTPException(
+            status_code=change_visibility_response.status, detail=locale.not_mod_or_owner
+        )
+        
+    if (
+        visibility != "PUBLIC"
+        and change_visibility_response.data.mod
+        and not change_visibility_response.data.owner
+    ):
+        send_notification_response = await request.app.api.send_notification(
+            title="Chart Visibility Update",
+            user_id=change_visibility_response.data.author,
+            content=f"#CHART_VISIBILITY_CHANGED\n{visibility}\n{change_visibility_response.data.title}"
+        ).send(auth)
+
+        if send_notification_response.status != 200:
+            raise HTTPException(
+                status_code=send_notification_response.status, detail=locale.not_mod
+            )
                 
     return ServerSubmitItemActionResponse(
         key="",

@@ -1,7 +1,4 @@
-import base64, asyncio
-
-from urllib.parse import parse_qs
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
@@ -20,12 +17,10 @@ from helpers.models.sonolus.item import ServerItem
 
 router = APIRouter()
 
-from locales.locale import Loc
-
 
 @router.get("/")
 async def main(request: SonolusRequest, item_type: ItemType, item_name: str):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     item_data: ServerItem = None
 
     match item_type:

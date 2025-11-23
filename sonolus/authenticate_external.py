@@ -1,10 +1,9 @@
 import base64
 import hashlib
 
-import aiohttp
 from ecdsa import VerifyingKey, NIST256p, ellipticcurve
 from ecdsa.util import string_to_number, sigdecode_string
-from fastapi import APIRouter, Request, status, HTTPException
+from fastapi import APIRouter, status, HTTPException
 
 from core import SonolusRequest
 from helpers.models.sonolus.account import ServerAuthenticateExternalRequest
@@ -59,7 +58,7 @@ async def main(request: SonolusRequest, data: ServerAuthenticateExternalRequest)
     signature = request.headers.get("Sonolus-Signature")
     if signature is None:
         raise HTTPException(status_code=400, detail="Missing Sonolus-Signature header")
-    public_key: VerifyingKey = (
+    public_key = (
         request.app.sono_pub_key if hasattr(request.app, "sono_pub_key") else None
     )
     if not public_key:
@@ -102,17 +101,11 @@ async def main(request: SonolusRequest, data: ServerAuthenticateExternalRequest)
             detail="Invalid time. Please click 'Cancel' and try again.",
         )
 
-    headers = {request.app.auth_header: request.app.auth}
-    profilewithtypeandid = data.model_dump()["userProfile"]
-    profilewithtypeandid["type"] = "external"
-    profilewithtypeandid["id_key"] = id
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.post(
-            request.app.api_config["url"] + "/api/accounts/session/external/",
-            json=profilewithtypeandid,
-        ) as req:
-            if req.status != 200:
-                raise HTTPException(
-                    status_code=req.status, detail="We're not sure what went wrong!"
-                )
+    response = await request.app.api.authenticate_external(data.userProfile, id).send()
+
+    if response.status != 200:
+        raise HTTPException(
+            status_code=response.status, detail="We're not sure what went wrong!"
+        )
+
     return {"message": "Success. Return to the browser."}

@@ -1,6 +1,4 @@
-import aiohttp
-
-from fastapi import APIRouter, Request, HTTPException, status
+from fastapi import APIRouter
 
 from core import SonolusRequest
 from helpers.data_compilers import (
@@ -11,11 +9,8 @@ from helpers.data_compilers import (
 )
 from helpers.models.sonolus.misc import ServerInfoButton
 from helpers.models.sonolus.options import ServerSelectOption, ServerOption_Value
-from helpers.data_helpers import (
-    ServerFormOptionsFactory,
-)
+from helpers.models.sonolus.response import ServerInfo, ServerConfiguration
 
-from locales.locale import Loc
 from helpers.owoify import handle_uwu
 
 router = APIRouter()
@@ -51,40 +46,39 @@ async def main(request: SonolusRequest):
         button_list.append("playlist")
     options = []
     if request.state.localization in uwu_supported:
-        option = ServerFormOptionsFactory.server_select_option(
+        options.append(ServerSelectOption(
             query="uwu",
             name=locale.uwu,
-            required=False,
-            default="off",
-            values=[
-                {"name": "off", "title": locale.off},
-                {"name": "owo", "title": locale.slightly},
-                {"name": "uwu", "title": locale.a_lot},
-                {"name": "uvu", "title": locale.extreme},
-            ],
             description=handle_uwu(
                 locale.uwu_desc, request.state.localization, request.state.uwu
             ),
-        )
-        options.append(option)
+            required=False,
+            default="off",
+            values=[
+                ServerOption_Value(name="off", title=locale.off),
+                ServerOption_Value(name="owo", title=locale.slightly),
+                ServerOption_Value(name="uwu", title=locale.a_lot),
+                ServerOption_Value(name="uvu", title=locale.extreme),
+            ],
+        ))
     options.append(
-        ServerFormOptionsFactory.server_select_option(
+        ServerSelectOption(
             query="levelbg",
             name=locale.background.USEBACKGROUND,
-            required=False,
-            default="default_or_v3",
-            values=[
-                {"name": "default_or_v3", "title": locale.background.DEF_OR_V3},
-                {"name": "v3", "title": locale.background.V3},
-                {"name": "default_or_v1", "title": locale.background.DEF_OR_V1},
-                {"name": "v1", "title": locale.background.V1},
-            ],
             description=handle_uwu(
                 locale.background.USEBACKGROUNDDESC,
                 request.state.localization,
                 uwu_level,
             ),
-        )
+            required=False,
+            default="default_or_v3",
+            values=[
+                ServerOption_Value(name="default_or_v3", title=locale.background.DEF_OR_V3),
+                ServerOption_Value(name="v3", title=locale.background.V3),
+                ServerOption_Value(name="default_or_v1", title=locale.background.DEF_OR_V1),
+                ServerOption_Value(name="v1", title=locale.background.V1),
+            ],
+        ),
     )
     engines = await request.app.run_blocking(
         compile_engines_list, request.app.base_url, request.state.localization
@@ -110,7 +104,7 @@ async def main(request: SonolusRequest):
         if item.theme not in unique_themes:
             unique_themes.append(item.theme)
 
-    # TODO: original repo replaced "theme" with "themes"
+    # TODO (sonoserv): upstream repo replaced "theme" with "themes"
     # maybe there are some better approaches using itertools.chain
 
     unique_themes.sort()
@@ -155,21 +149,21 @@ async def main(request: SonolusRequest):
     )
 
     options.append(
-        ServerFormOptionsFactory.server_select_option(
+        ServerSelectOption(
             query="stpickconfig",
             name=locale.staff_pick,
-            required=False,
-            default="off",
-            values=[
-                {"name": "off", "title": locale.search.STAFF_PICK_OFF},
-                {"name": "true", "title": locale.search.STAFF_PICK_TRUE},
-                {"name": "false", "title": locale.search.STAFF_PICK_FALSE},
-            ],
             description=handle_uwu(
                 locale.search.STAFF_PICK_CONFIG_DESC + "\n" + locale.staff_pick_desc,
                 request.state.localization,
                 uwu_level,
             ),
+            required=False,
+            default="off",
+            values=[
+                ServerOption_Value(name="off", title=locale.search.STAFF_PICK_OFF),
+                ServerOption_Value(name="true", title=locale.search.STAFF_PICK_TRUE),
+                ServerOption_Value(name="false", title=locale.search.STAFF_PICK_FALSE),
+            ],        
         )
     )
     desc = locale.server_description or request.app.config["description"]
@@ -178,16 +172,11 @@ async def main(request: SonolusRequest):
     login_message = False
     if auth:
         try:
-            headers = {request.app.auth_header: request.app.auth}
-            headers["authorization"] = auth
-            async with aiohttp.ClientSession(headers=headers) as cs:
-                async with cs.get(
-                    request.app.api_config["url"] + f"/api/accounts/session/account/",
-                ) as req:
-                    response = await req.json()
+            response = await request.app.api.get_account().send(auth)
+
             desc += "\n\n" + ("-" * 40) + "\n"
-            desc += "\n" + locale.welcome(response["sonolus_username"])
-            notifications = response["unread_notifications"]
+            desc += "\n" + locale.welcome(response.data.sonolus_username)
+            notifications = response.data.unread_notifications
             desc += "\n\n" + (
                 locale.notifications_singular(notifications)
                 if notifications == 1
@@ -201,9 +190,9 @@ async def main(request: SonolusRequest):
                 button_list = ["post"]
             desc += "\n\n" + ("-" * 40) + "\n"
             desc += f"\n{locale.find_in_playlists}"
-            if response.get("mod") or response.get("admin"):
+            if response.data.mod or response.data.admin:
                 desc += "\n\n" + ("-" * 40) + "\n"
-                if response.get("admin"):
+                if response.data.admin:
                     desc += f"\n{locale.is_admin}\n\n{locale.admin_powers}\n{locale.mod_powers}"
                 else:
                     desc += f"\n{locale.is_mod}\n\n{locale.mod_powers}"
@@ -214,17 +203,17 @@ async def main(request: SonolusRequest):
         desc = locale.server_description or request.app.config["description"]
         desc += "\n\n" + ("-" * 40) + "\n"
         desc += "\n" + locale.not_logged_in
-    buttons: list[ServerInfoButton] = [{"type": button} for button in button_list]
-    data = {
-        "title": request.app.config["name"],
-        "description": handle_uwu(
+
+    return ServerInfo(
+        title=request.app.config["name"],
+        description=handle_uwu(
             desc,
             request.state.localization,
             uwu_level,
         ),
-        "buttons": buttons,
-        "configuration": {"options": options},
-    }
-    if banner_srl:
-        data["banner"] = banner_srl
-    return data
+        buttons=[ServerInfoButton(type=button) for button in button_list],
+        configuration=ServerConfiguration(
+            options=options
+        ),
+        banner=banner_srl if banner_srl else None
+    )

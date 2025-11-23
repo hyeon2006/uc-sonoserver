@@ -1,9 +1,7 @@
-import asyncio
-
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi import HTTPException, status
 from core import SonolusRequest
-from helpers.sonolus_typings import ItemType, Text, Icon
+from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.item_section import GenericItemSection
 from helpers.models.sonolus.response import ServerItemInfo
 from helpers.data_compilers import (
@@ -18,14 +16,11 @@ from helpers.data_compilers import (
 
 router = APIRouter()
 
-from locales.locale import Loc
-from helpers.owoify import handle_uwu, handle_item_uwu
-
-import aiohttp
+from helpers.owoify import handle_uwu
 
 @router.get("/")
 async def main(request: SonolusRequest, item_type: ItemType):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     uwu_level = request.state.uwu
     banner_srl = await request.app.run_blocking(compile_banner)
 

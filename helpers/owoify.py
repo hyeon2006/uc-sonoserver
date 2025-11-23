@@ -2,8 +2,6 @@ import collections.abc, random, re
 from helpers.models.sonolus.item import *
 from typing import TypeVar
 
-# TODO: figure out for russian
-
 def flatten(arr: collections.abc.Iterable):
     """
     Flatten the iterable collection. Modified from: https://note.nkmk.me/en/python-list-flatten/

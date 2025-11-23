@@ -1,29 +1,22 @@
 import base64, asyncio
 
-from urllib.parse import parse_qs
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
 from helpers.data_compilers import compile_playlists_list
 from helpers.models.sonolus.options import ServerForm, ServerOption_Value, ServerSelectOption, ServerSliderOption, ServerTextOption, ServerToggleOption
 from helpers.models.sonolus.submit import ServerSubmitPlaylistActionRequest
-from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.response import ServerItemDetails
-from helpers.models.api.levels import LevelList
-from helpers.data_helpers import create_server_form, ServerFormOptionsFactory
-from helpers.api_helpers import api_level_to_level_item
 
 router = APIRouter()
 
-from locales.locale import Loc
 from helpers.owoify import handle_item_uwu, handle_uwu
 
-import aiohttp
 
 @router.get("/")
 async def main(request: SonolusRequest, item_name: str):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     uwu_level = request.state.uwu
     auth = request.headers.get("Sonolus-Session")
     actions = []
@@ -40,23 +33,33 @@ async def main(request: SonolusRequest, item_name: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="huh")
     headers = {request.app.auth_header: request.app.auth}
     headers["authorization"] = auth
-    action_request = ServerSubmitPlaylistActionRequest(parts[1]).parse(request)
-    params = action_request.model_dump()
-    params["type"] = "advanced"
+    params = ServerSubmitPlaylistActionRequest(parts[1]).parse(request)
 
-    page = action_request.page or 1
+    page = params.page or 1
 
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.get(
-            request.app.api_config["url"] + f"/api/charts/",
-            params={
-                k: (int(v) if isinstance(v, bool) else v)
-                for k, v in params.items()
-                if v is not None
-            },
-        ) as req:
-            response = LevelList.model_validate(await req.json())
-    asset_base_url = response.asset_base_url.removesuffix("/")
+    response = await request.app.api.charts_advanced_search(
+        page=page,
+        staff_pick=params.staff_pick,
+        min_rating=params.min_rating,
+        max_rating=params.max_rating,
+        status=params.level_status,
+        tags=params.tags,
+        min_likes=params.min_likes,
+        max_likes=params.max_likes,
+        min_comments=params.min_comments,
+        max_comments=params.max_comments,
+        liked_by=params.liked_by,
+        commented_on=params.commented_on,
+        title_includes=params.title_includes,
+        description_includes=params.description_includes,
+        author_includes=params.author_includes,
+        artists_includes=params.artists_includes,
+        sort_by=params.sort_by,
+        sort_order=params.sort_order,
+        meta_includes=params.keywords
+    ).send(auth)
+
+    asset_base_url = response.data.asset_base_url.removesuffix("/")
     levels = await asyncio.gather(
         *[
             request.app.run_blocking(
@@ -65,11 +68,11 @@ async def main(request: SonolusRequest, item_name: str):
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in response.data
+            for level in response.data.data
         ]
     )
-    pageCount = response.pageCount
-    if action_request.sort_by == "random" and pageCount != 0 and len(response.data) == 10:
+    pageCount = response.data.pageCount
+    if params.sort_by == "random" and pageCount != 0 and len(response.data.data) == 10:
         pageCount = (
             page + 2
         )  # always have one extra page, random will not run out and there may be duplicates
@@ -103,7 +106,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="status",
             name=locale.search.VISIBILITY,
             required=False,
-            default=action_request.level_status,
+            default=params.level_status,
             values=[
                 ServerOption_Value(name="ALL", title=locale.search.VISIBILITY_ALL),
                 ServerOption_Value(name="PUBLIC_MINE", title=locale.search.VISIBILITY_PUBLIC),
@@ -118,7 +121,7 @@ async def main(request: SonolusRequest, item_name: str):
                 locale.search.STAFF_PICK_DESC, request.state.localization, uwu_level
             ),
             required=False,
-            default=action_request.staff_pick,
+            default=params.staff_pick,
             values=[
                 ServerOption_Value(name="default", title="#DEFAULT"),
                 ServerOption_Value(name="off", title=locale.search.STAFF_PICK_OFF),
@@ -130,7 +133,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="keywords",
             name="#KEYWORDS",
             required=False,
-            default=action_request.keywords or "",
+            default=params.keywords or "",
             placeholder=locale.search.ENTER_TEXT,
             limit=100,
             shortcuts=[],
@@ -139,7 +142,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="min_rating",
             name=locale.search.MIN_RATING,
             required=False,
-            default=action_request.min_rating or -999,
+            default=params.min_rating or -999,
             min=-999,
             max=999,
             step=1,
@@ -148,7 +151,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="max_rating",
             name=locale.search.MAX_RATING,
             required=False,
-            default=action_request.max_rating or 999,
+            default=params.max_rating or 999,
             min=-999,
             max=999,
             step=1,
@@ -157,7 +160,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="title_includes",
             name=locale.search.TITLE_CONTAINS,
             required=False,
-            default=action_request.title_includes or "",
+            default=params.title_includes or "",
             placeholder=locale.search.ENTER_TEXT,
             limit=100,
             shortcuts=[],            
@@ -166,7 +169,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="author_includes",
             name=locale.search.AUTHOR_CONTAINS,
             required=False,
-            default=action_request.author_includes or "",
+            default=params.author_includes or "",
             placeholder=locale.search.ENTER_TEXT,
             limit=60,
             shortcuts=[],
@@ -175,7 +178,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="description_includes",
             name=locale.search.DESCRIPTION_CONTAINS,
             required=False,
-            default=action_request.description_includes or "",
+            default=params.description_includes or "",
             placeholder=locale.search.ENTER_TEXT,
             limit=200,
             shortcuts=[],
@@ -184,7 +187,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="artists_includes",
             name=locale.search.ARTISTS_CONTAINS,
             required=False,
-            default=action_request.artists_includes or "",
+            default=params.artists_includes or "",
             placeholder=locale.search.ENTER_TEXT,
             limit=100,
             shortcuts=[],
@@ -197,7 +200,7 @@ async def main(request: SonolusRequest, item_name: str):
                 query="liked_by",
                 name=locale.search.ONLY_LEVELS_I_LIKED,
                 required=False,
-                default=action_request.liked_by,
+                default=params.liked_by,
             )
         )
 
@@ -206,7 +209,7 @@ async def main(request: SonolusRequest, item_name: str):
                 query="commented_on",
                 name=locale.search.ONLY_LEVELS_I_COMMENTED_ON,
                 required=False,
-                default=action_request.commented_on,    
+                default=params.commented_on,    
             )
         )
 
@@ -215,7 +218,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="min_likes",
             name=locale.search.MIN_LIKES,
             required=False,
-            default=action_request.min_likes or 0,
+            default=params.min_likes or 0,
             min=0,
             max=9999,
             step=1,
@@ -226,7 +229,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="max_likes",
             name=locale.search.MAX_LIKES,
             required=False,
-            default=action_request.max_likes or 9999,
+            default=params.max_likes or 9999,
             min=0,
             max=9999,
             step=1,
@@ -237,7 +240,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="min_comments",
             name=locale.search.MIN_COMMENTS,
             required=False,
-            default=action_request.min_comments or 0,
+            default=params.min_comments or 0,
             min=0,
             max=9999,
             step=1,
@@ -248,7 +251,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="max_comments",
             name=locale.search.MAX_COMMENTS,
             required=False,
-            default=action_request.max_comments or 9999,
+            default=params.max_comments or 9999,
             min=0,
             max=9999,
             step=1,
@@ -259,7 +262,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="tags",
             name=locale.search.TAGS_COMMA_SEPARATED,
             required=False,
-            default=action_request.tags or "",
+            default=params.tags or "",
             placeholder=locale.search.ENTER_TAGS,
             limit=200,
             shortcuts=[],
@@ -275,7 +278,7 @@ async def main(request: SonolusRequest, item_name: str):
                 uwu_level,
             ),
             required=False,
-            default=action_request.sort_by,
+            default=params.sort_by,
             values=[
                 ServerOption_Value(name="created_at", title=locale.search.DATE_CREATED),
                 ServerOption_Value(name="random", title="#RANDOM"),
@@ -292,7 +295,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="sort_order",
             name=locale.search.SORT_ORDER,
             required=False,
-            default=action_request.sort_order,
+            default=params.sort_order,
             values=[
                 ServerOption_Value(name="desc", title=locale.search.DESCENDING),
                 ServerOption_Value(name="asc", title=locale.search.ASCENDING),

@@ -5,15 +5,12 @@ from core import SonolusRequest
 from helpers.models.sonolus.item_section import LevelItemSection
 from helpers.models.sonolus.response import ServerItemInfo
 from helpers.models.sonolus.options import ServerForm, ServerTextOption, ServerSelectOption, ServerOption_Value, ServerSliderOption, ServerToggleOption
-from helpers.models.api.levels import LevelList
 
 from helpers.data_compilers import compile_banner
 
 router = APIRouter()
 
 from helpers.owoify import handle_uwu, handle_item_uwu
-
-import aiohttp
 
 
 @router.get("/")
@@ -33,60 +30,17 @@ async def main(request: SonolusRequest):
         )
     ]
     staff_pick = request.state.staff_pick
-    headers = {request.app.auth_header: request.app.auth}
-    if auth:
-        headers["authorization"] = auth
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        url = request.app.api_config["url"] + "/api/charts/"
-        staff_pick_value = {"off": None, "true": 1, "false": 0}[staff_pick]
-        random_params = {"type": "random"}
-        if staff_pick_value:
-            random_params["staff_pick"] = staff_pick_value
-        newest_params = {"type": "advanced", "sort_by": "published_at"}
-        if staff_pick_value:
-            newest_params["staff_pick"] = staff_pick_value
-        popular_params = {
-            "type": "advanced",
-            "sort_by": "decaying_likes",
-        }
-        if staff_pick_value:
-            popular_params["staff_pick"] = staff_pick_value
-        tasks = [
-            cs.get( # TODO: more convenient uhh
-                url,
-                params=random_params,
-            ),
-            cs.get(
-                url,
-                params=newest_params,
-            ),
-            cs.get(
-                url,
-                params={
-                    "type": "random",
-                    "staff_pick": {"true": 1, "false": 0}[
-                        ("true" if staff_pick in ["off", "false"] else "false")
-                    ],
-                },
-            ),
-            cs.get(
-                url,
-                params=popular_params,
-            ),
-        ]
-        responses = await asyncio.gather(*tasks)
 
-        random_response = LevelList.model_validate(await responses[0].json())
-        newest_response = LevelList.model_validate(await responses[1].json())
-        staffpick_req = LevelList.model_validate(await responses[2].json())
-        popular_response = LevelList.model_validate(await responses[3].json())
+    random_response, newest_response, staffpick_req, popular_response = await asyncio.gather(
+        request.app.api.get_random_charts(staff_pick).send(auth),
+        request.app.api.get_newest_charts(staff_pick).send(auth),
+        request.app.api.get_random_staff_picks(staff_pick in ("off", "false")).send(auth),
+        request.app.api.get_popular_charts(staff_pick).send(auth)
+    )
 
-        # random_response, newest_response, staffpick_req, popular_response = ( TODO
-        #     await asyncio.gather(*[resp.json() for resp in responses])
-        # )
-    asset_base_url = random_response.asset_base_url.removesuffix("/")
+    asset_base_url = random_response.data.asset_base_url.removesuffix("/")
     random_staff_pick = await request.app.run_blocking(
-        staffpick_req.data[0].to_level_item,
+        staffpick_req.data.data[0].to_level_item,
         request,
         asset_base_url,
         request.state.levelbg
@@ -99,7 +53,7 @@ async def main(request: SonolusRequest):
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in random_response.data[:3]
+            for level in random_response.data.data[:3]
         ]
     )
     newest = await asyncio.gather(
@@ -110,7 +64,7 @@ async def main(request: SonolusRequest):
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in newest_response.data[:3]
+            for level in newest_response.data.data[:3]
         ]
     )
     popular = await asyncio.gather(
@@ -121,7 +75,7 @@ async def main(request: SonolusRequest):
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in popular_response.data[:3]
+            for level in popular_response.data.data[:3]
         ]
     )
 

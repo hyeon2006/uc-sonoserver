@@ -1,21 +1,16 @@
-from fastapi import APIRouter, Request
-from fastapi import HTTPException, status
+from fastapi import APIRouter
+from fastapi import HTTPException
 
 from core import SonolusRequest
-from helpers.sonolus_typings import ItemType
 
 from helpers.models.sonolus.response import ServerItemCommunityCommentList
 from helpers.models.sonolus.options import ServerForm
 from helpers.models.api.comments import Comment
 from helpers.models.sonolus.item import ServerItemCommunityComment
-from helpers.models.api.comments import CommentList
 
 router = APIRouter()
 
-from locales.locale import Loc
 from helpers.owoify import handle_uwu
-
-import aiohttp
 
 def process_comment(comment: Comment, is_mod: bool | None, localization, uwu_level, comment_delete_action: ServerForm) -> ServerItemCommunityComment:
     return ServerItemCommunityComment(
@@ -40,23 +35,13 @@ def process_comment(comment: Comment, is_mod: bool | None, localization, uwu_lev
 
 @router.get("/", response_model=ServerItemCommunityCommentList)
 async def main(request: SonolusRequest, item_name: str):
-    locale: Loc = request.state.loc
+    locale = request.state.loc
     page = request.state.query_params.get("page", 0)
     uwu_level = request.state.uwu
     auth = request.headers.get("Sonolus-Session")
-    
-    headers = {request.app.auth_header: request.app.auth}
-    if auth:
-        headers["authorization"] = auth
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.get(
-            request.app.api_config["url"]
-            + f"/api/charts/{item_name.removeprefix('UnCh-')}/comment/",
-            params={"page": page},
-        ) as req:
-            response = CommentList.model_validate_json(await req.json())
 
-    page_count = response.pageCount
+    response = await request.app.api.get_comments(item_name, page).send(auth)
+    page_count = response.data.pageCount
     if page > page_count or page < 0:
         raise HTTPException(
             status_code=400,
@@ -69,7 +54,7 @@ async def main(request: SonolusRequest, item_name: str):
     elif page_count == 0:
         raise HTTPException(status_code=400, detail=locale.not_found)
     
-    comments = response.data
+    comments = response.data.data
     comment_delete_action = ServerForm(
         type="delete",
         title="#DELETE",
@@ -80,5 +65,5 @@ async def main(request: SonolusRequest, item_name: str):
 
     return ServerItemCommunityCommentList(
         pageCount=page_count,
-        comments=[process_comment(comment, response.mod, request.state.localization, uwu_level, comment_delete_action) for comment in comments]
+        comments=[process_comment(comment, response.data.mod, request.state.localization, uwu_level, comment_delete_action) for comment in comments]
     )

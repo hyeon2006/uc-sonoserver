@@ -1,8 +1,8 @@
 import base64
 from typing import Literal
 from urllib.parse import parse_qs
-from pydantic import BaseModel, field_validator
-from fastapi import HTTPException
+from pydantic import BaseModel
+from fastapi import HTTPException, status
 
 from core import SonolusRequest
 
@@ -37,7 +37,8 @@ class ServerSubmitLevelActionRequest(ServerSubmitItemActionRequest):
     def parse(self) -> _ParsedServerSubmitLevelActionRequest:
         return _ParsedServerSubmitLevelActionRequest.model_validate({k: v[0] for k, v in parse_qs(self.values).items()})
     
-class _ParsedServerSubmitPlaylistActionRequest(BaseModel): # TODO: continue
+
+class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
     sort_by: Literal[
         "created_at",
         "rating",
@@ -76,6 +77,27 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel): # TODO: continue
             return True
         except ValueError:
             return False
+
+    def dump(self):
+        data = self.model_dump(exclude_none=True)
+
+        if data["sort_by"] == "random" and "page" in data:
+            del data["page"]
+
+        if "tags" in data:
+            data["tags"] = ",".join(data["tags"])
+
+        if data["liked_by"]:
+            data["liked_by"] = "1"
+        else:
+            del data["liked_by"]
+
+        if data["commented_on"]:
+            data["commented_on"] = "1"
+        else:
+            del data["commented_on"]
+
+        return data
 
     @classmethod
     def parse(cls, qs: str, request: SonolusRequest):
@@ -149,7 +171,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel): # TODO: continue
         if tags is not None:
             if not isinstance(tags, str):
                 raise HTTPException(
-                    status_code=400, detail="tags must be a comma-separated list of strings."
+                    status_code=400, detail="tags must be a strings, having comma-separated elements."
                 )
             tags = [tag.strip() for tag in tags.split(",")]
                 
@@ -286,4 +308,9 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel): # TODO: continue
 
 class ServerSubmitPlaylistActionRequest(ServerSubmitItemActionRequest):
     def parse(self, request: SonolusRequest) -> _ParsedServerSubmitPlaylistActionRequest:
+        if len(self.values) > 500:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="why so long"
+            )
+        
         return _ParsedServerSubmitPlaylistActionRequest.parse(self.values, request)

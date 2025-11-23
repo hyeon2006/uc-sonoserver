@@ -1,19 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
-from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.submit import ServerSubmitCommentIDActionRequest
 from helpers.models.sonolus.response import ServerSubmitItemCommunityCommentActionResponse
-from helpers.models.api.comments import DeleteCommentResponse
-from helpers.models.api.notifications import NotificationRequest
-from urllib.parse import parse_qs
 
 router = APIRouter()
-
-from locales.locale import Loc
-
-import aiohttp
 
 @router.post("/", response_model=ServerSubmitItemCommunityCommentActionResponse)
 async def main(
@@ -41,30 +33,22 @@ async def main(
             status_code=status.HTTP_404_NOT_FOUND, detail=locale.not_found
         )
     
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.delete(
-            request.app.api_config["url"]
-            + f"/api/charts/{item_name.removeprefix('UnCh-')}/comment/{comment_id}/"
-        ) as req:
-            if req.status != 200:
-                raise HTTPException(
-                    status_code=req.status, detail=locale.unknown_error
-                )
-            del_data = DeleteCommentResponse.model_validate_json(await req.json())
-            if del_data.mod and not del_data.owner:
-                async with cs.post(
-                    request.app.api_config["url"]
-                    + f"/api/accounts/notifications/",
-                    json=NotificationRequest(
-                        user_id=del_data.commenter,
-                        title="Comment Deleted",
-                        content=f"#COMMENT_DELETED\n{del_data.content}"
-                    ).model_dump(),
-                ) as req:
-                    if req.status != 200:
-                        raise HTTPException(
-                            status_code=req.status, detail=locale.not_mod
-                        )
+    delete_response = await request.app.api.delete_comment(item_name, comment_id).send(auth)
+
+    if delete_response.status != 200:
+        raise HTTPException(status_code=delete_response.status, detail=locale.unknown_error)
+
+    if delete_response.data.mod and not delete_response.data.owner:
+        send_notification_response = await request.app.api.send_notification(
+            title="Comment Deleted", 
+            user_id=delete_response.data.commenter,
+            content=f"#COMMENT_DELETED\n{delete_response.data.content}"
+        ).send(auth)
+
+        if send_notification_response.status != 200:
+            raise HTTPException(
+                status_code=send_notification_response.status, detail=locale.not_mod
+            )
 
     return ServerSubmitItemCommunityCommentActionResponse(
         key="",

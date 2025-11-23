@@ -6,12 +6,20 @@ class Comment(BaseModel):
     commenter: str
     username: str | None = None
     content: str
-    created_at: datetime | int # idk probably TODO figure it out
-    deleted_at: datetime | int | None = None
+    created_at: int
+    deleted_at: int | None = None
     chart_id: str
     owner: bool | None = None
 
-class DeleteCommentResponse(Comment):
+class DeleteCommentResponse(BaseModel):
+    id: int
+    commenter: str
+    username: str | None = None
+    content: str
+    created_at: datetime # TODO (backend): can't inherit from Comment because there's datetime here
+    deleted_at: datetime | None = None
+    chart_id: str
+    owner: bool | None = None
     mod: bool | None = None
 
 class CommentList(BaseModel):
@@ -19,6 +27,3 @@ class CommentList(BaseModel):
     pageCount: int
     mod: bool | None = None
     admin: bool | None = None
-
-class CommentRequest(BaseModel):
-    content: str

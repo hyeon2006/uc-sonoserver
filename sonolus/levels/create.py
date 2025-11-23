@@ -1,14 +1,8 @@
-import asyncio
-
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi import HTTPException, status
 from core import SonolusRequest
-from helpers.sonolus_typings import ItemType
 
 router = APIRouter()
-
-from locales.locale import Loc
-
 
 @router.post("/")
 async def main(request: SonolusRequest):

@@ -1,34 +1,27 @@
+from core import SonolusRequest
 from helpers.models.sonolus.response import ServerSubmitItemActionResponse
-from helpers.models.api.notifications import NotificationRequest
-from helpers.models.api.levels import DeleteChartResponse
 from fastapi import HTTPException
 from locales.locale import Loc
-import aiohttp
 
-async def delete(headers: dict, request, item_name: str, locale: Loc) -> ServerSubmitItemActionResponse:
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.delete(
-            request.app.api_config["url"]
-            + f"/api/charts/{item_name.removeprefix('UnCh-')}/delete/"
-        ) as req:
-            if req.status != 200:
-                raise HTTPException(
-                    status_code=req.status, detail=locale.not_admin_or_owner
-                )
-            data = DeleteChartResponse.model_validate(await req.json())
-        if data.admin and not data.owner:
-            async with cs.post(
-                request.app.api_config["url"] + f"/api/accounts/notifications/",
-                json=NotificationRequest(
-                    user_id=data.author,
-                    title="Chart Deleted",
-                    content=f"#CHART_DELETED\n{data.title}",
-                ).model_dump(),
-            ) as req:
-                if req.status != 200:
-                    raise HTTPException(
-                        status_code=req.status, detail=locale.not_mod
-                    )
+async def delete(auth: str, request: SonolusRequest, item_name: str, locale: Loc) -> ServerSubmitItemActionResponse:
+    delete_response = await request.app.api.delete_chart(item_name).send(auth)
+    
+    if delete_response.status != 200:
+        raise HTTPException(
+            status_code=delete_response.status, detail=locale.not_admin_or_owner
+        )
+
+    if delete_response.data.admin and not delete_response.data.owner:
+        send_notification_response = await request.app.api.send_notification(
+            title="Chart Deleted",
+            user_id=delete_response.data.author,
+            content=f"#CHART_DELETED\n{delete_response.data.title}"
+        ).send(auth)
+
+        if send_notification_response.status != 200:
+            raise HTTPException(
+                status_code=send_notification_response.status, detail=locale.not_mod
+            )
                 
     return ServerSubmitItemActionResponse(
         key="",

@@ -1,13 +1,15 @@
 import asyncio
 from ecdsa import VerifyingKey
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.datastructures import State
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from helpers.repository_map import repo
+from helpers.api import API
 from locales.locale import Loc, Locale
 from helpers.config_loader import get_config
 from concurrent.futures import ThreadPoolExecutor
-from typing import TypeVar, ParamSpec, Callable
+from typing import Literal, TypeVar, ParamSpec, Callable
 
 from helpers.data_compilers import (
     compile_particles_list,
@@ -51,6 +53,8 @@ class SonolusFastAPI(FastAPI):
 
         self.exception_handlers.setdefault(HTTPException, self.http_exception_handler)
 
+        self.api = API(self.api_config["url"], self.auth_header, self.auth)
+
     async def run_blocking(
         self, 
         func: Callable[P, R], 
@@ -79,11 +83,11 @@ class SonolusFastAPI(FastAPI):
             )
             return JSONResponse(content={}, status_code=exc.status_code)
         
-class _RequestState:
+class _RequestState(State):
     localization: str
     uwu: str
     levelbg: str
-    staff_pick: str
+    staff_pick: Literal["off", "true", "false"]
     particle: str
     skin: str
     engine: str

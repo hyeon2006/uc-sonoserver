@@ -197,7 +197,7 @@ def compile_backgrounds_list(
             subtitle=replace_values(background_data["subtitle"]),
             author=replace_values(background_data["author"]),
             tags=[],
-            thumbnail=repo.get_srl(repo.add_file(f"files/backgrounds/{background}/thumbnail.png")), # TODO shorten with subrepos for relative paths and srl_from_file
+            thumbnail=repo.get_srl(repo.add_file(f"files/backgrounds/{background}/thumbnail.png")),
             data=repo.get_srl(repo.add_file(f"files/backgrounds/{background}/data")),
             image=repo.get_srl(repo.add_file(f"files/backgrounds/{background}/image.png")),
             configuration=repo.get_srl(repo.add_file(f"files/backgrounds/{background}/configuration.json.gz"))
