@@ -47,7 +47,7 @@
   "default_engine": "Mesin Server",
   "default_engine_desc": "Pilih mesin server untuk dipakai!",
   "default_skin": "Skin Server",
-  "default_skin_desc": "Pilih jenis skin default untuk dipakai! Tergantung mesinnya, penampakan skin akan berbeda (cth. Skin V1 kelihatan sedikit berbeda di Rush dibanding dengan Next), tetapi akan berlaku untuk semua mesin.\n\nCATATAN:\nJika mesin tidak memiliki skin yang didukung, mesinnya akan memakai skin default mesin.",
+  "default_skin_desc": "Pilih tema skin default untuk dipakai!\nDefault adalah selalu skin default mesin.\n\nCATATAN: Jika mesin tidak mendukung tema skin, mesin akan memakai default mesin.",
   "notifications_plural": "Anda memiliki {num} pemberitahuan baru! Pemberitahuan sistem dapat ditemukan di \"Post\".\nSilakan membaca untuk lanjut ke server.",
   "notifications_singular": "Anda memiliki {num} pemberitahuan baru! Pemberitahuan sistem dapat ditemukan di \"Post\". Silakan membaca untuk lanjut ke server.",
   "uwu": "UwU >.<",
@@ -59,6 +59,7 @@
   "rerate": "Nilai Ulang",
   "rerate_desc": "Nilai ulang level ini, tambah konstanta jika anda suka.",
   "rerate_desc_not_mod": "Nilai ulang level ini.",
+  "show_resource_buttons": "Tampilkan Tombol Sumber Daya Server",
   "search": {
     "FILTERS": "Filter (Page {page}/{pageCount})",
     "ADVANCED_SEARCH": "Pencarian Lebih Lanjut",
