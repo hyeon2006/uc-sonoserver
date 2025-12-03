@@ -1,9 +1,14 @@
-from fastapi import APIRouter, File, HTTPException, Header, UploadFile
+from fastapi import APIRouter, File, HTTPException, Header, UploadFile, status
 
 from core import SonolusRequest
 import helpers.replay as replay
 
 router = APIRouter()
+
+MAX_FILE_SIZES = {
+    "data": 2 * 1024 * 1024, # 2 mb
+    "config": 200 # 200 bytes
+}
 
 @router.post("/")
 async def upload(
@@ -16,6 +21,12 @@ async def upload(
 
     replay_data = await files_map[data.data_hash].read()
     replay_configuration = await files_map[data.configuration_hash].read()
+
+    if len(replay_data) > MAX_FILE_SIZES["data"] or len(replay_configuration) > MAX_FILE_SIZES["config"]:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Uploaded files exceed file size limit.",
+        )
 
     info = replay.validate_replay_config(replay_configuration, data.engine_name)
 

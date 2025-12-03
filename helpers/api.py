@@ -407,17 +407,16 @@ class API:
 
         content.add_field("replay_data", replay_data, content_type="data/gzip", filename="replay_data")
         content.add_field("replay_configuration", replay_configuration, content_type="data/gzip", filename="replay_configuration")
-        content.add_field("item_name", level_name)
         content.add_field("user_id", user_id)
         content.add_field("engine_name", engine_name)
 
         if speed:
-            content.add_field("speed", speed)
+            content.add_field("speed", str(speed))
 
         return Request(
             self._client_session,
             "POST",
-            f"/api/charts/{...}/replay",
+            f"/api/charts/{level_name.removeprefix('UnCh-')}/leaderboards",
             None,
             content=content,
             use_app_auth=self._use_app_auth

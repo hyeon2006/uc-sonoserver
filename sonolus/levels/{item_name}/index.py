@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from core import SonolusRequest
+from helpers.models.sonolus.misc import ServerItemLeaderboard
 from helpers.models.sonolus.response import ServerItemDetails
 from helpers.models.sonolus.options import ServerForm, ServerOption_Value, ServerSelectOption, ServerTextOption, ServerToggleOption
 from helpers.models.sonolus.item import LevelItem
@@ -158,11 +159,18 @@ async def main(request: SonolusRequest, item_name: str):
     else:
         data: LevelItem = handle_item_uwu([item_data], request.state.localization, uwu_level)[0]
 
+    ServerItemLeaderboard
+
     return ServerItemDetails(
         item=data,
         description=desc,
         actions=actions,
         hasCommunity=True,
-        leaderboards=[], # TODO (sonoserv)
+        leaderboards=[
+            ServerItemLeaderboard(
+                name="",
+                title="Leaderboards" # TODO (sonoserv): Change and localize
+            )
+        ],
         sections=[]
     )
