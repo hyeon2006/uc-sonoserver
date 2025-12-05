@@ -21,8 +21,6 @@ async def main(request: SonolusRequest, data: ServerSubmitLevelResultRequest):
 
     response = await request.app.api.get_account().send(auth)
 
-    response.data.sonolus_handle
-
     return ServerSubmitLevelResultResponse(
         key=replay.generate_upload_key(
             response.data.sonolus_id,
@@ -30,6 +28,7 @@ async def main(request: SonolusRequest, data: ServerSubmitLevelResultRequest):
             data.replay.data.hash,
             data.replay.configuration.hash,
             request.state.engine,
+            f"{response.data.sonolus_id}#{response.data.sonolus_handle}",
             request
         ),
         hashes=[

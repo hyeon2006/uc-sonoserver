@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from helpers.models.sonolus.item import ServerItem, ServerItemCommunityComment
 from helpers.models.sonolus.item_section import ServerItemSection
-from helpers.models.sonolus.misc import SRL, ServerItemLeaderboard, ServerInfoButton, ServerConfiguration
+from helpers.models.sonolus.misc import SRL, ServerItemLeaderboard, ServerInfoButton, ServerConfiguration, ServerItemLeaderboardRecord
 from helpers.models.sonolus.options import ServerForm, ServerOption
 
 
@@ -68,4 +68,12 @@ class ServerAuthenticateResponse(BaseModel):
 class ServerSubmitLevelResultResponse(BaseModel):
     key: str
     hashes: list[str]
+
+class ServerItemLeaderboardDetails(BaseModel):
+    topRecords: list[ServerItemLeaderboardRecord]
+    
+class ServerItemLeaderboardRecordList(BaseModel):
+    pageCount: int
+    cursor: str | None = None
+    records: list[ServerItemLeaderboardRecord]
     

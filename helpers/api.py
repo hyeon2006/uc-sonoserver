@@ -400,6 +400,7 @@ class API:
         replay_configuration: bytes,
         level_name: str, 
         user_id: str,
+        display_name: str,
         engine_name: str,
         speed: float | None
     ) -> Request[None]:
@@ -409,6 +410,7 @@ class API:
         content.add_field("replay_configuration", replay_configuration, content_type="data/gzip", filename="replay_configuration")
         content.add_field("user_id", user_id)
         content.add_field("engine_name", engine_name)
+        content.add_field("display_name", display_name)
 
         if speed:
             content.add_field("speed", str(speed))
@@ -420,4 +422,28 @@ class API:
             None,
             content=content,
             use_app_auth=self._use_app_auth
+        )
+    
+    def get_leaderboards_info(self, item_name: str) -> Request[LeaderboardInfo]:
+        return Request(
+            self._client_session,
+            "GET",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}",
+            LeaderboardInfo,
+            params={
+                "page": 0,
+                "limit": 3
+            }
+        )
+    
+    def get_leaderboards(self, item_name: str, page: int) -> Request[LeaderboardInfo]:
+        return Request(
+            self._client_session,
+            "GET",
+            f"/api/charts/{item_name.removeprefix("UnCh-")}",
+            LeaderboardInfo,
+            params={
+                "page": page,
+                "limit": 10
+            }
         )

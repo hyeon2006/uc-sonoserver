@@ -25,3 +25,9 @@ class ServerItemLeaderboard(BaseModel):
 
 class ServerMessage(BaseModel):
     message: str
+
+class ServerItemLeaderboardRecord(BaseModel):
+    name: str
+    rank: Text | str
+    player: str
+    value: Text | str

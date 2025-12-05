@@ -35,6 +35,7 @@ async def upload(
         replay_configuration,
         data.level_name,
         data.user_id,
+        data.display_name,
         data.engine_name,
         info.speed
     ).send()

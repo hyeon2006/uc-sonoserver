@@ -81,6 +81,7 @@ class UploadKeyData(BaseModel):
     data_hash: str
     configuration_hash: str 
     engine_name: str
+    display_name: str
 
 def generate_upload_key(
     sonolus_id: str, 
@@ -88,6 +89,7 @@ def generate_upload_key(
     data_hash: str, 
     configuration_hash: str, 
     engine_name: str, 
+    display_name: str,
     request: SonolusRequest
 ) -> str:
     upload_key_data = UploadKeyData(
@@ -96,7 +98,8 @@ def generate_upload_key(
         level_name=level_name,
         data_hash=data_hash,
         configuration_hash=configuration_hash,
-        engine_name=engine_name
+        engine_name=engine_name,
+        display_name=display_name
     )
 
     encoded_key = base64.urlsafe_b64decode(upload_key_data.model_dump_json())

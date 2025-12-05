@@ -3,7 +3,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 @router.get("/")
-async def main(): # TODO (sonoserv)
+async def main():
     submit_form = {
         "type": "replay",
         "title": "#REPLAY",

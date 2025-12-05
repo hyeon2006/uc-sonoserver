@@ -159,8 +159,6 @@ async def main(request: SonolusRequest, item_name: str):
     else:
         data: LevelItem = handle_item_uwu([item_data], request.state.localization, uwu_level)[0]
 
-    ServerItemLeaderboard
-
     return ServerItemDetails(
         item=data,
         description=desc,
@@ -168,7 +166,7 @@ async def main(request: SonolusRequest, item_name: str):
         hasCommunity=True,
         leaderboards=[
             ServerItemLeaderboard(
-                name="",
+                name="leaderboards",
                 title="Leaderboards" # TODO (sonoserv): Change and localize
             )
         ],
