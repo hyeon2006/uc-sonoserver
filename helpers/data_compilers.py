@@ -317,9 +317,37 @@ def compile_engines_list(source: str = None, locale: str = "en") -> List[EngineI
             "rom": "EngineRom",
         }
         for key, file in data_files.items():
-            if os.path.exists(f"files/engines/{engine}/{file}"):
-                hash = repo.add_file(f"files/engines/{engine}/{file}")
-                compiled_data[key] = repo.get_srl(hash)
+            if key != "configuration":
+                if os.path.exists(f"files/engines/{engine}/{file}"):
+                    hash = repo.add_file(f"files/engines/{engine}/{file}")
+                    compiled_data[key] = repo.get_srl(hash)
+            else:
+                if os.path.exists(f"files/engines/{engine}/{file}"):
+                    config_overrides = engine_data.get("config_overrides", {})
+                    if config_overrides:
+                        with gzip.open(
+                            f"files/engines/{engine}/{file}", "rt", encoding="utf-8"
+                        ) as f:
+                            data = json.load(f)
+                        for option in data.get("options", []):
+                            option_name = option.get("name")
+                            if option_name in config_overrides.keys():
+                                for opt_key, value in config_overrides[
+                                    option_name
+                                ].items():
+                                    option[opt_key] = value
+                        bytes_io = BytesIO()
+                        with gzip.GzipFile(fileobj=bytes_io, mode="wb") as gzipped_file:
+                            json_data = json.dumps(data, ensure_ascii=False).encode(
+                                "utf-8"
+                            )
+                            gzipped_file.write(json_data)
+                        bytes_io.seek(0)
+                        hash = repo.add_bytes(bytes_io.read())
+                        compiled_data[key] = repo.get_srl(hash)
+                    else:
+                        hash = repo.add_file(f"files/engines/{engine}/{file}")
+                        compiled_data[key] = repo.get_srl(hash)
 
         def get_skin_name(engine_data: dict, locale: str) -> str:
             if engine_data.get("skin_name_locale", {}).get(locale):

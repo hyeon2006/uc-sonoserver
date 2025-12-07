@@ -9,7 +9,12 @@
     },
     "background_name": "PLEASE-SELECT",
     "effect_name": "coconut-next-sekai-1",
-    "particle_name": "coconut-next-sekai-1",
+    "particle_name": "next-sekai",
     "description": "\nNext SEKAI's expansion engine, with a visual extension!\n\nhttps://github.com/hyeon2006/sonolus-next-rush-plus-engine\nv1.1.2",
-    "engine_sort_order": 1
+    "engine_sort_order": 1,
+    "config_overrides": {
+        "Forced Fever Chance": {
+            "def": 1
+        }
+    }
 }
