@@ -325,6 +325,29 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[Extende
         if not engine_data.get("enabled", True):
             continue
 
+        config_overrides = engine_data.get("config_overrides", {})
+        if config_overrides:
+            with gzip.open(
+                f"files/engines/{engine}/EngineConfiguration", "rt", encoding="utf-8"
+            ) as f:
+                data = json.load(f)
+
+            for option in data.get("options", []):
+                name = option.get("name")
+
+                if name in config_overrides:
+                    for opt_key, value in config_overrides[name]:
+                        option[opt_key] = value
+
+                bytes_io = BytesIO()
+                with gzip.GzipFile(fileobj=bytes_io, mode="wb") as gzipped_file:
+                    json_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
+                    gzipped_file.write(json_data)
+                
+            config_hash = repo.add_bytes(bytes_io.getvalue())
+        else:
+            config_hash = repo.add_file(f"files/engines/{engine}/EngineConfiguration")
+
         def get_skin_name(engine_data: dict, locale: str) -> str:
             if engine_data.get("skin_name_locale", {}).get(locale):
                 return engine_data["skin_name_locale"][locale]
@@ -379,7 +402,7 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[Extende
             previewData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EnginePreviewData")),
             tutorialData=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineTutorialData")),
             rom=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineRom", error_on_file_nonexistent=False)),
-            configuration=repo.get_srl(repo.add_file(f"files/engines/{engine}/EngineConfiguration")),
+            configuration=repo.get_srl(config_hash),
             engine_sort_order=engine_data.get("engine_sort_order", float("inf")) # last, if no sort order
         )
 

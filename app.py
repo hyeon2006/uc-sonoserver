@@ -1,5 +1,7 @@
-import os, importlib
+import os, importlib, traceback
 from urllib.parse import urlparse
+
+from fastapi import HTTPException, Request, status
 
 from core import config, SonolusFastAPI, SonolusMiddleware
 
@@ -13,6 +15,20 @@ VERSION_REGEX = r"^\d+\.\d+\.\d+$"
 
 
 app = SonolusFastAPI(debug=debug, base_url=config["server"]["base-url"])
+
+
+@app.middleware("http")
+async def no_unhandled_exceptions(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unhandled error. Report to discord.gg/UntitledCharts",
+        )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -121,7 +137,6 @@ async def startup_event():
 
 
 app.add_event_handler("startup", startup_event)
-
 # uvicorn.run("app:app", port=port, host="0.0.0.0")
 
 

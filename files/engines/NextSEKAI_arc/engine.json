@@ -6,7 +6,7 @@
     "skin_name": "coconut-next-sekai-1",
     "background_name": "PLEASE-SELECT",
     "effect_name": "coconut-next-sekai-1",
-    "particle_name": "coconut-next-sekai-1",
+    "particle_name": "next-sekai",
     "description": "https://github.com/qwewqa/sonolus-next-sekai-arc-engine\n\nCommit: 0f14c71",
     "engine_sort_order": 3,
     "can_be_ranked": false
