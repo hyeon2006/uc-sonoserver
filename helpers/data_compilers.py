@@ -1,5 +1,6 @@
 import gzip, json, os
 from io import BytesIO
+from typing import Any
 
 from helpers.models.sonolus.item import (
     EngineItem, 
@@ -323,7 +324,7 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[Extende
         if not engine_data.get("enabled", True):
             continue
 
-        config_overrides = engine_data.get("config_overrides", {})
+        config_overrides: dict[str, dict[str, Any]] = engine_data.get("config_overrides", {})
         if config_overrides:
             with gzip.open(
                 f"files/engines/{engine}/EngineConfiguration", "rt", encoding="utf-8"
@@ -334,7 +335,7 @@ def compile_engines_list(source: str = None, locale: str = "en") -> list[Extende
                 name = option.get("name")
 
                 if name in config_overrides:
-                    for opt_key, value in config_overrides[name]:
+                    for opt_key, value in config_overrides[name].items():
                         option[opt_key] = value
 
                 bytes_io = BytesIO()
