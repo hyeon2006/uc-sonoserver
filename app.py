@@ -70,8 +70,6 @@ def load_routes(folder, cleanup: bool = True):
     global app
     """Load Routes from the specified directory."""
 
-    print("WARNING WARNING TODO (release) there are no unrankable options for nextrush and nextsekai yet")
-
     routes = []
 
     def traverse_directory(directory):
@@ -129,6 +127,9 @@ def load_routes(folder, cleanup: bool = True):
                 pycache_path = os.path.join(root, "__pycache__")
                 shutil.rmtree(pycache_path, ignore_errors=True)
                 print(f"[API] Removed __pycache__ at {pycache_path}")
+
+    print("WARNING WARNING TODO (release) there are no unrankable options for nextrush and nextsekai yet")
+
 
 
 async def startup_event():
