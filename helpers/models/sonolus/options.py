@@ -1,7 +1,7 @@
 from typing import Literal, Annotated
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from helpers.models.sonolus.misc import SIL
-from helpers.sonolus_typings import Icon, ItemType, Text, Field
+from helpers.sonolus_typings import Icon, ItemType, Text
 
 
 class ServerCollectionItemOption(BaseModel):
