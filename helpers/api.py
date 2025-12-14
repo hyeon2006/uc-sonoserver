@@ -55,7 +55,7 @@ class Request(Generic[T]):
             params=self.params,
             json=self.json,
             headers=headers,
-            content=self.content
+            data=self.content
         ) as resp:
             resp: Response[T]
 
