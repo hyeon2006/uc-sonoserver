@@ -440,7 +440,7 @@ class API:
         return Request(
             self._client_session,
             "GET",
-            f"/api/charts/{item_name.removeprefix("UnCh-")}",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}",
             LeaderboardInfo,
             params={
                 "page": page,
@@ -452,6 +452,6 @@ class API:
         return Request(
             self._client_session,
             "GET",
-            f"/api/charts/{item_name.removeprefix("UnCh-")}",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}",
             RecordInfo
         )
