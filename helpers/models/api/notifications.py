@@ -1,8 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel
-from core import SonolusRequest
+from typing import TYPE_CHECKING
 from helpers.models.sonolus.item import PostItem
 from helpers.models.sonolus.misc import Tag
+
+if TYPE_CHECKING:
+    from core import SonolusRequest
 
 class _BaseNotification(BaseModel):
     id: int
@@ -11,7 +14,7 @@ class _BaseNotification(BaseModel):
     created_at: datetime = None
     timestamp: int # TODO (backend): remove timestamp (need to check frontend tho)
 
-    def to_post(self, request: SonolusRequest) -> PostItem:
+    def to_post(self, request: "SonolusRequest") -> PostItem:
         loc = request.state.loc
         
         return PostItem(
@@ -43,7 +46,7 @@ class Notification(_BaseNotification):
     content: str
 
 
-    def to_post(self, request: SonolusRequest) -> tuple[PostItem, str]:
+    def to_post(self, request: "SonolusRequest") -> tuple[PostItem, str]:
         post = super().to_post(request)
         loc = request.state.loc
 
