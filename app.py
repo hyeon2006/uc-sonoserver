@@ -1,7 +1,7 @@
 import os, importlib, traceback
 from urllib.parse import urlparse
 
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, Response
 
 from core import config, SonolusFastAPI, SonolusMiddleware
 
@@ -25,11 +25,10 @@ async def no_unhandled_exceptions(request: Request, call_next):
         return await call_next(request)
     except Exception:
         traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unhandled error. Report to discord.gg/UntitledCharts",
+        return Response(
+            content="Unhandled error. Report to discord.gg/UntitledCharts", 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 
 app.add_middleware(
     CORSMiddleware,
