@@ -274,7 +274,7 @@ class ExtendedSkinItem(SkinItem):
 def compile_skins_list(source: str = None) -> list[ExtendedSkinItem]:
     if cached["skins"]:
         return cached["skins"]
-    compiled_data_list = []
+    compiled_data_list: list[ExtendedSkinItem] = []
     for skin in os.listdir("files/skins"):
         if not os.path.isdir(os.path.join("files", "skins", skin)):
             continue
@@ -300,7 +300,7 @@ def compile_skins_list(source: str = None) -> list[ExtendedSkinItem]:
             locale=skin_data.get("locale")
         )
         compiled_data_list.append(compiled_data)
-    compiled_data_list = sorted(compiled_data_list, key=lambda d: d["title"])
+    compiled_data_list = sorted(compiled_data_list, key=lambda d: d.title)
     cached["skins"] = compiled_data_list
     return compiled_data_list
 
