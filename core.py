@@ -52,7 +52,7 @@ class SonolusFastAPI(FastAPI):
 
         self.exception_handlers.setdefault(HTTPException, self.http_exception_handler)
 
-        self.api = API(self.api_config["url"], self.auth_header, self.auth)
+        self.api: API
 
     async def run_blocking(
         self, 

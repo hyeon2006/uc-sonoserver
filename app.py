@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 import uvicorn
 
+from helpers.api import API
+
 debug = config["server"]["debug"]
 
 VERSION_REGEX = r"^\d+\.\d+\.\d+$"
@@ -134,6 +136,8 @@ async def startup_event():
     else:
         load_routes(folder, cleanup=debug)
         print("Routes loaded!")
+
+    app.api = API(app.api_config["url"], app.auth_header, app.auth)
 
 
 app.add_event_handler("startup", startup_event)
