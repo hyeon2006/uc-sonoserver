@@ -93,7 +93,7 @@ async def main(request: SonolusRequest):
             ),
             required=False,
             default=engines[0].name,
-            values=[ServerOption_Value(item=item.name, title=item.title) for item in engines]
+            values=[ServerOption_Value(name=item.name, title=item.title) for item in engines]
         )
     )
 
