@@ -278,9 +278,7 @@ def compile_skins_list(source: str = None) -> list[ExtendedSkinItem]:
     for skin in os.listdir("files/skins"):
         if not os.path.isdir(os.path.join("files", "skins", skin)):
             continue
-
-        if source:
-            compiled_data["source"] = source
+        
         with open(f"files/skins/{skin}/skin.json", "r", encoding="utf8") as f:
             skin_data: dict = json.load(f)
         if not skin_data.get("enabled", True):
