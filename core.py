@@ -155,7 +155,7 @@ class SonolusMiddleware(BaseHTTPMiddleware):
         )
         if not request.state.particle in [
             "engine_default",
-            *[item["name"] for item in particles],
+            *[item.name for item in particles],
         ]:
             request.state.particle = "engine_default"
         if not request.state.engine in [item["name"] for item in engines]:
