@@ -675,7 +675,7 @@ def handle_item_uwu(source_items: list[T], locale: str, uwu_level: str) -> list[
                     item, 
                     key, 
                     handle_uwu(
-                        item[key],
+                        getattr(item, key),
                         locale if locale not in always_assume_en else "en",
                         uwu_level,
                         symbols=key in include_symbols,
