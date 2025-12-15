@@ -49,20 +49,13 @@ class Request(Generic[T]):
         if self.use_app_auth:
             headers[self.use_app_auth[0]] = self.use_app_auth[1]
 
-        args = {}
-        if self.params:
-            args["params"] = self.params
-        if self.json:
-            args["json"] = self.json
-        if headers:
-            args["headers"] = headers
-        if self.content:
-            args["data"] = self.content
-
         async with self.client_session.request(
             self.method,
             self.url, 
-            **args
+            params=self.params,
+            json=self.json,
+            headers=headers,
+            data=self.content
         ) as resp:
             resp: Response[T]
 
@@ -275,18 +268,23 @@ class API:
         ],
         staff_pick: bool | None,
     ) -> Request[LevelList]:
+        params = {
+            "type": "quick",
+            "page": page,
+
+            "sort_by": sort_by,
+            "staff_pick": staff_pick
+        }
+
+        if meta_includes:
+            params["meta_includes"] = meta_includes
+
         return Request(
             self._client_session,
             "GET",
             "/api/charts/",
             LevelList,
-            params={
-                "type": "quick",
-                "page": page,
-                "meta_includes": meta_includes,
-                "sort_by": sort_by,
-                "staff_pick": staff_pick
-            }
+            params=params
         )
 
     def charts_advanced_search(
