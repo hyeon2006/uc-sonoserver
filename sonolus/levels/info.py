@@ -57,18 +57,17 @@ async def main(request: SonolusRequest):
             for level in random_response.data.data[:3]
         ]
     )
-    # newest = await asyncio.gather(
-    #     *[
-    #         request.app.run_blocking(
-    #             level.to_level_item,
-    #             request,
-    #             asset_base_url,
-    #             request.state.levelbg,
-    #         )
-    #         for level in newest_response.data.data[:3]
-    #     ]
-    # )
-    newest = []
+    newest = await asyncio.gather(
+        *[
+            request.app.run_blocking(
+                level.to_level_item,
+                request,
+                asset_base_url,
+                request.state.levelbg,
+            )
+            for level in newest_response.data.data[:3]
+        ]
+    )
     popular = await asyncio.gather(
         *[
             request.app.run_blocking(

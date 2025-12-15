@@ -79,4 +79,4 @@ for level in tqdm(levels.data):
     
     level_id = request.json()["id"]
 
-    requests.patch(f"{argv[1]}/api/charts/{level_id}", json={"status": "PUBLIC"}, headers={"authorization": session})
+    requests.patch(f"{argv[1]}/api/charts/{level_id}/visibility/", json={"status": "PUBLIC"}, headers={"authorization": session})
