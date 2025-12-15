@@ -271,13 +271,13 @@ class API:
         params = {
             "type": "quick",
             "page": page,
-
-            "sort_by": sort_by,
-            "staff_pick": staff_pick
+            "sort_by": sort_by
         }
 
         if meta_includes:
             params["meta_includes"] = meta_includes
+        if staff_pick:
+            params["staff_pick"] = staff_pick
 
         return Request(
             self._client_session,
