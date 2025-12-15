@@ -7,8 +7,8 @@ class Tag(BaseModel):
 
 
 class SRL(BaseModel):
-    hash: str
-    url: str
+    hash: str | None = None
+    url: str | None = None
 
 
 class SIL(BaseModel):
