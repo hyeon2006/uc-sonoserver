@@ -115,7 +115,7 @@ def verify_upload_key(upload_key: str, request: SonolusRequest) -> UploadKeyData
         base64.urlsafe_b64decode(encoded_data).decode()
     )
 
-    if decoded_data.expires_at > time.time():
+    if decoded_data.expires_at < time.time():
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Expired upload token.")
 
     recalculated_signature = hmac.new(
