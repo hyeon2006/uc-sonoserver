@@ -49,13 +49,20 @@ class Request(Generic[T]):
         if self.use_app_auth:
             headers[self.use_app_auth[0]] = self.use_app_auth[1]
 
+        args = {}
+        if self.params:
+            args["params"] = self.params
+        if self.json:
+            args["json"] = self.json
+        if headers:
+            args["headers"] = headers
+        if self.content:
+            args["data"] = self.content
+
         async with self.client_session.request(
             self.method,
             self.url, 
-            params=self.params,
-            json=self.json,
-            headers=headers,
-            data=self.content
+            **args
         ) as resp:
             resp: Response[T]
 
