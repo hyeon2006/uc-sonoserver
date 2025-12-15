@@ -423,7 +423,7 @@ class API:
         return Request(
             self._client_session,
             "POST",
-            f"/api/charts/{level_name.removeprefix('UnCh-')}/leaderboards",
+            f"/api/charts/{level_name.removeprefix('UnCh-')}/leaderboards/",
             None,
             content=content,
             use_app_auth=self._use_app_auth
@@ -433,7 +433,7 @@ class API:
         return Request(
             self._client_session,
             "GET",
-            f"/api/charts/{item_name.removeprefix('UnCh-')}",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}/leaderboards/",
             LeaderboardInfo,
             params={
                 "page": 0,
@@ -445,7 +445,7 @@ class API:
         return Request(
             self._client_session,
             "GET",
-            f"/api/charts/{item_name.removeprefix('UnCh-')}",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}/leaderboards/",
             LeaderboardInfo,
             params={
                 "page": page,
@@ -457,6 +457,6 @@ class API:
         return Request(
             self._client_session,
             "GET",
-            f"/api/charts/{item_name.removeprefix('UnCh-')}",
+            f"/api/charts/{item_name.removeprefix('UnCh-')}/leaderboards/",
             RecordInfo
         )
