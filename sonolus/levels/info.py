@@ -65,7 +65,7 @@ async def main(request: SonolusRequest):
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in newest_response.data.data[:3]
+            for level in newest_response.data.data[:3] if newest_response.data
         ]
     )
     popular = await asyncio.gather(

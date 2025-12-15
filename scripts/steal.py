@@ -76,3 +76,7 @@ for level in tqdm(levels.data):
 
     if request.status_code != 200:
         raise Exception(request.text)
+    
+    level_id = request.json()["id"]
+
+    requests.patch(f"{argv[1]}/api/charts/{level_id}", json={"status": "PUBLIC"}, headers={"authorization": session})
