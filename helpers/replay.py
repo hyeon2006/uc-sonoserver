@@ -100,7 +100,7 @@ def generate_upload_key(
         display_name=display_name
     )
 
-    encoded_key = base64.urlsafe_b64encode(upload_key_data.model_dump_json())
+    encoded_key = base64.urlsafe_b64encode(upload_key_data.model_dump_json().encode())
 
     signature = hmac.new(
         request.app.config["upload-token-sig-key"].encode(), encoded_key, hashlib.sha256
