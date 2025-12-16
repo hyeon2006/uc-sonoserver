@@ -94,7 +94,7 @@ async def replay_info(item_name: str, name: str, request: SonolusRequest):
             name=str(replay_response.data.data.id),
             source=request.app.base_url,
             title=generate_string(replay_response.data.data),
-            subtitle=level.name,
+            subtitle=level.title,
             author=replay_response.data.data.display_name,
             tags=[],
             level=level,
