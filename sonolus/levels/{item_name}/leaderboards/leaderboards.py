@@ -28,7 +28,7 @@ async def info(item_name: str, request: SonolusRequest):
     for i, replay in enumerate(response.data.data):
         top_records.append(
             ServerItemLeaderboardRecord(
-                name=str(replay.id),
+                name=item_name + str(replay.id),
                 rank=f"#{i + 1}",
                 player=replay.display_name,
                 value=generate_string(replay)
@@ -114,3 +114,5 @@ async def replay_info(item_name: str, name: str, request: SonolusRequest):
 # TODO: message for non-200 responses / handle non-200 somewhere else
 # TODO: delete replays or private replays by mod or whatever
 # TODO (with backend): replace leaderboard/record/score with a single word
+# TODO: allow user to change stuff (name, description, asdasdasd)
+# TODO: different leaderboard types
