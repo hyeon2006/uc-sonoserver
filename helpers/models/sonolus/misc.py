@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from helpers.sonolus_typings import Icon, ServerInfoButtonType, Text
+from helpers.sonolus_typings import Icon, ServerInfoItemButtonType, Text
 
 class Tag(BaseModel):
     title: Text | str
@@ -15,19 +15,13 @@ class SIL(BaseModel):
     address: str
     name: str
 
-class ServerInfoButton(BaseModel):
-    type: ServerInfoButtonType
-
-class ServerItemLeaderboard(BaseModel):
-    name: str
-    title: str | Text
-    description: str | None = None
+class ServerInfoItemButton(BaseModel):
+    type: ServerInfoItemButtonType
+    title: Text | str | None = None
+    icon: Icon | str | None = None
+    badgeCount: int | None = None
+    infoType: str | None = None
+    itemName: str | None = None
 
 class ServerMessage(BaseModel):
     message: str
-
-class ServerItemLeaderboardRecord(BaseModel):
-    name: str
-    rank: Text | str
-    player: str
-    value: Text | str

@@ -5,14 +5,15 @@ from typing import Literal
 
 ItemType = Literal[
     "posts", "playlists", "levels", "skins", "backgrounds", 
-    "effects", "particles", "engines", "replays", "rooms"
+    "effects", "particles", "engines", "replays", "rooms",
+    "user"
 ]
 ItemTypeExcludingRoom = Literal[
     "posts", "playlists", "levels", "skins", "backgrounds", 
-    "effects", "particles", "engines", "replays"
+    "effects", "particles", "engines", "replays", "user"
 ]
 
-ServerInfoButtonType = Literal[
+ServerInfoItemButtonType = Literal[
     'authentication', 'multiplayer', 'post', 'playlist', 'level',
     'replay', 'skin', 'background', 'effect', 'particle', 'engine', 'configuration'
 ]

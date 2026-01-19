@@ -4,13 +4,14 @@ from datetime import datetime
 
 from core import SonolusRequest
 from helpers.datetime_to_str import datetime_to_str
-from helpers.models.sonolus.item import LevelItem, ReplayItem
-from helpers.models.sonolus.misc import SRL, ServerItemLeaderboardRecord, Tag
+from helpers.models.sonolus.item import LevelItem, ReplayItem, ServerItemLeaderboardRecord
+from helpers.models.sonolus.misc import SRL, Tag
 from helpers.owoify import handle_uwu
+from helpers.sonolus_typings import Grade
 
 class ReplayUploadData(BaseModel):
     engine: str
-    grade: Literal["allPerfect", "fullCombo", "pass", "fail"]
+    grade: Grade
     nperfect: int
     ngreat: int
     ngood: int

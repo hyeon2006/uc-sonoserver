@@ -1,9 +1,9 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
 
-from helpers.models.sonolus.item import ReplayItem, ServerItem, ServerItemCommunityComment
+from helpers.models.sonolus.item import ReplayItem, ServerItem, ServerItemCommunityComment, ServerItemLeaderboard, ServerItemLeaderboardRecord
 from helpers.models.sonolus.item_section import ServerItemSection
-from helpers.models.sonolus.misc import SRL, ServerItemLeaderboard, ServerInfoButton, ServerItemLeaderboardRecord
+from helpers.models.sonolus.misc import SRL, ServerInfoItemButton
 from helpers.models.sonolus.options import ServerForm, ServerOption
 
 
@@ -15,6 +15,7 @@ class ServerItemCommunityCommentList(BaseModel):
 class ServerItemInfo(BaseModel):
     creates: list[ServerForm] | None = None
     searches: list[ServerForm] | None = None
+    quickSearchValues: str | None = None
     sections: list[Annotated[ServerItemSection, Field(discriminator="itemType")]]
     banner: SRL | None = None
 
@@ -50,6 +51,7 @@ class ServerItemList(BaseModel):
     cursor: str | None = None
     items: list[ServerItem]
     searches: list[ServerForm] | None = None
+    quickSearchValues: str | None = None
 
 class ServerConfiguration(BaseModel):
     options: list[ServerOption]
@@ -57,7 +59,7 @@ class ServerConfiguration(BaseModel):
 class ServerInfo(BaseModel):
     title: str
     description: str | None = None
-    buttons: list[ServerInfoButton]
+    buttons: list[ServerInfoItemButton]
     configuration: ServerConfiguration
     banner: SRL | None
 

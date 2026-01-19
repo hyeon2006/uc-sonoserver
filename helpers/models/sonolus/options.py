@@ -1,6 +1,7 @@
 from typing import Literal, Annotated
 from pydantic import BaseModel, ConfigDict, Field
 from helpers.models.sonolus.misc import SIL
+from helpers.models.sonolus.validation import *
 from helpers.sonolus_typings import Icon, ItemType, Text
 
 
@@ -107,6 +108,7 @@ class ServerServerItemOption(BaseModel):
     required: bool
     type: Literal["serverItem"] = "serverItem"
     itemType: ItemType
+    infoType: str | None = None
     default: SIL | None = Field(None, serialization_alias="def")
     allowOtherServers: bool
 
@@ -121,6 +123,7 @@ class ServerServerItemsOption(BaseModel):
     required: bool
     type: Literal["serverItems"] = "serverItems"
     itemType: ItemType
+    infoType: str | None = None
     default: list[SIL] = Field(serialization_alias="def")
     allowOtherServers: bool
     limit: int
@@ -144,6 +147,13 @@ class ServerFileOption(BaseModel):
     required: bool
     type: Literal["file"] = "file"
     default: str = Field(serialization_alias="def")
+    validation: (
+        ServerFileOptionValidationFile
+        | ServerFileOptionValidationImage
+        | ServerFileOptionValidationAudio
+        | ServerFileOptionValidationZip
+        | ServerFileOptionValidationJson
+    ) | None = None
 
     model_config = ConfigDict(
         by_alias=True,  

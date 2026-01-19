@@ -1,7 +1,15 @@
 from pydantic import BaseModel
-from typing import Generic, Literal, TypeAlias, TypeVar
+from typing import Generic, Literal, Text, TypeAlias, TypeVar
 from helpers.models.sonolus.misc import Tag, SRL
 from helpers.models.sonolus.options import ServerForm
+
+class UserItem(BaseModel):
+    name: str
+    source: str | None = None
+    title: str
+    handle: str | None = None
+    tags: list[Tag]
+
 
 class BackgroundItem(BaseModel):
     name: str
@@ -15,6 +23,7 @@ class BackgroundItem(BaseModel):
     data: SRL
     image: SRL
     configuration: SRL
+    authorUser: UserItem | None = None
 
 
 class ParticleItem(BaseModel):
@@ -28,6 +37,7 @@ class ParticleItem(BaseModel):
     thumbnail: SRL
     data: SRL
     texture: SRL
+    authorUser: UserItem | None = None
 
 
 class EffectItem(BaseModel):
@@ -41,6 +51,7 @@ class EffectItem(BaseModel):
     thumbnail: SRL
     data: SRL
     audio: SRL
+    authorUser: UserItem | None = None
 
 
 class SkinItem(BaseModel):
@@ -54,6 +65,7 @@ class SkinItem(BaseModel):
     thumbnail: SRL
     data: SRL
     texture: SRL
+    authorUser: UserItem | None = None
 
 
 class EngineItem(BaseModel):
@@ -78,6 +90,7 @@ class EngineItem(BaseModel):
     tutorialData: SRL
     rom: SRL | None = None
     configuration: SRL
+    authorUser: UserItem | None = None
 
 
 class PostItem(BaseModel):
@@ -89,6 +102,7 @@ class PostItem(BaseModel):
     author: str
     tags: list[Tag]
     thumbnail: SRL | None = None
+    authorUser: UserItem | None = None
 
 T = TypeVar("T", SkinItem, BackgroundItem, EffectItem, ParticleItem)
 
@@ -115,6 +129,7 @@ class LevelItem(BaseModel):
     bgm: SRL
     preview: SRL | None = None
     data: SRL
+    authorUser: UserItem | None = None
 
 
 class PlaylistItem(BaseModel):
@@ -127,6 +142,7 @@ class PlaylistItem(BaseModel):
     tags: list[Tag]
     levels: list[LevelItem]
     thumbnail: SRL | None = None
+    authorUser: UserItem | None = None
 
 
 class RoomItem(BaseModel):
@@ -138,6 +154,7 @@ class RoomItem(BaseModel):
     cover: SRL | None = None
     bgm: SRL | None = None
     preview: SRL | None = None
+    authorUser: UserItem | None = None
 
 
 class ReplayItem(BaseModel):
@@ -151,6 +168,7 @@ class ReplayItem(BaseModel):
     level: LevelItem
     data: SRL
     configuration: SRL
+    authorUser: UserItem | None
 
 
 ServerItem: TypeAlias = (
@@ -165,7 +183,9 @@ ServerItem: TypeAlias = (
     | ReplayItem
     | LevelItem
     | EngineItem
+    | UserItem
 )
+
 
 class ServerItemCommunityComment(BaseModel):
     name: str
@@ -173,9 +193,18 @@ class ServerItemCommunityComment(BaseModel):
     time: int  # ms epoch
     content: str
     actions: list[ServerForm]
+    authorUser: UserItem | None = None
 
-class ServerItemList(BaseModel):
-    pageCount: int
-    cursor: str | None = None
-    items: list[ServerItem]
-    searches: list[ServerForm] | None = None
+
+class ServerItemLeaderboard(BaseModel):
+    name: str
+    title: str | Text
+    description: str | None = None
+
+
+class ServerItemLeaderboardRecord(BaseModel):
+    name: str
+    rank: Text | str
+    player: str
+    value: Text | str
+    playerUser: UserItem | None = None

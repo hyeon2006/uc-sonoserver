@@ -8,7 +8,7 @@ from helpers.data_compilers import (
     compile_engines_list,
     compile_skins_list,
 )
-from helpers.models.sonolus.misc import ServerInfoButton
+from helpers.models.sonolus.misc import ServerInfoItemButton
 from helpers.models.sonolus.options import ServerSelectOption, ServerOption_Value, ServerToggleOption
 from helpers.models.sonolus.response import ServerInfo, ServerConfiguration
 
@@ -215,7 +215,7 @@ async def main(request: SonolusRequest):
             request.state.localization,
             uwu_level,
         ),
-        buttons=[ServerInfoButton(type=button) for button in button_list],
+        buttons=[ServerInfoItemButton(type=button) for button in button_list],
         configuration=ServerConfiguration(
             options=options
         ),
