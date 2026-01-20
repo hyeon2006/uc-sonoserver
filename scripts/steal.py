@@ -1,5 +1,5 @@
 """
-Steals staff-picked levels from unch and uploads to the local fork (needs enabled debug)
+Steals staff-picked charts from unch and uploads to the local fork (needs enabled debug)
 
 Requires requests and tqdm: pip install requests, tqdm
 run from the uc-sonoserver directory, python3 -m scripts.steal http://127.0.0.1:8001
@@ -10,12 +10,12 @@ run from the uc-sonoserver directory, python3 -m scripts.steal http://127.0.0.1:
 import requests
 import json
 from io import BytesIO
-from helpers.models.api.levels import LevelList
+from helpers.models.api.charts import ChartList
 from tqdm import tqdm
 from sys import argv
 
 request = requests.get("https://sono_api.untitledcharts.com/api/charts?staff_pick=1&type=advanced&sort_by=published_at", verify=False)
-levels = LevelList.model_validate(request.json())
+charts = ChartList.model_validate(request.json())
 
 def make_url(author: str, id: str, asset_base_url: str, file_hash: str) -> str:
     return "/".join([asset_base_url, author, id, file_hash])
@@ -48,15 +48,15 @@ session = requests.post(
     },
 ).json()["session"]
 
-for level in tqdm(levels.data):
+for chart in tqdm(charts.data):
     data = json.dumps({
-        "rating": level.rating,
-        "title": level.title,
-        "artists": level.artists,
-        "author": level.chart_design,
+        "rating": chart.rating,
+        "title": chart.title,
+        "artists": chart.artists,
+        "author": chart.chart_design,
         "includes_background": False,
         "includes_preview": False,
-        "tags": level.tags
+        "tags": chart.tags
     })
 
     request = requests.post(
@@ -65,9 +65,9 @@ for level in tqdm(levels.data):
             "data": data
         },
         files={
-            "jacket_image": ("jacket.png", download(make_url(level.author, level.id, levels.asset_base_url, level.jacket_file_hash))),
-            "chart_file": ("chart", download(make_url(level.author, level.id, levels.asset_base_url, level.chart_file_hash))),
-            "audio_file": ("audio.mp3", download(make_url(level.author, level.id, levels.asset_base_url, level.music_file_hash)))
+            "jacket_image": ("jacket.png", download(make_url(chart.author, chart.id, charts.asset_base_url, chart.jacket_file_hash))),
+            "chart_file": ("chart", download(make_url(chart.author, chart.id, charts.asset_base_url, chart.chart_file_hash))),
+            "audio_file": ("audio.mp3", download(make_url(chart.author, chart.id, charts.asset_base_url, chart.music_file_hash)))
         },
         headers={
             "authorization": session
@@ -77,6 +77,6 @@ for level in tqdm(levels.data):
     if request.status_code != 200:
         raise Exception(request.text)
     
-    level_id = request.json()["id"]
+    chart_id = request.json()["id"]
 
-    requests.patch(f"{argv[1]}/api/charts/{level_id}/visibility/", json={"status": "PUBLIC"}, headers={"authorization": session})
+    requests.patch(f"{argv[1]}/api/charts/{chart_id}/visibility/", json={"status": "PUBLIC"}, headers={"authorization": session})

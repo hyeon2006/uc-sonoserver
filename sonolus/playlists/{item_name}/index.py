@@ -60,12 +60,12 @@ async def main(request: SonolusRequest, item_name: str):
     levels = await asyncio.gather(
         *[
             request.app.run_blocking(
-                level.to_level_item,
+                chart.to_level_item,
                 request,
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in response.data.data
+            for chart in response.data.data
         ]
     )
     pageCount = response.data.pageCount

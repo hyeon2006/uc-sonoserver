@@ -5,7 +5,7 @@ from typing import Any, Callable, TypeVar, Generic, Awaitable
 import decimal
 
 from helpers.models.api.comments import *
-from helpers.models.api.levels import *
+from helpers.models.api.charts import *
 from helpers.models.api.misc import *
 from helpers.models.api.notifications import *
 from helpers.models.api.leaderboards import *
@@ -192,7 +192,7 @@ class API:
             not_ok_callback=self._get_chart_not_ok_callback
         )
 
-    def get_random_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[RandomLevelList]:
+    def get_random_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[RandomChartList]:
         staff_pick_value = {"off": None, "true": 1, "false": 0}[staff_pick]
         params = {"type": "random"}
 
@@ -203,11 +203,11 @@ class API:
             self._client_session,
             "GET",
             "/api/charts/",
-            RandomLevelList,
+            RandomChartList,
             params=params
         )
     
-    def get_newest_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[LevelList]:
+    def get_newest_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[ChartList]:
         staff_pick_value = {"off": None, "true": 1, "false": 0}[staff_pick]
         params = {"type": "advanced", "sort_by": "published_at"}
 
@@ -218,11 +218,11 @@ class API:
             self._client_session,
             "GET",
             "/api/charts/",
-            LevelList,
+            ChartList,
             params=params
         )
     
-    def get_random_staff_picks(self, staff_pick: bool) -> Request[RandomLevelList]:
+    def get_random_staff_picks(self, staff_pick: bool) -> Request[RandomChartList]:
         """
         could be replaced with get_random_charts(...) but it's kinda unintuitive
         """
@@ -230,14 +230,14 @@ class API:
             self._client_session,
             "GET",
             "/api/charts/",
-            RandomLevelList,
+            RandomChartList,
             params={
                 "type": "random",
                 "staff_pick": int(staff_pick)
             }
         )
     
-    def get_popular_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[LevelList]:
+    def get_popular_charts(self, staff_pick: Literal["off", "true", "false"]) -> Request[ChartList]:
         staff_pick_value = {"off": None, "true": 1, "false": 0}[staff_pick]
         params = {
             "type": "advanced",
@@ -251,7 +251,7 @@ class API:
             self._client_session,
             "GET",
             "/api/charts/",
-            LevelList,
+            ChartList,
             params=params
         )
     
@@ -270,7 +270,7 @@ class API:
             "random",
         ],
         staff_pick: bool | None,
-    ) -> Request[LevelList]:
+    ) -> Request[ChartList]:
         params = {
             "type": "quick",
             "page": page,
@@ -286,7 +286,7 @@ class API:
             self._client_session,
             "GET",
             "/api/charts/",
-            LevelList,
+            ChartList,
             params=params
         )
 
@@ -320,12 +320,12 @@ class API:
         ],
         sort_order: Literal["desc", "asc", None],
         meta_includes: str | None
-    ) -> Request[LevelList]:
+    ) -> Request[ChartList]:
         return Request( 
             self._client_session,
             "GET",
             "/api/charts/",
-            LevelList,
+            ChartList,
             params={
                 "type": "advanced",
                 "page": page if sort_by != "random" else 1,
@@ -406,7 +406,7 @@ class API:
         self,
         replay_data: bytes,
         replay_configuration: bytes,
-        level_name: str, 
+        chart_name: str, 
         user_id: str,
         display_name: str,
         engine_name: str,
@@ -426,7 +426,7 @@ class API:
         return Request(
             self._client_session,
             "POST",
-            f"/api/charts/{level_name.removeprefix('UnCh-')}/leaderboards/",
+            f"/api/charts/{chart_name.removeprefix('UnCh-')}/leaderboards/",
             None,
             content=content,
             use_app_auth=self._use_app_auth

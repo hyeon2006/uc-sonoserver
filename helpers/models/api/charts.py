@@ -288,11 +288,11 @@ class VisibilityChangeResponse(Chart):
     mod: bool | None = None
     owner: bool | None = None
 
-class _BaseLevelList(BaseModel): # TODO (backend): split level lists into different routes
+class _BaseChartList(BaseModel): # TODO (backend): split chart lists into different routes
     data: list[Chart]
     asset_base_url: str
 
-class RandomLevelList(_BaseLevelList): ...
+class RandomChartList(_BaseChartList): ...
 
-class LevelList(_BaseLevelList):
+class ChartList(_BaseChartList):
     pageCount: int 

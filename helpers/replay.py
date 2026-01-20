@@ -68,7 +68,7 @@ def validate_replay_config(compressed_replay_config: bytes, engine_name: str) ->
 
     for option_value, (option_name, option_validator) in zip(replay_config["options"], engine_settings[engine_name].items()):
         if not option_validator(option_value):
-            raise ValueError(f"invalid value for {option_name}: {option_value}") # TODO: raise httpexc and localize?
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"invalid value for {option_name}: {option_value}")
         
         match option_name:
             case "#SPEED":
@@ -79,7 +79,7 @@ def validate_replay_config(compressed_replay_config: bytes, engine_name: str) ->
 class UploadKeyData(BaseModel):
     user_id: str
     expires_at: int
-    level_name: str
+    chart_name: str
     data_hash: str
     configuration_hash: str 
     engine_name: str
@@ -87,7 +87,7 @@ class UploadKeyData(BaseModel):
 
 def generate_upload_key(
     sonolus_id: str, 
-    level_name: str, 
+    chart_name: str, 
     data_hash: str, 
     configuration_hash: str, 
     engine_name: str, 
@@ -97,7 +97,7 @@ def generate_upload_key(
     upload_key_data = UploadKeyData(
         user_id=sonolus_id,
         expires_at=int(time.time() + UPLOAD_KEY_EXPIRE_TIME),
-        level_name=level_name,
+        chart_name=chart_name,
         data_hash=data_hash,
         configuration_hash=configuration_hash,
         engine_name=engine_name,

@@ -12,7 +12,7 @@ class _BaseNotification(BaseModel):
     title: str
     is_read: bool = False
     created_at: datetime = None
-    timestamp: int # TODO (backend): remove timestamp (need to check frontend tho)
+    timestamp: int # TODO (backend): remove timestamp?
 
     def to_post(self, request: "SonolusRequest") -> PostItem:
         loc = request.state.loc

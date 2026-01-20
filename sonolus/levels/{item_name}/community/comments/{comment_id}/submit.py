@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
-from helpers.models.sonolus.submit import ServerSubmitCommentIDActionRequest
+from helpers.models.sonolus.submit import GenericActionRequest
 from helpers.models.sonolus.response import ServerSubmitItemCommunityCommentActionResponse
 
 router = APIRouter()
@@ -12,7 +12,7 @@ async def main(
     request: SonolusRequest,
     item_name: str,
     comment_id: int,
-    data: ServerSubmitCommentIDActionRequest,
+    data: GenericActionRequest,
 ):
     locale = request.state.loc
     auth = request.headers.get("Sonolus-Session")

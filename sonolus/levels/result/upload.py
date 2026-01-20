@@ -33,7 +33,7 @@ async def upload(
     response = await request.app.api.upload_replay(
         replay_data,
         replay_configuration,
-        data.level_name,
+        data.chart_name,
         data.user_id,
         data.display_name,
         data.engine_name,

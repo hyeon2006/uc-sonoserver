@@ -44,16 +44,16 @@ async def replay_info(item_name: str, name: str, request: SonolusRequest):
     if replay_response.status != 200:
         raise HTTPException(status_code=replay_response.status)
     
-    level_response = await request.app.api.get_chart(item_name).send(auth)
+    chart_response = await request.app.api.get_chart(item_name).send(auth)
 
     if replay_response.status != 200:
-        raise HTTPException(status_code=level_response.status)
+        raise HTTPException(status_code=chart_response.status)
     
-    asset_base_url = level_response.data.asset_base_url.removesuffix("/")
+    asset_base_url = chart_response.data.asset_base_url.removesuffix("/")
 
     replay_item = replay_response.data.to_replay_item(
         await request.app.run_blocking(
-            level_response.data.data.to_level_item,
+            chart_response.data.data.to_level_item,
             request,
             asset_base_url,
             request.state.levelbg,
@@ -63,9 +63,8 @@ async def replay_info(item_name: str, name: str, request: SonolusRequest):
 
     return ServerItemLeaderboardRecordDetails(replays=[replay_item])
 
-# TODO: chart -> level ..?
-# TODO: message for non-200 responses / handle non-200 somewhere else
 # TODO (with backend): replace leaderboard/record/score/replay with a single word
 # TODO: different leaderboard types
-# TODO: sonolus 1.1
 # TODO: uwuify | handle_item_uwu([item_data], request.state.localization, request.state.uwu)[0]
+# TODO: leaderboards page
+# TODO: user type implementation (putting here bc the pile of todos is here)

@@ -31,17 +31,22 @@ async def main(request: SonolusRequest):
     uwu_supported = ["en", "tr"]
 
     banner_srl = await request.app.run_blocking(compile_banner)
-    button_list = ["authentication", "post", "level", "configuration"]
+    button_list = [
+        ServerInfoItemButton(type="authentication"), 
+        ServerInfoItemButton(type="post"), 
+        ServerInfoItemButton(type="level"), 
+        ServerInfoItemButton(type="configuration")
+    ]
     if logged_in:
-        button_list.append("playlist")
+        button_list.append(ServerInfoItemButton(type="playlist"))
     if request.state.showresourcebuttons == "1":
         button_list.extend(
             [
-                "skin",
-                "background",
-                "effect",
-                "particle",
-                "engine",
+                ServerInfoItemButton(type="skin"),
+                ServerInfoItemButton(type="background"),
+                ServerInfoItemButton(type="effect"),
+                ServerInfoItemButton(type="particle"),
+                ServerInfoItemButton(type="engine"),
             ]
         )
     options = []
@@ -191,7 +196,12 @@ async def main(request: SonolusRequest):
                 )
             )
             if notifications > 0:
-                button_list = ["post"]
+                button_list = [
+                    ServerInfoItemButton(
+                        type="post",
+                        badgeCount=notifications # TODO: ask whether something needs to be renamed
+                    )
+                ]
             desc += "\n\n" + ("-" * 40) + "\n"
             desc += f"\n{locale.find_in_playlists}"
             if response.data.mod or response.data.admin:
@@ -215,7 +225,7 @@ async def main(request: SonolusRequest):
             request.state.localization,
             uwu_level,
         ),
-        buttons=[ServerInfoItemButton(type=button) for button in button_list],
+        buttons=button_list,
         configuration=ServerConfiguration(
             options=options
         ),

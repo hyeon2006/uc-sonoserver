@@ -166,7 +166,7 @@ async def main(request: SonolusRequest, item_name: str):
         leaderboards=[
             ServerItemLeaderboard(
                 name="leaderboards",
-                title="Leaderboards" # TODO (sonoserv): Change and localize
+                title="Leaderboards" # TODO: Change and localize
             )
         ],
         sections=[]

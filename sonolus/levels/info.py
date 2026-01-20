@@ -49,34 +49,34 @@ async def main(request: SonolusRequest):
     random = await asyncio.gather(
         *[
             request.app.run_blocking(
-                level.to_level_item,
+                chart.to_level_item,
                 request,
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in random_response.data.data[:3]
+            for chart in random_response.data.data[:3]
         ]
     )
     newest = await asyncio.gather(
         *[
             request.app.run_blocking(
-                level.to_level_item,
+                chart.to_level_item,
                 request,
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in newest_response.data.data[:3]
+            for chart in newest_response.data.data[:3]
         ]
     )
     popular = await asyncio.gather(
         *[
             request.app.run_blocking(
-                level.to_level_item,
+                chart.to_level_item,
                 request,
                 asset_base_url,
                 request.state.levelbg,
             )
-            for level in popular_response.data.data[:3]
+            for chart in popular_response.data.data[:3]
         ]
     )
 

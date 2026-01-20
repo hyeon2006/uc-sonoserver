@@ -16,7 +16,7 @@ class DeleteCommentResponse(BaseModel):
     commenter: str
     username: str | None = None
     content: str
-    created_at: datetime # TODO (backend): can't inherit from Comment because there's datetime here
+    created_at: datetime # TODO (backend): can't inherit from Comment because of this datetime
     deleted_at: datetime | None = None
     chart_id: str
     owner: bool | None = None
