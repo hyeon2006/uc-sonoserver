@@ -7,7 +7,7 @@ router = APIRouter()
 
 MAX_FILE_SIZES = {
     "data": 2 * 1024 * 1024, # 2 mb
-    "config": 200 # 200 bytes
+    "config": 500 # 500 bytes
 }
 
 @router.post("/")

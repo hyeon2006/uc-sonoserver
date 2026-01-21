@@ -34,7 +34,7 @@ async def main(
     if len(pages) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=locale.items_not_found("posts")
+            detail=locale.items_not_found("notifications")
         )
     try:
         page_data = pages[page]

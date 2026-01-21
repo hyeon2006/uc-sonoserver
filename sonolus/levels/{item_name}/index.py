@@ -38,7 +38,7 @@ async def main(request: SonolusRequest, item_name: str):
             actions.append(
                 ServerForm(
                     type="unlike",
-                    title=f"Unlike ({like_count:,})", # XXX shouldn't it be localized?
+                    title=f"Unlike ({like_count:,})", # TODO localize
                     icon="heart",
                     requireConfirmation=False,
                     options=[]

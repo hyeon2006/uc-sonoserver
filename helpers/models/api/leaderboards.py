@@ -29,13 +29,13 @@ class ReplayUploadData(BaseModel):
             "fail": "X"
         }[self.grade]
 
-class Leaderboard(ReplayUploadData):
+class LeaderboardRecord(ReplayUploadData):
     submitter: str
     replay_data_hash: str
     replay_config_hash: str
     chart_id: str
 
-class LeaderboardDBResponse(Leaderboard): # TODO: remove optional fields
+class LeaderboardRecordDBResponse(LeaderboardRecord): # TODO: remove optional fields
     display_name: str
     id: int
     created_at: datetime
@@ -45,9 +45,9 @@ class LeaderboardDBResponse(Leaderboard): # TODO: remove optional fields
 
 class LeaderboardInfo(BaseModel):
     pageCount: int
-    data: list[LeaderboardDBResponse]
+    data: list[LeaderboardRecordDBResponse]
 
-    def to_leaderboards(self, item_name: str, page: int = 1) -> list[ServerItemLeaderboardRecord]:
+    def to_record_list(self, item_name: str, page: int = 1) -> list[ServerItemLeaderboardRecord]:
         leaderboards = []
 
         for i, record in enumerate(self.data):
@@ -60,8 +60,8 @@ class LeaderboardInfo(BaseModel):
                 )
             )
 
-class RecordInfo(BaseModel):
-    data: LeaderboardDBResponse
+class LeaderboardRecordInfo(BaseModel):
+    data: LeaderboardRecordDBResponse
     asset_base_url: str
 
     @property
@@ -105,5 +105,5 @@ class RecordInfo(BaseModel):
             )
         )
     
-class DeleteReplayResponse(LeaderboardDBResponse):
+class DeleteLeaderboardRecord(LeaderboardRecordDBResponse):
     chart_title: str | None = None

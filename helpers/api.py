@@ -432,7 +432,7 @@ class API:
             use_app_auth=self._use_app_auth
         )
     
-    def get_leaderboards_info(self, item_name: str) -> Request[LeaderboardInfo]:
+    def get_leaderboard_info(self, item_name: str) -> Request[LeaderboardInfo]:
         return Request(
             self._client_session,
             "GET",
@@ -456,18 +456,18 @@ class API:
             }
         )
     
-    def get_record(self, item_name: str, id: int) -> Request[RecordInfo]:
+    def get_leaderboard_record(self, item_name: str, id: int) -> Request[LeaderboardRecordInfo]:
         return Request(
             self._client_session,
             "GET",
             f"/api/charts/{item_name.removeprefix('UnCh-')}/leaderboards/{id}",
-            RecordInfo
+            LeaderboardRecordInfo
         )
     
-    def delete_record(self, item_name: str, id: int) -> Request[DeleteReplayResponse]:
+    def delete_leaderboard_record(self, item_name: str, id: int) -> Request[DeleteLeaderboardRecord]:
         return Request(
             self._client_session,
             "DELETE",
             f"/api/charts/{item_name.removeprefix('UnCh-')}/leaderboards/{id}",
-            DeleteReplayResponse
+            DeleteLeaderboardRecord
         )

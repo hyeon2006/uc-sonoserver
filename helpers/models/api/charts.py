@@ -288,7 +288,7 @@ class VisibilityChangeResponse(Chart):
     mod: bool | None = None
     owner: bool | None = None
 
-class _BaseChartList(BaseModel): # TODO (backend): split chart lists into different routes
+class _BaseChartList(BaseModel):
     data: list[Chart]
     asset_base_url: str
 

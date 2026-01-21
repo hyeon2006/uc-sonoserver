@@ -33,12 +33,25 @@ async def main(request: SonolusRequest):
     banner_srl = await request.app.run_blocking(compile_banner)
     button_list = [
         ServerInfoItemButton(type="authentication"), 
-        ServerInfoItemButton(type="post"), 
+        ServerInfoItemButton(
+            type="post",
+            title="Announcements", # TODO: localize,
+            icon="announcement",
+            infoType="announcements"
+        ), 
         ServerInfoItemButton(type="level"), 
         ServerInfoItemButton(type="configuration")
     ]
     if logged_in:
         button_list.append(ServerInfoItemButton(type="playlist"))
+        button_list.append(
+            ServerInfoItemButton(
+                type="post",
+                title=locale.notification.NOTIFICATION,
+                icon="comment",
+                infoType="notifications"
+            )
+        )
     if request.state.showresourcebuttons == "1":
         button_list.extend(
             [
@@ -199,9 +212,13 @@ async def main(request: SonolusRequest):
                 button_list = [
                     ServerInfoItemButton(
                         type="post",
-                        badgeCount=notifications # TODO: ask whether something needs to be renamed
+                        title=locale.notification.NOTIFICATION,
+                        icon="comment",
+                        badgeCount=notifications,
+                        infoType="notifications"
                     )
                 ]
+
             desc += "\n\n" + ("-" * 40) + "\n"
             desc += f"\n{locale.find_in_playlists}"
             if response.data.mod or response.data.admin:

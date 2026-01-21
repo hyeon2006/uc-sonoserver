@@ -17,21 +17,21 @@ async def submit(
 
     parsed_data = data.parse()
 
-    chart_name, replay_id = item_name.removesuffix("UnCh-").split("-")
+    chart_name, record_id = item_name.removesuffix("UnCh-").split("-")
 
     if parsed_data.type not in ["delete"]:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=locale.not_found
         )
     
-    delete_response = await request.app.api.delete_record(chart_name, replay_id).send(auth)
+    delete_response = await request.app.api.delete_leaderboard_record(chart_name, record_id).send(auth)
 
     
     if delete_response.data.mod and not delete_response.data.owner:
         send_notification_response = await request.app.api.send_notification(
-            title="Replay Deleted", 
+            title="Leaderboard Score Deleted", 
             user_id=delete_response.data.commenter,
-            content=f"#REPLAY_DELETED\n{delete_response.data.chart_title}" # TODO: localize
+            content=f"#LEADERBOARD_SCORE_DELETED\n{delete_response.data.chart_title}" # TODO: localize
         ).send(auth)
 
         if send_notification_response.status != 200:
