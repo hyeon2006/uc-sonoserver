@@ -101,6 +101,9 @@ class LeaderboardInfo(BaseModel):
                 case "perfect":
                     value = record.nperfect
 
+            if value == 727:
+                value = "727 WYSI"
+
             leaderboards.append(
                 ServerItemLeaderboardRecord(
                     name=f"UnCh-{record.chart_id}-{record.id}",
