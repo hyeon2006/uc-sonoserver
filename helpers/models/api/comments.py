@@ -14,7 +14,7 @@ class Comment(BaseModel):
     content: str
     created_at: int
     deleted_at: int | None = None
-    account: PublicAccount
+    account: PublicAccount | None = None
     chart_id: str
     owner: bool | None = None
 
@@ -45,7 +45,7 @@ class Comment(BaseModel):
                 and not self.deleted_at
                 else []
             ),
-            authorUser=self.account.to_user_item()
+            authorUser=self.account.to_user_item() if self.account else None
         )
 
 class DeleteCommentResponse(BaseModel):

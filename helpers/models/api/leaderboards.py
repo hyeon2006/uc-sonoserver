@@ -60,7 +60,7 @@ class LeaderboardRecordDBResponse(LeaderboardRecord): # XXX: remove optional fie
     mod: bool | None = None
 
 class LeaderboardRecordWithAccount(LeaderboardRecordDBResponse):
-    account: PublicAccount
+    account: PublicAccount | None = None
 
 class LeaderboardInfo(BaseModel):
     pageCount: int | None = None
@@ -110,14 +110,14 @@ class LeaderboardInfo(BaseModel):
                     rank=f"#{i + ((page - 1) * 10) + 1}",
                     player=record.display_name,
                     value=f"{record.shortened_grade} {value}",
-                    playerUser=record.account.to_user_item()
+                    playerUser=record.account.to_user_item() if record.account else None
                 )
             )
 
 class LeaderboardRecordInfo(BaseModel):
     data: LeaderboardRecordDBResponse
     chart: Chart
-    submitter: PublicAccount
+    submitter: PublicAccount | None = None
     asset_base_url: str
 
     @property
@@ -165,7 +165,7 @@ class LeaderboardRecordInfo(BaseModel):
                 hash=self.data.replay_config_hash,
                 url=self._make_url(asset_base_url, self.data.chart_prefix, self.data.submitter, self.data.replay_config_hash)
             ),
-            authorUser=self.submitter.to_user_item()
+            authorUser=self.submitter.to_user_item() if self.submitter else None
         )
     
 class DeleteLeaderboardRecord(LeaderboardRecordDBResponse):
