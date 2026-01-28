@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from core import SonolusRequest
 from helpers.models.sonolus.options import ServerForm
 from helpers.models.sonolus.response import ServerItemDetails
+from helpers.owoify import handle_item_uwu
 
 router = APIRouter()
 
@@ -31,7 +32,7 @@ async def get(request: SonolusRequest, item_name: str):
     ] if leaderboard_record_response.data.data.owner or leaderboard_record_response.data.data.mod else []
 
     return ServerItemDetails(
-        item=replay_item,
+        item=handle_item_uwu([replay_item], request.state.localization, request.state.uwu),
         actions=actions,
         hasCommunity=False,
         leaderboards=[],

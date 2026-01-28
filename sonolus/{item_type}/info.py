@@ -16,7 +16,7 @@ from helpers.data_compilers import (
 
 router = APIRouter()
 
-from helpers.owoify import handle_uwu
+from helpers.owoify import handle_item_uwu, handle_uwu
 
 @router.get("/")
 async def main(request: SonolusRequest, item_type: ItemType):
@@ -73,7 +73,7 @@ async def main(request: SonolusRequest, item_type: ItemType):
                 uwu_level,
             ),
             itemType=item_type,
-            items=data[:5]
+            items=handle_item_uwu(data[:5], request.state.localization, request.state.uwu)
         ),
         banner=banner_srl if banner_srl else None
     )

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from core import SonolusRequest
 from helpers.models.sonolus.response import ServerItemList
+from helpers.owoify import handle_item_uwu
 
 router = APIRouter()
 
@@ -45,8 +46,12 @@ async def list(
     
     return ServerItemList(
         pageCount=page_count,
-        items=await request.app.run_blocking(
-            response.data.to_replay_items,
-            request
+        items=handle_item_uwu(
+            await request.app.run_blocking(
+                response.data.to_replay_items,
+                request
+            ),
+            request.state.localization,
+            request.state.uwu
         )
     )

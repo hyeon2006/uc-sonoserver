@@ -10,6 +10,7 @@ from helpers.data_compilers import (
     compile_skins_list,
     # compile_rooms_list
 )
+from helpers.owoify import handle_item_uwu
 from helpers.sonolus_typings import ItemType
 from helpers.models.sonolus.response import ServerItemDetails
 from helpers.models.sonolus.item import ServerItem
@@ -68,6 +69,8 @@ async def main(request: SonolusRequest, item_type: ItemType, item_name: str):
                     item_type.capitalize().removesuffix("s"), item_name
                 ),
             )
+
+    item_data = handle_item_uwu([item_data], request.state.localization, request.state.uwu)[0]
 
     return ServerItemDetails(
         item=item_data,

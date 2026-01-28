@@ -32,6 +32,7 @@ async def main(
             )
 
             data = sort_posts_by_newest(data)
+            data = handle_item_uwu(data, request.state.localization, uwu_level)
 
         case "notifications":
             if auth:
@@ -60,5 +61,5 @@ async def main(
 
     return ServerItemList(
         pageCount=len(pages),
-        items=handle_item_uwu(items, request.state.localization, uwu_level)
+        items=items
     )

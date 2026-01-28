@@ -5,6 +5,7 @@ from helpers.models.sonolus.item import UserItem
 from helpers.models.sonolus.item_section import LevelItemSection
 from helpers.models.sonolus.misc import Tag
 from helpers.models.sonolus.response import ServerItemDetails
+from helpers.owoify import handle_item_uwu
 
 router = APIRouter()
 
@@ -39,14 +40,18 @@ async def main(request: SonolusRequest, user_id: str):
             LevelItemSection(
                 title="#NEWEST",
                 icon="level",
-                items=[
-                    await request.app.run_blocking(
-                        chart.to_level_item,
-                        request,
-                        profile.data.asset_base_url
-                    )
-                    for chart in profile.data.charts
-                ]
+                items=handle_item_uwu(
+                    [
+                        await request.app.run_blocking(
+                            chart.to_level_item,
+                            request,
+                            profile.data.asset_base_url
+                        )
+                        for chart in profile.data.charts
+                    ],
+                    request.state.localization,
+                    request.state.uwu
+                )
             )
         ]
     )

@@ -7,14 +7,12 @@ from helpers.models.sonolus.item import LevelItem, ServerItemLeaderboard
 
 router = APIRouter()
 
-from helpers.owoify import handle_item_uwu
+from helpers.owoify import handle_item_uwu, handle_uwu
 
 
 @router.get("/", response_model=ServerItemDetails)
 async def main(request: SonolusRequest, item_name: str):
     locale = request.state.loc
-    uwu_level = request.state.uwu
-    uwu_handled = False
     item_data: LevelItem = None
     auth = request.headers.get("Sonolus-Session")
     actions = []
@@ -151,12 +149,8 @@ async def main(request: SonolusRequest, item_name: str):
                         ]
                     )
                 )
-        uwu_handled = True
 
-    if uwu_handled:
-        data = item_data
-    else:
-        data: LevelItem = handle_item_uwu([item_data], request.state.localization, uwu_level)[0]
+    data: LevelItem = handle_item_uwu([item_data], request.state.localization, request.state.uwu)[0]
 
     return ServerItemDetails(
         item=data,
@@ -166,7 +160,7 @@ async def main(request: SonolusRequest, item_name: str):
         leaderboards=[ # TODO: localize
             ServerItemLeaderboard(
                 name="arcade_score_speed",
-                title="Arcade Score"
+                title=handle_uwu("Arcade Score", request.state.localization)
             ),
             ServerItemLeaderboard(
                 name="accuracy_score",

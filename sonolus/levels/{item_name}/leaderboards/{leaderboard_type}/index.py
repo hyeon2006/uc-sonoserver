@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from core import SonolusRequest
 from helpers.models.api.leaderboards import leaderboard_type
 from helpers.models.sonolus.response import ServerItemLeaderboardDetails, ServerItemLeaderboardRecordDetails, ServerItemLeaderboardRecordList
+from helpers.owoify import handle_item_uwu
 
 router = APIRouter()
 
@@ -14,9 +15,13 @@ async def info(item_name: str, leaderboard_type: leaderboard_type, request: Sono
         raise HTTPException(status_code=response.status)
 
     return ServerItemLeaderboardDetails(
-        topRecords=await request.app.run_blocking(
-            response.data.to_record_list,
-            leaderboard_type
+        topRecords=handle_item_uwu(
+            await request.app.run_blocking(
+                response.data.to_record_list,
+                leaderboard_type
+            ),
+            request.state.localization,
+            request.state.uwu
         )
     )
 
@@ -29,10 +34,14 @@ async def list(item_name: str, leaderboard_type: leaderboard_type, request: Sono
 
     return ServerItemLeaderboardRecordList(
         pageCount=response.data.pageCount,
-        records=await request.app.run_blocking(
-            response.data.to_record_list,
-            leaderboard_type,
-            page=page
+        records=handle_item_uwu(
+            await request.app.run_blocking(
+                response.data.to_record_list,
+                leaderboard_type,
+                page=page
+            ),
+            request.state.localization,
+            request.state.uwu
         )
     )
 
@@ -50,6 +59,4 @@ async def leaderboard_record_info(item_name: str, name: str, request: SonolusReq
         request
     )
 
-    return ServerItemLeaderboardRecordDetails(replays=[replay_item])
-
-# TODO: uwuify | handle_item_uwu([item_data], request.state.localization, request.state.uwu)[0]
+    return ServerItemLeaderboardRecordDetails(replays=handle_item_uwu([replay_item], request.state.localization, request.state.uwu))

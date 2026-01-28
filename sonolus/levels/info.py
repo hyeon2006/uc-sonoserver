@@ -310,12 +310,14 @@ async def main(request: SonolusRequest):
 
     return ServerItemInfo(
         creates=creates,
-        searches=[ServerForm(
-            type="advanced",
-            title=locale.search.ADVANCED_SEARCH,
-            requireConfirmation=False,
-            options=options
-        )],
+        searches=[
+            ServerForm(
+                type="advanced",
+                title=locale.search.ADVANCED_SEARCH,
+                requireConfirmation=False,
+                options=options
+            )
+        ],
         sections=sections,
         banner=await request.app.run_blocking(compile_banner)
     )

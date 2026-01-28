@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from core import SonolusRequest
-from helpers.models.api.comments import Comment
 from helpers.models.sonolus.options import ServerForm, ServerTextAreaOption
 from helpers.models.sonolus.response import ServerItemCommunityInfo
 
@@ -9,7 +8,6 @@ router = APIRouter()
 
 @router.get("/", response_model=ServerItemCommunityInfo)
 async def main(request: SonolusRequest, item_name: str):
-    uwu_level = request.state.uwu
     auth = request.headers.get("Sonolus-Session")
 
     response = await request.app.api.get_comments(item_name).send(auth)

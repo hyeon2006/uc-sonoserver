@@ -5,6 +5,7 @@ from helpers.data_compilers import compile_banner
 from helpers.models.sonolus.item_section import ReplayItemSection
 from helpers.models.sonolus.options import ServerForm, ServerToggleOption
 from helpers.models.sonolus.response import ServerItemInfo
+from helpers.owoify import handle_item_uwu
 
 router = APIRouter()
 
@@ -32,17 +33,24 @@ async def info(request: SonolusRequest):
             ReplayItemSection(
                 title="#RANDOM",
                 icon="replay",
-                items=await request.app.run_blocking(
-                    random.data.to_replay_items,
-                    request
+                items=handle_item_uwu(
+                    await request.app.run_blocking(
+                        random.data.to_replay_items,
+                        request
+                    ),
+                    request.state.localization
                 ),
             ),
             ReplayItemSection(
                 title="#NEWEST",
                 icon="replay",
-                items=await request.app.run_blocking(
-                    newest.data.to_replay_items,
-                    request
+                items=handle_item_uwu(
+                    await request.app.run_blocking(
+                        newest.data.to_replay_items,
+                        request
+                    ),
+                    request.state.localization,
+                    request.state.uwu
                 )
             )
         ],
