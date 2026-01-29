@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from helpers.sonolus_typings import Icon, ServerInfoItemButtonType, Text
+from helpers.sonolus_typings import Icon, ServerInfoButtonType, Text
 
 class Tag(BaseModel):
     title: Text | str
@@ -16,7 +16,7 @@ class SIL(BaseModel):
     name: str
 
 class ServerInfoItemButton(BaseModel):
-    type: ServerInfoItemButtonType
+    type: ServerInfoButtonType
     title: Text | str | None = None
     icon: Icon | str | None = None
     badgeCount: int | None = None
