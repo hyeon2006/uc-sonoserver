@@ -1,8 +1,10 @@
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, TYPE_CHECKING
 from pydantic import BaseModel
 from datetime import datetime
 
-from core import SonolusRequest
+if TYPE_CHECKING:
+    from core import SonolusRequest
+
 from helpers.datetime_to_str import datetime_to_str
 from helpers.models.api.charts import Chart
 from helpers.models.api.misc import PublicAccount
@@ -132,7 +134,7 @@ class LeaderboardRecordInfo(BaseModel):
     def _make_url(self, asset_base_url: str, chart_prefix: str, user_id: str, hash: str) -> str:
         return f"{asset_base_url}/{chart_prefix}/replays/{user_id}/{hash}"
 
-    def to_replay_item(self, request: SonolusRequest) -> ReplayItem:
+    def to_replay_item(self, request: "SonolusRequest") -> ReplayItem:
         asset_base_url = self.asset_base_url.removesuffix("/")
         loc = request.state.loc
 
@@ -175,5 +177,5 @@ class PublicLeaderboardRecordList(BaseModel):
     data: list[LeaderboardRecordInfo]
     pageCount: int | None = None
 
-    def to_replay_items(self, request: SonolusRequest) -> list[ReplayItem]:
+    def to_replay_items(self, request: "SonolusRequest") -> list[ReplayItem]:
         return [record.to_replay_item(request) for record in self.data]
