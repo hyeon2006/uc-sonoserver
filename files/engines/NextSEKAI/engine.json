@@ -6,15 +6,9 @@
     "skin_name": "coconut-next-sekai-1",
     "background_name": "PLEASE-SELECT",
     "effect_name": "coconut-next-sekai-1",
-<<<<<<< HEAD
-    "particle_name": "next-sekai",
-    "description": "https://github.com/Next-SEKAI/sonolus-next-sekai-engine\n\nCommit: 054a18e v1.6.6",
+    "particle_name": "toasted-bread-st",
+    "description": "https://github.com/Next-SEKAI/sonolus-next-sekai-engine\n\nCommit: 054a18e v1.7.5",
     "engine_sort_order": 2,
     "can_be_ranked": true,
     "unrankable_options": []
-=======
-    "particle_name": "toasted-bread-st",
-    "description": "https://github.com/Next-SEKAI/sonolus-next-sekai-engine\n\nCommit: 054a18e v1.7.5",
-    "engine_sort_order": 2
->>>>>>> upstream/main
 }
