@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
 from datetime import datetime
 from pydantic import BaseModel
 
-from core import SonolusRequest
+if TYPE_CHECKING:
+    from core import SonolusRequest
+    
 from helpers.models.api.misc import PublicAccount
 from helpers.models.sonolus.item import ServerItemCommunityComment
 from helpers.models.sonolus.options import ServerForm
