@@ -82,6 +82,11 @@ class SonolusFastAPI(FastAPI):
             )
             return JSONResponse(content={}, status_code=exc.status_code)
         
+    def add_api_route(self, path: str, endpoint, **kwargs):
+        kwargs["response_model_exclude_none"] = True
+        
+        return super().add_api_route(path, endpoint, **kwargs)
+        
 class _RequestState(State):
     localization: str
     uwu: Literal["off", "uwu", "owo", "uvu"]

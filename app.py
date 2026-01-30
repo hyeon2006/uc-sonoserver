@@ -15,12 +15,7 @@ debug = config["server"]["debug"]
 
 VERSION_REGEX = r"^\d+\.\d+\.\d+$"
 
-app = SonolusFastAPI(
-    debug=debug, 
-    base_url=config["server"]["base-url"],
-    response_model_exclude_none=True,
-    response_model_exclude_unset=True
-)
+app = SonolusFastAPI(debug=debug, base_url=config["server"]["base-url"])
 
 
 @app.middleware("http")
