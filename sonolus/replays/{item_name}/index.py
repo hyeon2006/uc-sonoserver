@@ -27,7 +27,8 @@ async def get(request: SonolusRequest, item_name: str):
             type="delete",
             title="#DELETE",
             icon="delete",
-            requireConfirmation=True
+            requireConfirmation=True,
+            options=[]
         )
     ] if leaderboard_record_response.data.data.owner or leaderboard_record_response.data.data.mod else []
 
