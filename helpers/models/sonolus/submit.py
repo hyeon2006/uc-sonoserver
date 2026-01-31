@@ -49,7 +49,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         "random",
     ]
     page: int | None
-    staff_pick: Literal["off", "default", "true", "false"]
+    staff_pick: Literal["off", "default", "true", "false", None]
     min_rating: int | None
     max_rating: int | None
     tags: list[str] | None
