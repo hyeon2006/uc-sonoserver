@@ -19,15 +19,17 @@ async def main(request: SonolusRequest):
     )
 
     return ServerItemInfo(
-        sections=PlaylistItemSection(
-            title="#PLAYLIST",
-            icon="playlist",
-            description=handle_uwu(
-                locale.server_description or request.app.config["description"],
-                request.state.localization,
-                uwu_level,
-            ),
-            items=handle_item_uwu(data[:5], request.state.localization, request.state.uwu)
-        ),
+        sections=[
+            PlaylistItemSection(
+                title="#PLAYLIST",
+                icon="playlist",
+                description=handle_uwu(
+                    locale.server_description or request.app.config["description"],
+                    request.state.localization,
+                    uwu_level,
+                ),
+                items=handle_item_uwu(data[:5], request.state.localization, request.state.uwu)
+            )
+        ],
         banner=banner_srl if banner_srl else None
     )
