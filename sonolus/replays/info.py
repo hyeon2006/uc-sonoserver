@@ -39,7 +39,8 @@ async def info(request: SonolusRequest):
                         random.data.to_replay_items,
                         request
                     ),
-                    request.state.localization
+                    request.state.localization,
+                    request.state.uwu
                 ),
             ),
             ReplayItemSection(
