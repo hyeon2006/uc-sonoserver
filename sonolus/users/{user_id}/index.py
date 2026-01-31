@@ -45,7 +45,8 @@ async def main(request: SonolusRequest, user_id: str):
                         await request.app.run_blocking(
                             chart.to_level_item,
                             request,
-                            profile.data.asset_base_url
+                            profile.data.asset_base_url,
+                            request.state.levelbg
                         )
                         for chart in profile.data.charts
                     ],
