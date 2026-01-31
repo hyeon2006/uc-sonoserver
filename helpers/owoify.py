@@ -653,6 +653,10 @@ T = TypeVar("T")
 
 def handle_item_uwu(source_items: list[T], locale: str, uwu_level: str) -> list[T]:
     returned = []
+
+    if not source_items:
+        return []
+
     for item in source_items:
         item = item.model_copy()
         include_symbols = ["title", "subtitle", "description"]
