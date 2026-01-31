@@ -42,7 +42,7 @@ class PublicAccount(BaseModel):
             title=self.sonolus_username,
             handle=str(self.sonolus_handle),
             tags=tags
-        ),
+        )
 
 class UserProfile(BaseModel):
     account: PublicAccount
