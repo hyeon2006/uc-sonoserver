@@ -106,12 +106,14 @@ class LeaderboardInfo(BaseModel):
             if value == 727:
                 value = "727 WYSI"
 
+            speed_text = f"| x{record.speed}" if record.speed != 1 else ""
+
             leaderboards.append(
                 ServerItemLeaderboardRecord(
                     name=f"UnCh-{record.chart_id}-{record.id}",
                     rank=f"#{i + (page * 10) + 1}",
                     player=record.display_name,
-                    value=f"{record.shortened_grade} | {value}",
+                    value=f"{record.shortened_grade} | {value}{speed_text}",
                     playerUser=record.account.to_user_item() if record.account else None
                 )
             )
