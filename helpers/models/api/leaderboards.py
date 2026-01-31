@@ -146,6 +146,7 @@ class LeaderboardRecordInfo(BaseModel):
             request,
             self.asset_base_url,
             request.state.levelbg,
+            use_engine=self.data.engine
         )
 
         time_str = datetime_to_str(self.data.created_at)

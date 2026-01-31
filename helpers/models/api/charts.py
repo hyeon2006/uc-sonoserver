@@ -106,7 +106,8 @@ class Chart(BaseModel):
         bgtype: str, 
         include_description: Literal[False] = False, 
         disable_replace_missing_preview: bool = False,
-        context: Literal["list", "level"] = "list"
+        context: Literal["list", "level"] = "list",
+        use_engine: str | None = None
     ) -> LevelItem: ...
 
     @overload
@@ -117,7 +118,8 @@ class Chart(BaseModel):
         bgtype: str, 
         include_description: Literal[True], 
         disable_replace_missing_preview: bool = False,
-        context: Literal["list", "level"] = "list"
+        context: Literal["list", "level"] = "list",
+        use_engine: str | None = None
     ) -> tuple[LevelItem, str]: ...
 
     def to_level_item(
@@ -127,7 +129,8 @@ class Chart(BaseModel):
         bgtype: str, 
         include_description: Literal[False] = False, 
         disable_replace_missing_preview: bool = False,
-        context: Literal["list", "level"] = "list"
+        context: Literal["list", "level"] = "list",
+        use_engine: str | None = None
     ):
         loc = request.state.loc
 
@@ -173,7 +176,7 @@ class Chart(BaseModel):
                     item=self._get_cached_skin(
                         request.app.base_url,
                         request.state.skin,
-                        request.state.engine,
+                        use_engine if use_engine else request.state.engine,
                         request.state.localization
                     )
                 )
@@ -234,7 +237,11 @@ class Chart(BaseModel):
             artists=handle_uwu(self.artists, request.state.localization, request.state.uwu),
             author=self.author_full,
             tags=level_tags,
-            engine=self._get_cached_engine(request.app.base_url, request.state.engine, request.state.localization),
+            engine=self._get_cached_engine(
+                request.app.base_url, 
+                use_engine if use_engine else request.state.engine, 
+                request.state.localization
+            ),
             useSkin=skin_option,
             useBackground=UseItem(useDefault=False, item=bg_item),
             useEffect=UseItem(useDefault=True),
