@@ -116,6 +116,8 @@ class LeaderboardInfo(BaseModel):
                 )
             )
 
+        return leaderboards
+
 class LeaderboardRecordInfo(BaseModel):
     data: LeaderboardRecordDBResponse
     chart: Chart
