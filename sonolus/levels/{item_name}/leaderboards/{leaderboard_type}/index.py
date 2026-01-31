@@ -26,7 +26,7 @@ async def info(item_name: str, leaderboard_type: leaderboard_type, request: Sono
     )
 
 @router.get("/records/list", response_model=ServerItemLeaderboardRecordList)
-async def list(item_name: str, leaderboard_type: leaderboard_type, request: SonolusRequest, page: int = Query(1, ge=1)):
+async def list(item_name: str, leaderboard_type: leaderboard_type, request: SonolusRequest, page: int = Query(0, ge=0)):
     response = await request.app.api.get_leaderboards(item_name, leaderboard_type, page).send(request.headers.get("Sonolus-Session"))
 
     if response.status != 200:
