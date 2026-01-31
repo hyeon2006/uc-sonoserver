@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi import HTTPException
 
 from core import SonolusRequest
@@ -9,9 +9,12 @@ from helpers.models.sonolus.options import ServerForm
 router = APIRouter()
 
 @router.get("/", response_model=ServerItemCommunityCommentList)
-async def main(request: SonolusRequest, item_name: str):
+async def main(
+    request: SonolusRequest, 
+    item_name: str,
+    page: int = Query(0, ge=0)
+):
     locale = request.state.loc
-    page = request.state.query_params.get("page", 0)
     auth = request.headers.get("Sonolus-Session")
 
     response = await request.app.api.get_comments(item_name, page).send(auth)
