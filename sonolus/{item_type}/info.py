@@ -51,10 +51,6 @@ async def main(request: SonolusRequest, item_type: ItemType):
             data = [item.to_particle_item() for item in await request.app.run_blocking(
                 compile_particles_list, request.app.base_url
             )]
-        case "playlists":
-            data = await request.app.run_blocking(
-                compile_playlists_list, request.app.base_url, request.state.localization
-            )
         # case "rooms":
         #     data = await request.app.run_blocking(compile_rooms_list, request.app.base_url)
         case _:
