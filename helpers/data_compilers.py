@@ -78,16 +78,12 @@ def compile_playlists_list(
             version=post_data["version"],
             title=replace_values(post_data["title"]),
             subtitle=replace_values(post_data["subtitle"]),
-            author=replace_values(post_data["author"])
+            author=replace_values(post_data["author"]),
+            tags=[],
+            levels=[],
+            thumbnail=repo.get_srl(repo.add_file(f"files/playlists/{playlist}/thumbnail.png", error_on_file_nonexistent=False))
         )
 
-        data_files = {"thumbnail": "thumbnail.png"}
-        for key, file in data_files.items():
-            hash = repo.add_file(
-                f"files/playlists/{playlist}/{file}", error_on_file_nonexistent=False
-            )
-            if hash:
-                compiled_data[key] = repo.get_srl(hash)
         compiled_data_list.append(compiled_data)
     cached[f"playlists_{locale}"] = compiled_data_list
     return compiled_data_list
