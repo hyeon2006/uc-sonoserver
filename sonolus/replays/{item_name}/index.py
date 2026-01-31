@@ -33,7 +33,7 @@ async def get(request: SonolusRequest, item_name: str):
     ] if leaderboard_record_response.data.data.owner or leaderboard_record_response.data.data.mod else []
 
     return ServerItemDetails(
-        item=handle_item_uwu([replay_item], request.state.localization, request.state.uwu),
+        item=handle_item_uwu([replay_item], request.state.localization, request.state.uwu)[0],
         actions=actions,
         hasCommunity=False,
         leaderboards=[],
