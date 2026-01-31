@@ -109,9 +109,9 @@ class LeaderboardInfo(BaseModel):
             leaderboards.append(
                 ServerItemLeaderboardRecord(
                     name=f"UnCh-{record.chart_id}-{record.id}",
-                    rank=f"#{i + ((page - 1) * 10) + 1}",
+                    rank=f"#{i + (page * 10) + 1}",
                     player=record.display_name,
-                    value=f"{record.shortened_grade} {value}",
+                    value=f"{record.shortened_grade} | {value}",
                     playerUser=record.account.to_user_item() if record.account else None
                 )
             )
