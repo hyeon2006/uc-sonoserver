@@ -49,7 +49,7 @@ async def list(item_name: str, leaderboard_type: leaderboard_type, request: Sono
 async def leaderboard_record_info(item_name: str, name: str, request: SonolusRequest):
     auth = request.headers.get("Sonolus-Session")
 
-    replay_response = await request.app.api.get_leaderboard_record(item_name, int(name)).send(auth)
+    replay_response = await request.app.api.get_leaderboard_record(item_name, int(name.rsplit("-", maxsplit=1)[1])).send(auth)
 
     if replay_response.status != 200:
         raise HTTPException(status_code=replay_response.status)
