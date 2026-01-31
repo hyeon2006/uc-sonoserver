@@ -321,33 +321,37 @@ class API:
         sort_order: Literal["desc", "asc", None],
         meta_includes: str | None
     ) -> Request[ChartList]:
+        params={
+            "type": "advanced",
+            "page": page if sort_by != "random" else 1,
+            "staff_pick": staff_pick,
+            "min_rating": min_rating,
+            "max_rating": max_rating,
+            "status": status,
+            "tags": tags,
+            "min_likes": min_likes,
+            "max_likes": max_likes,
+            "min_comments": min_comments,
+            "max_comments": max_comments,
+            "liked_by": liked_by,
+            "commented_on": commented_on,
+            "title_includes": title_includes,
+            "description_includes": description_includes,
+            "author_includes": author_includes,
+            "artists_includes": artists_includes,
+            "sort_by": sort_by,
+            "sort_order": sort_order,
+            "meta_includes": meta_includes,
+        }
+
+        params = {k: v for k, v in params.items() if v is not None}
+
         return Request( 
             self._client_session,
             "GET",
             "/api/charts/",
             ChartList,
-            params={
-                "type": "advanced",
-                "page": page if sort_by != "random" else 1,
-                "staff_pick": staff_pick,
-                "min_rating": min_rating,
-                "max_rating": max_rating,
-                "status": status,
-                "tags": tags,
-                "min_likes": min_likes,
-                "max_likes": max_likes,
-                "min_comments": min_comments,
-                "max_comments": max_comments,
-                "liked_by": liked_by,
-                "commented_on": commented_on,
-                "title_includes": title_includes,
-                "description_includes": description_includes,
-                "author_includes": author_includes,
-                "artists_includes": artists_includes,
-                "sort_by": sort_by,
-                "sort_order": sort_order,
-                "meta_includes": meta_includes,
-            }
+            params=params
         )
     
     def get_notification(self, item_name: str) -> Request[Notification]:
