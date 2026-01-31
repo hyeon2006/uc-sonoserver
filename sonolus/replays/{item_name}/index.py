@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("/", response_model=ServerItemDetails)
 async def get(request: SonolusRequest, item_name: str):
-    chart_name, record_id = item_name.removesuffix("UnCh-").split("-")
+    _, chart_name, record_id = item_name.removesuffix("UnCh-").split("-")
     auth = request.headers.get("Sonolus-Session")
 
     leaderboard_record_response = await request.app.api.get_leaderboard_record(chart_name, int(record_id)).send(auth)

@@ -131,7 +131,7 @@ class LeaderboardRecordInfo(BaseModel):
         string = f"{self.data.shortened_grade} | {self.data.arcade_score} / {self.data.accuracy_score} | {self.data.nperfect} / {self.data.ngreat} / {self.data.ngood} / {self.data.nmiss}"
 
         if self.data.speed != 1:
-            string += f" | {self.data.speed}x"
+            string += f" | {round(self.data.speed, 2)}x"
 
         return string 
 
@@ -156,7 +156,7 @@ class LeaderboardRecordInfo(BaseModel):
         )
 
         return ReplayItem(
-            name=f"UnCh-{level.name}-{self.data.id}",
+            name=f"{level.name}-{self.data.id}",
             source=request.app.base_url,
             title=level.title,
             subtitle=self.subtitle,
