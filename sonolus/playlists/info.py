@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from core import SonolusRequest
-from helpers.data_compilers import compile_banner, compile_particles_list
+from helpers.data_compilers import compile_banner, compile_playlists_list
 from helpers.models.sonolus.item_section import PlaylistItemSection
 from helpers.models.sonolus.response import ServerItemInfo
 from helpers.owoify import handle_item_uwu, handle_uwu
@@ -14,9 +14,9 @@ async def main(request: SonolusRequest):
     uwu_level = request.state.uwu
     banner_srl = await request.app.run_blocking(compile_banner)
 
-    data = [item.to_particle_item() for item in await request.app.run_blocking(
-        compile_particles_list, request.app.base_url
-    )]
+    data = await request.app.run_blocking(
+        compile_playlists_list, request.app.base_url, request.state.localization
+    )
 
     return ServerItemInfo(
         sections=PlaylistItemSection(
