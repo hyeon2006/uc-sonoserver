@@ -14,7 +14,7 @@ class ServerSubmitItemActionRequest(BaseModel):
 class _ParsedGenericActionRequest(BaseModel):
     type: str
 
-class GenericActionRequest(BaseModel):
+class GenericActionRequest(ServerSubmitItemActionRequest):
     def parse(self) -> _ParsedGenericActionRequest:
         return _ParsedGenericActionRequest.model_validate({k: v[0] for k, v in parse_qs(self.values).items()})
 
