@@ -28,7 +28,7 @@ async def upload(
             detail="Uploaded files exceed file size limit.",
         )
 
-    info = replay.validate_replay_config(replay_configuration, data.engine_name)
+    info = replay.validate_replay_config(replay_configuration, data.engine_name, request)
 
     response = await request.app.api.upload_replay(
         replay_data,
