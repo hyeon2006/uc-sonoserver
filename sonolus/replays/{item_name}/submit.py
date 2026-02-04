@@ -6,7 +6,7 @@ from helpers.models.sonolus.submit import GenericActionRequest
 
 router = APIRouter()
 
-@router.get("/", response_model=ServerSubmitItemActionResponse)
+@router.post("/", response_model=ServerSubmitItemActionResponse)
 async def submit(
     request: SonolusRequest,
     item_name: str,
