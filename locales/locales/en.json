@@ -137,7 +137,7 @@
             "CHART_VISIBILITY_CHANGED": "The visibility of your chart \"{chart_name}\" has been updated to {visibility_status}. Please review our upload policies to see why this change was necessary. If you fix your chart to comply, you can change it back to Public. Otherwise, keep it as it is now, or else we may be forced to delete it.",
             "COMMENT_DELETED": "Your comment was deleted because it violated our comment policy. Please make sure all comments adhere to our community guidelines.\n\n----------------------\nCOMMENT:\n\n{comment_content}",
             "CHART_DELETED": "Your chart \"{chart_name}\" was deleted for violating our upload rules. Please take a moment to review our chart upload guidelines for more information.",
-            "LEADERBOARD_SCPRE_DELETED": "Your score on the chart \"{chart_name}\" was deleted for violating our rules. Please take a moment to review our guidelines for more information."
+            "LEADERBOARD_SCORE_DELETED": "Your score on the chart \"{chart_name}\" was deleted for violating our rules. Please take a moment to review our guidelines for more information."
         }
     }
 }
