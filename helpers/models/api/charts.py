@@ -225,7 +225,7 @@ class Chart(BaseModel):
         level_tags = additional + metadata + tags
         if self.staff_pick:
             level_tags.insert(0, Tag(
-                title="",
+                title=loc.staff_pick if context == "level" else None,
                 icon="trophy"
             ))
 
