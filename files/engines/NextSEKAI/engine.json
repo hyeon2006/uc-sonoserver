@@ -10,5 +10,6 @@
     "description": "https://github.com/Next-SEKAI/sonolus-next-sekai-engine\n\nCommit: 054a18e v1.7.5",
     "engine_sort_order": 2,
     "can_be_ranked": true,
-    "unrankable_options": []
+    "unrankable_options": [],
+    "standard_rankable_options": ["#SPEED"]
 }

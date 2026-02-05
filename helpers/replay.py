@@ -25,7 +25,10 @@ class AdditionalReplayInfo(BaseModel):
     speed: float | None = None
 
 def get_validator(option: dict, engine_data: dict) -> validator:
-    if option["name"] in engine_data.get("unrankable_options", []):
+    if(
+        (option["name"] in engine_data.get("unrankable_options", []) or option["standard"])
+        and option not in engine_data.get("standard_rankable_options")
+    ):
         return lambda value: value == option["def"]
 
     match option["type"]:

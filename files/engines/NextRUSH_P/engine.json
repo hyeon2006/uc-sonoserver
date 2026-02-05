@@ -14,6 +14,7 @@
     "engine_sort_order": 1,
     "can_be_ranked": true,
     "unrankable_options": [],
+    "standard_rankable_options": ["#SPEED"],
     "config_overrides": {
         "Forced Fever Chance": {
             "def": 1
