@@ -48,8 +48,8 @@
   "default_engine_desc": "Kullanılacak sunucu motorunu seçin!",
   "default_skin": "Sunucu Dokusu",
   "default_skin_desc": "Kullanılacak varsayılan temayı seçin! Varsayılan tema her zaman motor varsayılan temasıdır.\n\nNOT: Bir motor desteklenen temaya sahip değilse, motor varsayılanını kullanır.",
-  "notifications_plural": "{num} yeni bildiriminiz var!\nSistem bildirimlerine \"Gönderiler\" bölümünden ulaşabilirsiniz.\nSunucuya devam etmek için lütfen bunları okuyun.",
-  "notifications_singular": "{num} yeni bildiriminiz var!\nSistem bildirimlerine \"Gönderiler\" bölümünden ulaşabilirsiniz.\nSunucuya devam etmek için lütfen bunları okuyun.",
+  "notifications_plural": "{num} yeni bildiriminiz var!\nSunucuya bağlanmaya devam etmek için lütfen bunları okuyun.",
+  "notifications_singular": "{num} yeni bildiriminiz var!\nSunucuya bağlanmaya devam etmek için lütfen bunları okuyun.",
   "uwu": "UwU >.<",
   "uwu_desc": "Menünüzü UwU’laştırın (SADECE EN/TR)",
   "slightly": "Hafif",
@@ -60,6 +60,9 @@
   "rerate_desc": "Seviyeyi yeniden derecelendirin, isteğe bağlı olarak seviye katsayısı ekleyin.",
   "rerate_desc_not_mod": "Seviyeyi yeniden derecelendirin.",
   "show_resource_buttons": "Sunucu Kaynak Düğmelerini Göster",
+  "like": "({num}) Beğen\n",
+  "unlike": "({num}) Beğeniyi geri al",
+  "announcements": "Duyurular",
   "search": {
     "FILTERS": "Filtreler (Sayfa {sayfa}/{sayfaSayısı})",
     "ADVANCED_SEARCH": "Gelişmiş Arama",
@@ -102,6 +105,15 @@
     "VISIBILITY_PRIVATE": "Özel"
   },
   "leaderboard": {
+    "YOU_ARE_BANNED": "Yasaklandınız",
+    "ARCADE_SCORE_SPEED": "Atari Skoru",
+    "ACCURACY_SCORE": "Kesinlik Skoru",
+    "ARCADE_SCORE_NO_SPEED": "Atari Skoru (hız bonusu olmadan)",
+    "RANK_MATCH": "Dereceli Maç",
+    "LEAST_COMBO_BREAKS": "En Az Kombo Kırılması",
+    "LEAST_MISSES": "En Az Miss",
+    "PERFECT": "Perfect Sayısı",
+    "BAD_ENGINE": "{engine_name} motoru için puan gönderimi desteklenmemektedir"
   },
   "background": {
     "BACKGROUNDSELECT": "Arka Plan Seçimi",
@@ -125,12 +137,13 @@
     "UNREAD": "Okunmamış Bildirimler",
     "UNREAD_STATUS": "Okunmamış",
     "READ_STATUS": "Okunmuş",
-    "NOTIFICATION_DESC_UNREAD": "Tüm geçmiş bildirimlerinize ''Daha Fazla'' seçeneğine tıklayarak erişebilirsiniz. Okunmayı bekleyen okunmamış bildirimleriniz bulunmakta.",
-    "NOTIFICATION_DESC": "Tüm geçmiş bildirimlerinize ''Daha Fazla'' seçeneğine tıklayarak erişebilirsiniz. Şu anda herhangi bir okunmamış bildiriminiz bulunmamakta.",
+    "NOTIFICATION_DESC_UNREAD": "\"Daha Fazla\" seçeneğine tıklayarak geçmiş tüm bildirimlerinizi ve duyurularınızı bulabilirsiniz. Okunmamış ve henüz okunması gereken bildirimleriniz var.",
+    "NOTIFICATION_DESC": "\"Daha fazla\" seçeneğine tıklayarak geçmiş tüm bildirimlerinizi ve duyurularınızı bulabilirsiniz. Şu anda okunmamış bildiriminiz bulunmamaktadır.",
     "templates": {
       "CHART_VISIBILITY_CHANGED": "\"{chart_name}\" haritanızın görünürlüğü {visibility_status} olarak güncellendi. Bu değişikliğin neden gerekli olduğunu öğrenmek için lütfen yükleme politikalarımızı inceleyin. Haritanızı uyumlu hale getirirseniz, tekrar Herkese Açık olarak değiştirebilirsiniz. Aksi takdirde mevcut haliyle bırakın, yoksa silmek zorunda kalabiliriz.",
       "COMMENT_DELETED": "Yorumunuz yorum politikamızı ihlal ettiği için silindi. Lütfen tüm yorumların topluluk kurallarımıza uygun olduğundan emin olun.\n\n----------------------\nYORUM:\n\n{comment_content}",
-      "CHART_DELETED": "\"{chart_name}\" adlı haritanız yükleme kurallarımızı ihlal ettiği için silindi. Daha fazla bilgi için lütfen harita yükleme yönergelerimizi inceleyin."
+      "CHART_DELETED": "\"{chart_name}\" adlı haritanız yükleme kurallarımızı ihlal ettiği için silindi. Daha fazla bilgi için lütfen harita yükleme yönergelerimizi inceleyin.",
+      "LEADERBOARD_SCORE_DELETED": "\"{chart_name}\" grafiğindeki liderlik tablosu puanınız, kurallarımızı ihlal ettiğiniz için silindi. Daha fazla bilgi için lütfen yönergelerimizi inceleyin."
     }
   }
 }
