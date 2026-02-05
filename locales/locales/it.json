@@ -48,8 +48,8 @@
   "default_engine_desc": "Scegli il motore del server da utilizzare!",
   "default_skin": "Skin del server",
   "default_skin_desc": "Scegli il tema skin predefinito da utilizzare! Il tema predefinito è sempre quello del motore.\n\nNOTA: se un motore non ha il tema skin supportato, utilizzerà quello predefinito.",
-  "notifications_plural": "Hai ricevuto {num} nuove notifiche!\nLe notifiche di sistema si trovano in \"Posts\".\nLeggile per proseguire sul server.",
-  "notifications_singular": "Hai ricevuto {num} nuove notifiche!\nLe notifiche di sistema si trovano in \"Posts\".\nLeggile per proseguire sul server.",
+  "notifications_plural": "Hai ricevuto {num} nuove notifiche!\nLeggile per proseguire sul server.",
+  "notifications_singular": "Hai ricevuto {num} nuove notifiche!\nLeggile per proseguire sul server.",
   "uwu": "UwU >.<",
   "uwu_desc": "UwUify il tuo menu (SOLO EN/TR)",
   "slightly": "Leggermente",
@@ -59,7 +59,10 @@
   "rerate": "Rivaluta",
   "rerate_desc": "Rivaluta il livello, aggiungendo eventualmente delle costanti.",
   "rerate_desc_not_mod": "Rivaluta il livello.",
-  "show_resource_buttons": "Mostra pulsanti risorse server",
+  "show_resource_buttons": "Mostra Bottoni per Risorse del Server",
+  "like": "Mi piace ({num})",
+  "unlike": "A differenza di ({num})",
+  "announcements": "Annunci",
   "search": {
     "FILTERS": "Filtri (Pagina {page}/{pageCount})",
     "ADVANCED_SEARCH": "Ricerca avanzata",
@@ -102,6 +105,15 @@
     "VISIBILITY_PRIVATE": "Privato"
   },
   "leaderboard": {
+    "YOU_ARE_BANNED": "Sei bannato",
+    "ARCADE_SCORE_SPEED": "Punteggio arcade",
+    "ACCURACY_SCORE": "Punteggio di precisione",
+    "ARCADE_SCORE_NO_SPEED": "Punteggio Arcade (nessun bonus di velocità)",
+    "RANK_MATCH": "Partita Classificata",
+    "LEAST_COMBO_BREAKS": "Meno Interruzioni di Combo",
+    "LEAST_MISSES": "Meno Mancati",
+    "PERFECT": "Conteggio Perfetti",
+    "BAD_ENGINE": "L'invio del punteggio non è supportato per il motore {engine_name}"
   },
   "background": {
     "BACKGROUNDSELECT": "Selezione dello sfondo",
@@ -125,12 +137,13 @@
     "UNREAD": "Notifiche non lette",
     "UNREAD_STATUS": "Non letto",
     "READ_STATUS": "Letto",
-    "NOTIFICATION_DESC_UNREAD": "Puoi trovare tutte le tue notifiche passate cliccando su \"Altro\". Hai delle notifiche non lette che devono essere lette.",
-    "NOTIFICATION_DESC": "Puoi trovare tutte le tue notifiche passate cliccando su \"Altro\". Al momento non hai notifiche non lette.",
+    "NOTIFICATION_DESC_UNREAD": "Puoi trovare tutte le notifiche e gli annunci passati cliccando su \"Altro\". Hai delle notifiche non lette che devono essere lette.",
+    "NOTIFICATION_DESC": "Puoi trovare tutte le notifiche e gli annunci passati cliccando su \"Altro\". Al momento non hai notifiche non lette.",
     "templates": {
       "CHART_VISIBILITY_CHANGED": "La visibilità del tuo grafico \"{chart_name}\" è stata aggiornata a {visibility_status}. Consulta le nostre politiche di caricamento per capire perché questa modifica è stata necessaria. Se modifichi il tuo grafico per renderlo conforme, puoi ripristinarlo su Pubblico. In caso contrario, mantienilo così com'è ora, altrimenti potremmo essere costretti a eliminarlo.",
       "COMMENT_DELETED": "Il tuo commento è stato eliminato perché violava la nostra politica sui commenti. Assicurati che tutti i commenti rispettino le nostre linee guida della comunità.\n\n----------------------\nCOMMENTO:\n\n{comment_content}",
-      "CHART_DELETED": "La tua mappa \"{chart_name}\" è stata eliminata per violazione delle nostre regole di caricamento. Ti invitiamo a leggere attentamente le nostre linee guida per il caricamento di mappe per ulteriori informazioni."
+      "CHART_DELETED": "La tua mappa \"{chart_name}\" è stata eliminata per violazione delle nostre regole di caricamento. Ti invitiamo a leggere attentamente le nostre linee guida per il caricamento di mappe per ulteriori informazioni.",
+      "LEADERBOARD_SCORE_DELETED": "Il tuo punteggio nella classifica \"{chart_name}\" è stato cancellato per violazione delle nostre regole. Ti preghiamo di leggere attentamente le nostre linee guida per ulteriori informazioni."
     }
   }
 }
