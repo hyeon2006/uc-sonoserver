@@ -41,9 +41,10 @@ async def main(request: SonolusRequest):
         ), 
         *([
             ServerInfoItemButton(
-                type="user",
+                type="post",
                 title=locale.notification.NOTIFICATION,
-                icon="comment"
+                icon="comment",
+                infoType="notifications"
             )
         ] if logged_in else ()),
         ServerInfoItemButton(type="level"), 
