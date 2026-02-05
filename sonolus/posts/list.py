@@ -26,9 +26,9 @@ async def main(
 
     if post_type in ("all", "announcements", None):
         data.extend(
-            await request.app.run_blocking(
+            [item.to_post_item() for item in await request.app.run_blocking(
                 compile_static_posts_list, request.app.base_url
-            )
+            )]
         )
 
     if post_type in ("all", "notifications", None):
@@ -59,5 +59,5 @@ async def main(
 
     return ServerItemList(
         pageCount=len(pages),
-        items=[item.to_post_item() for item in items]
+        items=items
     )
