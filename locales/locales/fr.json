@@ -56,9 +56,10 @@
   "a_lot": "Beaucoup",
   "extreme": "Extrême",
   "invalid_constant": "Constante invalide ! Doit contenir au maximum 4 décimales entre -999 et 999.",
-  "rerate": "Réévaluer",
-  "rerate_desc": "Réévaluez le niveau, en ajoutant éventuellement des constantes.",
-  "rerate_desc_not_mod": "Réévaluer le niveau.",
+  "rerate": "Réévalue",
+  "rerate_desc": "Réévalue le niveau, en ajoutant éventuellement des constantes.",
+  "rerate_desc_not_mod": "Réévalue le niveau.",
+  "show_resource_buttons": "Afficher les boutons de ressources du serveur",
   "search": {
     "FILTERS": "Filtres (Page {page}/{pageCount})",
     "ADVANCED_SEARCH": "Recherche avancée",
