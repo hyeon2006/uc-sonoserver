@@ -12,6 +12,8 @@
     "particle_name": "toasted-bread-st",
     "description": "\nNext SEKAI's expansion engine, with a visual extension!\n\nhttps://github.com/hyeon2006/sonolus-next-rush-plus-engine\nv1.3.10",
     "engine_sort_order": 1,
+    "can_be_ranked": true,
+    "unrankable_options": [],
     "config_overrides": {
         "Forced Fever Chance": {
             "def": 1

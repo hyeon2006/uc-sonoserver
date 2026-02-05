@@ -1,12 +1,13 @@
 import base64
 import hashlib
 
-import aiohttp
 from ecdsa import VerifyingKey, NIST256p, ellipticcurve
 from ecdsa.util import string_to_number, sigdecode_string
-from fastapi import APIRouter, Request, status, HTTPException
+from fastapi import APIRouter, status, HTTPException
 
-from helpers.models import ServerAuthenticateRequest
+from core import SonolusRequest
+from helpers.models.sonolus.account import ServerAuthenticateRequest
+from helpers.models.sonolus.response import ServerAuthenticateResponse
 
 from datetime import timedelta
 import time
@@ -40,8 +41,8 @@ def load_public_key(jwk_dict):
     return pub_key
 
 
-@router.post("")
-async def main(request: Request, data: ServerAuthenticateRequest):
+@router.post("", response_model=ServerAuthenticateResponse)
+async def main(request: SonolusRequest, data: ServerAuthenticateRequest):
     """
     We support a maximum of 6 sessions:
     - 3 external (eg. website)
@@ -54,7 +55,7 @@ async def main(request: Request, data: ServerAuthenticateRequest):
     signature = request.headers.get("Sonolus-Signature")
     if signature is None:
         raise HTTPException(status_code=400, detail="Missing Sonolus-Signature header")
-    public_key: VerifyingKey = (
+    public_key = (
         request.app.sono_pub_key if hasattr(request.app, "sono_pub_key") else None
     )
     if not public_key:
@@ -90,17 +91,13 @@ async def main(request: Request, data: ServerAuthenticateRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid time. Please click 'Cancel' and try again.",
         )
-
-    headers = {request.app.auth_header: request.app.auth}
-    profilewithtype = data.model_dump()["userProfile"]
-    profilewithtype["type"] = "game"
-    async with aiohttp.ClientSession(headers=headers) as cs:
-        async with cs.post(
-            request.app.api_config["url"] + "/api/accounts/session/",
-            json=profilewithtype,
-        ) as req:
-            response = await req.json()
+    
     try:
-        return {"session": response["session"], "expiration": response["expiry"]}
+        response = await request.app.api.authenticate(data.userProfile).send()
+
+        return ServerAuthenticateResponse(
+            session=response.data.session,
+            expiration=response.data.expiry
+        )
     except:
         raise HTTPException(status_code=400, detail="We're not sure what went wrong!")

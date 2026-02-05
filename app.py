@@ -1,162 +1,22 @@
-import os, importlib, asyncio, traceback
+import json
+import os, importlib, traceback
 from urllib.parse import urlparse
 
-from concurrent.futures import ThreadPoolExecutor
-
-import yaml
-
-with open("config.yml", "r") as f:
-    config = yaml.load(f, yaml.Loader)
-
-from fastapi import FastAPI, Request
-from fastapi import status, HTTPException
+from fastapi import Request, status, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
+from core import config, SonolusFastAPI, SonolusMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 import uvicorn
 
-from helpers.repository_map import repo
-from helpers.data_compilers import (
-    compile_particles_list,
-    compile_engines_list,
-    compile_skins_list,
-)
-from locales.locale import Locale
+from helpers.api import API
 
 debug = config["server"]["debug"]
 
-
-class SonolusFastAPI(FastAPI):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.debug = kwargs["debug"]
-
-        self.executor = ThreadPoolExecutor(max_workers=16)
-
-        self.config = config["sonolus"]
-        self.api_config = config["api"]
-        self.base_url = kwargs["base_url"]
-
-        self.auth = self.api_config["auth"]
-        self.auth_header = self.api_config["auth-header"]
-
-        self.remove_config_queries = [
-            "localization",
-            "uwu",
-            "levelbg",
-            "stpickconfig",
-            "defaultparticle",
-            "defaultengine",
-            "defaultskin",
-            "showresourcebuttons",
-        ]
-
-        self.repository = repo
-
-        self.exception_handlers.setdefault(HTTPException, self.http_exception_handler)
-
-    async def run_blocking(self, func, *args, **kwargs):
-        return await asyncio.get_event_loop().run_in_executor(
-            self.executor, lambda: func(*args, **kwargs)
-        )
-
-    def get_items_per_page(self, route: str) -> int:
-        return self.config["items-per-page"].get(
-            route, self.config["items-per-page"].get("default")
-        )
-
-    async def http_exception_handler(self, request: Request, exc: HTTPException):
-        if exc.status_code < 500:
-            return JSONResponse(
-                content={"message": exc.detail}, status_code=exc.status_code
-            )
-        else:
-            print(
-                "-" * 1000
-                + f"\nerror 500: {request.method} {str(request.url)}\n"
-                + "-" * 1000
-            )
-            return JSONResponse(content={}, status_code=exc.status_code)
-
-
 VERSION_REGEX = r"^\d+\.\d+\.\d+$"
-
-
-class SonolusMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        request.state.localization = request.query_params.get(
-            "localization", "en"
-        ).lower()
-        uwu_supported = ["tr", "en"]
-        request.state.uwu = (
-            request.query_params.get("uwu", "off").lower()
-            if request.state.localization in uwu_supported
-            else "off"
-        )
-        request.state.levelbg = request.query_params.get(
-            "levelbg", "default_or_v3"
-        ).lower()
-        request.state.staff_pick = request.query_params.get(
-            "stpickconfig", "off"
-        ).lower()
-        request.state.particle = request.query_params.get(
-            "defaultparticle", "engine_default"
-        ).lower()
-        request.state.showresourcebuttons = request.query_params.get(
-            "showresourcebuttons", "0"
-        )
-        request.state.skin = request.query_params.get("defaultskin", "engine_default")
-        skins = await request.app.run_blocking(compile_skins_list, request.app.base_url)
-        supported_skins = list(set(theme for skin in skins for theme in skin["themes"]))
-        engines = await request.app.run_blocking(
-            compile_engines_list, request.app.base_url, request.state.localization
-        )
-        request.state.engine = request.query_params.get(
-            "defaultengine", engines[0]["name"]
-        )
-        request.state.loc, request.state.localization = Locale.get_messages(
-            request.state.localization
-        )
-        if not request.state.showresourcebuttons in ["0", "1"]:
-            request.state.showresourcebuttons = "0"
-        if not request.state.levelbg in [
-            "default_or_v3",
-            "default_or_v1",
-            "v1",
-            "v3",
-        ]:
-            request.state.levelbg = "default_or_v3"
-        if not request.state.uwu in ["off", "uwu", "owo", "uvu"]:
-            request.state.uwu = "off"
-        if not request.state.staff_pick in ["off", "true", "false"]:
-            request.state.staff_pick = "off"
-        particles = await request.app.run_blocking(
-            compile_particles_list, request.app.base_url
-        )
-        if not request.state.particle in [
-            "engine_default",
-            *[item["name"] for item in particles],
-        ]:
-            request.state.particle = "engine_default"
-        if not request.state.engine in [item["name"] for item in engines]:
-            request.state.engine = engines[0]["name"]
-        if not request.state.skin in ["engine_default", *supported_skins]:
-            request.state.skin = "engine_default"
-            # return JSONResponse(
-            #     content={"message": "Invalid configuration"},
-            #     status_code=status.HTTP_400_BAD_REQUEST,
-            # )
-        query_params = dict(request.query_params)
-        for item in request.app.remove_config_queries:
-            query_params.pop(item, None)
-        request.state.query_params = query_params
-        response = await call_next(request)
-        response.headers["Sonolus-Version"] = request.app.config[
-            "required-client-version"
-        ]
-        return response
-
 
 app = SonolusFastAPI(debug=debug, base_url=config["server"]["base-url"])
 
@@ -167,11 +27,21 @@ async def no_unhandled_exceptions(request: Request, call_next):
         return await call_next(request)
     except Exception:
         traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unhandled error. Report to discord.gg/UntitledCharts",
+        return Response(
+            content="Unhandled error. Report to discord.gg/UntitledCharts", 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+if debug:
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        print("Validation Error:")
+        print(json.dumps(exc.errors(), indent=2))
 
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"detail": exc.errors()}
+        )
 
 app.add_middleware(
     CORSMiddleware,
@@ -217,7 +87,7 @@ def load_routes(folder, cleanup: bool = True):
     def traverse_directory(directory):
         for root, dirs, files in os.walk(directory, topdown=False):
             for file in files:
-                if not "__pycache__" in root and file.endswith(".py"):
+                if not "__pycache__" in root and file.endswith(".py") and not file.startswith("_"):
                     route_name: str = (
                         os.path.join(root, file)
                         .removesuffix(".py")
@@ -270,6 +140,9 @@ def load_routes(folder, cleanup: bool = True):
                 shutil.rmtree(pycache_path, ignore_errors=True)
                 print(f"[API] Removed __pycache__ at {pycache_path}")
 
+    print("WARNING WARNING TODO (release) there are no unrankable options for nextrush and nextsekai yet")
+
+
 
 async def startup_event():
     folder = "sonolus"
@@ -278,6 +151,8 @@ async def startup_event():
     else:
         load_routes(folder, cleanup=debug)
         print("Routes loaded!")
+
+    app.api = API(app.api_config["url"], app.auth_header, app.auth)
 
 
 app.add_event_handler("startup", startup_event)

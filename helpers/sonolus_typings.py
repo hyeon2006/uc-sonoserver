@@ -14,6 +14,7 @@ ItemType = Literal[
     "engines",
     "replays",
     "rooms",
+    "users",
 ]
 ItemTypeExcludingRoom = Literal[
     "posts",
@@ -25,6 +26,7 @@ ItemTypeExcludingRoom = Literal[
     "particles",
     "engines",
     "replays",
+    "users",
 ]
 
 ServerInfoButtonType = Literal[
@@ -40,6 +42,7 @@ ServerInfoButtonType = Literal[
     "particle",
     "engine",
     "configuration",
+    "user",
 ]
 
 AutoExit = Literal["off", "pass", "fullCombo", "allPerfect"]

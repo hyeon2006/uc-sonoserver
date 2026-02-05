@@ -1,7 +1,7 @@
 from helpers.sha1 import calculate_sha1
 
-from typing import Optional, Union, IO
-from helpers.datastructs import SRL
+from typing import Union, IO
+from helpers.models.sonolus.misc import SRL
 
 from pathlib import Path
 from io import BytesIO
@@ -38,7 +38,7 @@ class Repository:
 
     def add_file(
         self, file: os.PathLike, error_on_file_nonexistent: bool = True
-    ) -> Optional[str]:
+    ) -> str | None:
         if not error_on_file_nonexistent:
             if not os.path.exists(file):
                 return None
@@ -64,7 +64,7 @@ class Repository:
             self._map[sha1] = {"hash": sha1, "file": data}
         return sha1
 
-    def pop_hash(self, hash: str) -> Optional[bytes]:
+    def pop_hash(self, hash: str) -> bytes | None:
         file_data = self.get_file(hash)
         if file_data:
             del self._map[hash]
@@ -76,7 +76,7 @@ class Repository:
         """
         self.add_file(file)
 
-    def get_hash_from_file_path(self, file: os.PathLike) -> Optional[str]:
+    def get_hash_from_file_path(self, file: os.PathLike) -> str | None:
         input_path = os.path.abspath(file)
         for sha1, data in self._map.copy().items():
             if type(data["file"]) != str:
@@ -86,12 +86,12 @@ class Repository:
                 return sha1
         return None
 
-    def get_file(self, hash: str) -> Optional[bytes]:
+    def get_file(self, hash: str) -> bytes | None:
         item = self._map.get(hash, None)
         if not item:
             return None
         file = item["file"]
-        file_data: Optional[bytes] = None
+        file_data: bytes | None = None
         if isinstance(file, (str, Path)):
             file_path = Path(file)
             if "|" in str(file_path):
@@ -109,7 +109,7 @@ class Repository:
         return file_data
 
     @functools.lru_cache(maxsize=None)
-    def get_srl(self, hash: str) -> Optional[SRL]:
+    def get_srl(self, hash: str) -> SRL | None:
         if hash in self._map.keys():
             return {"hash": hash, "url": f"/sonolus/repository/{hash}"}
         return None

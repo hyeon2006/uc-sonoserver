@@ -11,6 +11,7 @@ sonolus:
   name: "UntitledCharts"
   # this description is a fallback if there is no locale string
   description: "discord.gg/UntitledCharts\nA custom chart server :)"
+  upload-token-sig-key: "256-bit key"
 api:
   url: "http://127.0.0.1:39000"
   # Should match backend auth
