@@ -59,6 +59,7 @@
   "rerate": "Recalificar",
   "rerate_desc": "Reevalúa el nivel, agregando constantes opcionalmente.",
   "rerate_desc_not_mod": "Reevaluar el nivel.",
+  "show_resource_buttons": "Mostrar Botones de Recursos del Servidor",
   "search": {
     "FILTERS": "Filtros (Página {page}/{pageCount})",
     "ADVANCED_SEARCH": "Búsqueda Avanzada",
