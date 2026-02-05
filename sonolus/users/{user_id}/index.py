@@ -39,7 +39,7 @@ async def main(request: SonolusRequest, user_id: str):
         leaderboards=[],
         sections=[
             LevelItemSection(
-                title="#NEWEST",
+                title="#POPULAR",
                 icon="level",
                 items=handle_item_uwu(
                     [
