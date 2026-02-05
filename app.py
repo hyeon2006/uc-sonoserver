@@ -140,8 +140,6 @@ def load_routes(folder, cleanup: bool = True):
                 shutil.rmtree(pycache_path, ignore_errors=True)
                 print(f"[API] Removed __pycache__ at {pycache_path}")
 
-    print("WARNING WARNING TODO (release) there are no unrankable options for nextrush and nextsekai yet")
-
 
 
 async def startup_event():
