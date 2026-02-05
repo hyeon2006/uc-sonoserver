@@ -62,6 +62,7 @@ class Notification(_BaseNotification):
                         visibility_status=content_parts.pop(0), chart_name="\n".join(content_parts)
                     )
                 case "#COMMENT_DELETED":
+                    print("comment-deleted")
                     content = loc.notification.templates.COMMENT_DELETED(
                         comment_content="\n".join(content_parts)
                     )
