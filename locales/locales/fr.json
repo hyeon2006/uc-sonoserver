@@ -60,6 +60,9 @@
   "rerate_desc": "Réévalue le niveau, en ajoutant éventuellement des constantes.",
   "rerate_desc_not_mod": "Réévalue le niveau.",
   "show_resource_buttons": "Afficher les boutons de ressources du serveur",
+  "like": "Like ({num})",
+  "unlike": "Delike ({num})",
+  "announcements": "Annonces",
   "search": {
     "FILTERS": "Filtres (Page {page}/{pageCount})",
     "ADVANCED_SEARCH": "Recherche avancée",
@@ -102,6 +105,15 @@
     "VISIBILITY_PRIVATE": "Privé"
   },
   "leaderboard": {
+    "YOU_ARE_BANNED": "Vous êtes banni.",
+    "ARCADE_SCORE_SPEED": "Score Arcade",
+    "ACCURACY_SCORE": "Score de Précision",
+    "ARCADE_SCORE_NO_SPEED": "Score Arcade (sans bonus de vitesse)",
+    "RANK_MATCH": "Match Ranked",
+    "LEAST_COMBO_BREAKS": "Moins de Combos cassé",
+    "LEAST_MISSES": "Moin de Miss",
+    "PERFECT": "Nombre de Parfait",
+    "BAD_ENGINE": "L'envoi des scores n'est pas pris en charge pour {engine_name}."
   },
   "background": {
     "BACKGROUNDSELECT": "Sélection d'arrière-plan",
@@ -130,7 +142,8 @@
     "templates": {
       "CHART_VISIBILITY_CHANGED": "La visibilitée de votre niveau {chart_name} à été modifié et est maintenant {visibility_status}. Lisez nos conditions de publications pour comprendre pourquoi ce changement était nécéssaire. Si vous avez fixé votre niveau, vous pouvez la remettre en publique. Sinon, gardez votre niveau comme il l'est maintenant, sous risques de voir votre niveau ce faire suprimer.",
       "COMMENT_DELETED": "Votre commentaire a été suprimé car il ne suis pas nos conditions pour les commentaires. Assurez-vous que tout vos commentaires adherent au conditions d'utilisiation communautaire.\n\n----------------------\nCOMMENTAIRE:\n\n{comment_content}",
-      "CHART_DELETED": "Votre niveau \"{chart_name}\" a été suprimé car il ne suis pas nos conditions de publications. Prennez le temps de lire nos conditions de publications pour plus d'information."
+      "CHART_DELETED": "Votre niveau \"{chart_name}\" a été suprimé car il ne suis pas nos conditions de publications. Prennez le temps de lire nos conditions de publications pour plus d'information.",
+      "LEADERBOARD_SCORE_DELETED": "Votre score sur le classement de« {chart_name} » a été supprimé pour non-respect de notre règlement. Prennez le temps de lire nos conditions d'utilisations pour plus d'information."
     }
   }
 }
