@@ -190,7 +190,8 @@ class API:
 
     async def _get_chart_not_ok_callback(self, response: ClientResponse):
         raise HTTPException(
-            status_code=response.status, detail=(await response.json())["detail"]
+            status_code=response.status,
+            detail=(await response.json()).get("detail", "Unknown error"),
         )
 
     def get_chart(self, item_name: str) -> Request[GetChartResponse]:
