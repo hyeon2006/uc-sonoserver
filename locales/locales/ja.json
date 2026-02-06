@@ -60,8 +60,8 @@
   "rerate_desc": "難易度の数値を変更することができます。\n任意で小数値を付けることもできます。",
   "rerate_desc_not_mod": "難易度の数値を変更することができます。",
   "show_resource_buttons": "サーバーリソースボタンを表示する",
-  "like": "♡({num})",
-  "unlike": "👎({num})",
+  "like": "いいね({num})",
+  "unlike": "いいね解除({num})",
   "announcements": "お知らせ",
   "search": {
     "FILTERS": "フィルター (ページ {page}/{pageCount})",
@@ -109,9 +109,9 @@
     "ARCADE_SCORE_SPEED": "スコア",
     "ACCURACY_SCORE": "精度スコア",
     "ARCADE_SCORE_NO_SPEED": "スコア（スピードボーナスなし）",
-    "RANK_MATCH": "ランクマッチ",
-    "LEAST_COMBO_BREAKS": "最小コンボ",
-    "LEAST_MISSES": "最少ミス数",
+    "RANK_MATCH": "ランク",
+    "LEAST_COMBO_BREAKS": "コンボ切断数",
+    "LEAST_MISSES": "ミス数",
     "PERFECT": "Perfect数",
     "BAD_ENGINE": "このエンジン ({engine_name})ではスコアの送信はサポートされていません。"
   },
