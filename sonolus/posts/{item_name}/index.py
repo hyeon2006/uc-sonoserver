@@ -33,7 +33,7 @@ async def main(request: SonolusRequest, item_name: str):
             compile_static_posts_list, request.app.base_url
         )
 
-        extended_item_data = next((i for i in data if i["name"] == item_name), None)
+        extended_item_data = next((i for i in data if i.name == item_name), None)
         desc = extended_item_data.description
 
         item_data = extended_item_data.to_post_item()
