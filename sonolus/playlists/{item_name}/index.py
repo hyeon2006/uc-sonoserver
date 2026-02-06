@@ -42,7 +42,7 @@ async def main(request: SonolusRequest, item_name: str):
     page = params.page or 1
 
     response = await request.app.api.charts_advanced_search(
-        page=page,
+        page=page - 1,
         staff_pick=params.staff_pick,
         min_rating=params.min_rating,
         max_rating=params.max_rating,
