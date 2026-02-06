@@ -111,9 +111,19 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         return data
 
     @classmethod
-    def parse(cls, qs: str, request: SonolusRequest):
-        parsed_qs = parse_qs(base64.b64decode(qs.encode()))
-        flattened_data = {k: v if k == "tags" else v[0] for k, v in parsed_qs.items()}
+    def parse(cls, qs: str, request: SonolusRequest, plain_json: bool = False):
+        parsed_qs = parse_qs(base64.b64decode(qs.encode()) if not plain_json else qs)
+
+        if plain_json:
+            flattened_data = {k: v if k == "tags" else v[0] for k, v in parsed_qs.items()}
+        else:
+            flattened_data = {
+                k.decode(): 
+                    [tag_value.decode() for tag_value in v]
+                    if k == "tags"
+                    else v[0].decode()
+                for k, v in parsed_qs.items()
+            }
 
         sort_by = flattened_data.get("sort_by", "created_at")
         allowed_sort_by = [
@@ -139,7 +149,6 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
                 raise HTTPException(
                     status_code=400, detail="page must be a non-negative integer."
                 )
-            page -= 1
 
         staff_pick = flattened_data.get("staff_pick", "off")
         is_default_staff_pick = staff_pick == "default"
@@ -325,14 +334,14 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
 
 class ServerSubmitPlaylistActionRequest(ServerSubmitItemActionRequest):
     def parse(
-        self, request: SonolusRequest
+        self, request: SonolusRequest, plain_json: bool = False
     ) -> _ParsedServerSubmitPlaylistActionRequest:
         if len(self.values) > 500:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="why so long"
             )
 
-        return _ParsedServerSubmitPlaylistActionRequest.parse(self.values, request)
+        return _ParsedServerSubmitPlaylistActionRequest.parse(self.values, request, plain_json)
 
 
 class ServerSubmitLevelResultRequest(BaseModel):

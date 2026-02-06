@@ -5,7 +5,7 @@ import helpers.replay as replay
 
 router = APIRouter()
 
-MAX_FILE_SIZES = {"data": 2 * 1024 * 1024, "config": 500}  # 2 mb  # 500 bytes
+MAX_FILE_SIZES = {"data": 2 * 1024 * 1024, "config": 1024}  # 2 mb / 1 mb
 
 
 @router.post("/")
