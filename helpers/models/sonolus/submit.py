@@ -57,10 +57,11 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         "decaying_likes",
         "abc",
         "random",
+        None
     ]
     page: int | None
     staff_pick: Literal[True, False, None]
-    is_default_staff_pick: bool
+    is_default_staff_pick: bool | None
     min_rating: int | None
     max_rating: int | None
     tags: list[str] | None
@@ -68,14 +69,14 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
     max_likes: int | None
     min_comments: int | None
     max_comments: int | None
-    liked_by: bool
-    commented_on: bool
+    liked_by: bool | None
+    commented_on: bool | None
     title_includes: str | None
     description_includes: str | None
     author_includes: str | None
     artists_includes: str | None
-    sort_order: Literal["desc", "asc"]
-    level_status: Literal["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]
+    sort_order: Literal["desc", "asc", None]
+    level_status: Literal["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE", None]
     keywords: str | None
 
     @staticmethod
@@ -98,37 +99,38 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         if data.get("sort_by") == "random" and "page" in data:
             del data["page"]
 
+        if "staff_pick" in data and data["staff_pick"] in (None, True, False):
+            data["staff_pick"] = {
+                None: "off",
+                True: "true",
+                False: "false"
+            }[data["staff_pick"]]
+
         if "tags" in data:
-            data["tags"] = ",".join(data["tags"])
+            if isinstance(data["tags"], list):
+                data["tags"] = ",".join(data["tags"])
 
-        if data.get("liked_by"):
-            data["liked_by"] = "1"
-        else:
-            data.pop("liked_by", None)
+        if "liked_by" in data:
+            data["liked_by"] = str(int(data["liked_by"]))
 
-        if data.get("commented_on"):
-            data["commented_on"] = "1"
-        else:
-            data.pop("commented_on", None)
+        if "commented_on" in data:
+            data["commented_on"] = str(int(data["commented_on"]))
 
         return data
 
     @classmethod
     def parse(cls, qs: str, request: SonolusRequest, plain_json: bool = False):
-        parsed_qs = parse_qs(base64.b64decode(qs.encode()) if not plain_json else qs)
+        parsed_qs = parse_qs(base64.urlsafe_b64decode(qs.encode()) if not plain_json else qs)
 
         if plain_json:
-            flattened_data = {k: v if k == "tags" else v[0] for k, v in parsed_qs.items()}
+            flattened_data = {k: v for k, v in parsed_qs.items()}
         else:
             flattened_data = {
-                k.decode(): 
-                    [tag_value.decode() for tag_value in v]
-                    if k == "tags"
-                    else v[0].decode()
+                k.decode(): v[0].decode()
                 for k, v in parsed_qs.items()
             }
 
-        sort_by = flattened_data.get("sort_by", "created_at")
+        sort_by = flattened_data.get("sort_by")
         allowed_sort_by = [
             "created_at",
             "rating",
@@ -138,7 +140,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
             "abc",
             "random",
         ]
-        if sort_by not in allowed_sort_by:
+        if sort_by not in allowed_sort_by and sort_by is not None:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid value for sort_by. Allowed values are: {', '.join(allowed_sort_by)}.",
@@ -146,24 +148,20 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
 
         page = flattened_data.get("page") if sort_by != "random" else 1
         if page is not None:
-            if page.isdigit():
+            if isinstance(page, str) and page.isdigit():
                 page = int(page)
             if not isinstance(page, int) or page < 1:
                 raise HTTPException(
                     status_code=400, detail="page must be a non-negative integer."
                 )
 
-        staff_pick = flattened_data.get("staff_pick", "off")
-        is_default_staff_pick = staff_pick == "default"
-        if staff_pick not in ["off", "default", "true", "false"]:
+        staff_pick = flattened_data.get("staff_pick")
+
+        is_default_staff_pick = staff_pick and staff_pick == "default"
+
+        if staff_pick not in ["off", "default", "true", "false", None]:
             raise HTTPException(status_code=400, detail="Invalid staff_pick.")
-        staff_pick = {"off": None, "true": True, "false": False}[
-            (
-                staff_pick
-                if staff_pick not in ["default", None]
-                else request.state.staff_pick
-            )
-        ]
+        staff_pick = {"off": None, "true": True, "false": False, None: None}[staff_pick]
 
         min_rating = flattened_data.get("min_rating")
         max_rating = flattened_data.get("max_rating")
@@ -250,16 +248,16 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
                 detail="min_comments cannot be greater than max_comments.",
             )
 
-        liked_by = flattened_data.get("liked_by", False)
+        liked_by = flattened_data.get("liked_by")
         if type(liked_by) == str and liked_by.isdigit():
             liked_by = liked_by != "0"
-        if not isinstance(liked_by, bool):
+        if not isinstance(liked_by, bool) and liked_by is not None:
             raise HTTPException(status_code=400, detail="liked_by must be a boolean.")
 
-        commented_on = flattened_data.get("commented_on", False)
+        commented_on = flattened_data.get("commented_on")
         if type(commented_on) == str and commented_on.isdigit():
             commented_on = commented_on != "0"
-        if not isinstance(commented_on, bool):
+        if not isinstance(commented_on, bool) and commented_on is not None:
             raise HTTPException(
                 status_code=400, detail="commented_on must be a boolean."
             )
@@ -292,16 +290,16 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
                     status_code=400, detail="artists_includes must be a string."
                 )
 
-        sort_order = flattened_data.get("sort_order", "desc")
-        allowed_sort_order = ["desc", "asc"]
+        sort_order = flattened_data.get("sort_order")
+        allowed_sort_order = ["desc", "asc", None]
         if sort_order not in allowed_sort_order:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid value for sort_order. Allowed values are: {', '.join(allowed_sort_order)}.",
             )
 
-        level_status = flattened_data.get("status", "ALL")
-        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]:
+        level_status = flattened_data.get("level_status")
+        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE", None]:
             raise HTTPException(status_code=400, detail="Invalid level_status.")
 
         keywords = flattened_data.get("keywords")

@@ -101,14 +101,14 @@ async def main(request: SonolusRequest, item_name: str):
             request.state.localization,
         )
     )[0].model_copy()
-    item_data.name = f"uploaded_{base64.urlsafe_b64encode(parts[1].encode()).decode()}"
+    item_data.name = item_name
     item_data.levels = levels
     options = [
         ServerSelectOption(
-            query="status",
+            query="level_status",
             name=locale.search.VISIBILITY,
             required=False,
-            default=params.level_status,
+            default=params.level_status or "ALL",
             values=[
                 ServerOption_Value(name="ALL", title=locale.search.VISIBILITY_ALL),
                 ServerOption_Value(
@@ -206,24 +206,23 @@ async def main(request: SonolusRequest, item_name: str):
         ),
     ]
 
-    if auth:
-        options.append(
-            ServerToggleOption(
-                query="liked_by",
-                name=locale.search.ONLY_LEVELS_I_LIKED,
-                required=False,
-                default=params.liked_by,
-            )
+    options.append(
+        ServerToggleOption(
+            query="liked_by",
+            name=locale.search.ONLY_LEVELS_I_LIKED,
+            required=False,
+            default=params.liked_by if params.liked_by is not None else False,
         )
+    )
 
-        options.append(
-            ServerToggleOption(
-                query="commented_on",
-                name=locale.search.ONLY_LEVELS_I_COMMENTED_ON,
-                required=False,
-                default=params.commented_on,
-            )
+    options.append(
+        ServerToggleOption(
+            query="commented_on",
+            name=locale.search.ONLY_LEVELS_I_COMMENTED_ON,
+            required=False,
+            default=params.commented_on if params.commented_on is not None else False,
         )
+    )
 
     options.append(
         ServerSliderOption(
@@ -274,7 +273,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="tags",
             name=locale.search.TAGS_COMMA_SEPARATED,
             required=False,
-            default=params.tags or "",
+            default=", ".join(params.tags) if params.tags else "",
             placeholder=locale.search.ENTER_TAGS,
             limit=200,
             shortcuts=[],
@@ -290,7 +289,7 @@ async def main(request: SonolusRequest, item_name: str):
                 uwu_level,
             ),
             required=False,
-            default=params.sort_by,
+            default=params.sort_by or "created_at",
             values=[
                 ServerOption_Value(name="created_at", title=locale.search.DATE_CREATED),
                 ServerOption_Value(name="random", title="#RANDOM"),
@@ -309,7 +308,7 @@ async def main(request: SonolusRequest, item_name: str):
             query="sort_order",
             name=locale.search.SORT_ORDER,
             required=False,
-            default=params.sort_order,
+            default=params.sort_order or "desc",
             values=[
                 ServerOption_Value(name="desc", title=locale.search.DESCENDING),
                 ServerOption_Value(name="asc", title=locale.search.ASCENDING),
