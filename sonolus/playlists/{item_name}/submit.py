@@ -39,9 +39,9 @@ async def main(
         .model_copy(
             update=data
                 .parse(request, plain_json=True)
-                .model_dump(exclude_none=True)
+                .model_dump()
         )
-        .dump()
+        .model_dump()
     )
 
     return ServerSubmitItemActionResponse(

@@ -1,7 +1,7 @@
 import base64
 from typing import Literal
 from urllib.parse import parse_qs
-from pydantic import BaseModel
+from pydantic import BaseModel, SerializerFunctionWrapHandler, model_serializer
 from fastapi import HTTPException, status
 
 from core import SonolusRequest
@@ -89,24 +89,27 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         except ValueError:
             return False
 
-    def dump(self):
-        data = self.model_dump(exclude_none=True)
+    @model_serializer(mode="wrap")
+    def dump(self, handler: SerializerFunctionWrapHandler, _info):
+        data = handler(self)
 
-        if data["sort_by"] == "random" and "page" in data:
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if data.get("sort_by") == "random" and "page" in data:
             del data["page"]
 
         if "tags" in data:
             data["tags"] = ",".join(data["tags"])
 
-        if data["liked_by"]:
+        if data.get("liked_by"):
             data["liked_by"] = "1"
         else:
-            del data["liked_by"]
+            data.pop("liked_by", None)
 
-        if data["commented_on"]:
+        if data.get("commented_on"):
             data["commented_on"] = "1"
         else:
-            del data["commented_on"]
+            data.pop("commented_on", None)
 
         return data
 
