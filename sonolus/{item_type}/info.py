@@ -70,18 +70,20 @@ async def main(request: SonolusRequest, item_type: ItemType):
             )
 
     return ServerItemInfo(
-        sections=GenericItemSection(
-            title="#" + item_type[:-1].upper(),
-            icon=item_type[:-1],
-            description=handle_uwu(
-                locale.server_description or request.app.config["description"],
-                request.state.localization,
-                uwu_level,
-            ),
-            itemType=item_type,
-            items=handle_item_uwu(
-                data[:5], request.state.localization, request.state.uwu
-            ),
-        ),
+        sections=[
+            GenericItemSection(
+                title="#" + item_type[:-1].upper(),
+                icon=item_type[:-1],
+                description=handle_uwu(
+                    locale.server_description or request.app.config["description"],
+                    request.state.localization,
+                    uwu_level,
+                ),
+                itemType=item_type[:-1],
+                items=handle_item_uwu(
+                    data[:5], request.state.localization, request.state.uwu
+                ),
+            ).model_dump()
+        ],
         banner=banner_srl if banner_srl else None,
     )
