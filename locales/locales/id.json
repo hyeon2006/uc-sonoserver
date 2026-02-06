@@ -48,8 +48,8 @@
   "default_engine_desc": "Pilih mesin server untuk dipakai!",
   "default_skin": "Skin Server",
   "default_skin_desc": "Pilih tema skin default untuk dipakai!\nDefault adalah selalu skin default mesin.\n\nCATATAN: Jika mesin tidak mendukung tema skin, mesin akan memakai default mesin.",
-  "notifications_plural": "Anda memiliki {num} pemberitahuan baru! Pemberitahuan sistem dapat ditemukan di \"Post\".\nSilakan membaca untuk lanjut ke server.",
-  "notifications_singular": "Anda memiliki {num} pemberitahuan baru! Pemberitahuan sistem dapat ditemukan di \"Post\". Silakan membaca untuk lanjut ke server.",
+  "notifications_plural": "Anda memiliki {num} pemberitahuan baru!\nSilakan membaca untuk lanjut ke server.",
+  "notifications_singular": "Anda memiliki {num} pemberitahuan baru!\nSilakan membaca untuk lanjut ke server.",
   "uwu": "UwU >.<",
   "uwu_desc": "UwUify menu anda (HANYA UNTUK EN/TR)",
   "slightly": "Sedikit",
@@ -60,6 +60,9 @@
   "rerate_desc": "Nilai ulang level ini, tambah konstanta jika anda suka.",
   "rerate_desc_not_mod": "Nilai ulang level ini.",
   "show_resource_buttons": "Tampilkan Tombol Sumber Daya Server",
+  "like": "Like ({num})",
+  "unlike": "Hapus Like ({num})",
+  "announcements": "Pengumuman",
   "search": {
     "FILTERS": "Filter (Page {page}/{pageCount})",
     "ADVANCED_SEARCH": "Pencarian Lebih Lanjut",
@@ -102,6 +105,15 @@
     "VISIBILITY_PRIVATE": "Pribadi"
   },
   "leaderboard": {
+    "YOU_ARE_BANNED": "Anda telah diban",
+    "ARCADE_SCORE_SPEED": "Skor",
+    "ACCURACY_SCORE": "Skor Akurasi",
+    "ARCADE_SCORE_NO_SPEED": "Skor (tanpa bonus kecepatan)",
+    "RANK_MATCH": "Pertandingan Rank",
+    "LEAST_COMBO_BREAKS": "Jumlah Pecahan Kombo Terkecil",
+    "LEAST_MISSES": "Jumlah Miss Terkecil",
+    "PERFECT": "Jumlah Perfect",
+    "BAD_ENGINE": "Mesin {engine_name} tidak mendukung pengiriman skor."
   },
   "background": {
     "BACKGROUNDSELECT": "Pemilihan Latar",
@@ -125,12 +137,13 @@
     "UNREAD": "Pemberitahuan Belum Dibaca",
     "UNREAD_STATUS": "Belum dibaca",
     "READ_STATUS": "Dibaca",
-    "NOTIFICATION_DESC_UNREAD": "Anda bisa menemukan semua pemberitahuan anda dengan menekan \"Selebihnya\". Anda memiliki pemberitahuan belum dibaca yang harus dibaca.",
-    "NOTIFICATION_DESC": "Anda bisa menemukan semua pemberitahuan anda dengan menekan \"Selebihnya\". Saat ini, Anda tidak memiliki pemberitahuan belum dibaca.",
+    "NOTIFICATION_DESC_UNREAD": "Anda bisa menemukan semua riwayat pemberitahuan dan pengumuman dengan menekan \"Selebihnya\". Anda memiliki pemberitahuan yang perlu dibaca.",
+    "NOTIFICATION_DESC": "Anda bisa menemukan semua riwayat pemberitahuan dan pengumuman dengan menekan \"Selebihnya\". Anda sekarang tidak memiliki pemberitahuan yang belum dibaca.",
     "templates": {
       "CHART_VISIBILITY_CHANGED": "Visibilitas level anda \"{chart_name}\" telah diganti ke {visibility_status}. Silakan membaca ulang peraturan unggahan kami untuk mengetahui alasan di balik perubahan ini. Jika anda telah memperbaiki level anda sesuai peraturan, anda bisa mengganti keterlihatan kembali ke Publik. Jika tidak, biarkan apa adanya untuk sekarang, atau kami mungkin terpaksa untuk menghapus level anda.",
       "COMMENT_DELETED": "Komen anda telah dihapus karena telah melanggar peraturan komentar kami. Tolong pastikan bahwa semua komen mengikuti peraturan komunitas kami.\n\n----------------------\nKOMEN:\n\n{comment_content}",
-      "CHART_DELETED": "Level anda \"{chart_name}\" telah dihapus karena melanggar peraturan unggahan kami. Silakan membaca ulang peraturan unggahan level kami untuk informasi lebih lanjut."
+      "CHART_DELETED": "Level anda \"{chart_name}\" telah dihapus karena melanggar peraturan unggahan kami. Silakan membaca ulang peraturan unggahan level kami untuk informasi lebih lanjut.",
+      "LEADERBOARD_SCORE_DELETED": "Skor papan peringkat anda pada level \"{chart_name}\" telah dihapus karena melanggar peraturan kami. Silakan membaca ulang peraturan kami untuk informasi lebih lanjut."
     }
   }
 }
