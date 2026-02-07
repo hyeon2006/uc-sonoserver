@@ -48,8 +48,8 @@
   "default_engine_desc": "選擇要使用的伺服器引擎！",
   "default_skin": "伺服器皮膚",
   "default_skin_desc": "選擇要使用的預設主題！預設始終為引擎預設主題。\n\n注意：如果引擎沒有支援的主題，它將使用引擎預設主題。",
-  "notifications_plural": "您有 {num} 條新通知！\n系統通知可在「貼文」中找到。\n請閱讀通知後繼續訪問伺服器。",
-  "notifications_singular": "您有 {num} 條新通知！\n系統通知可在「貼文」中找到。\n請閱讀通知後繼續訪問伺服器。",
+  "notifications_plural": "您有 {num} 條新通知！\n\n請閱讀通知以繼續存取伺服器。",
+  "notifications_singular": "您有 {num} 條新通知！\n\n請閱讀通知以繼續存取伺服器。",
   "uwu": "UwU >.<",
   "uwu_desc": "UwU 化你的選單 (僅限 EN/TR)",
   "slightly": "稍微",
@@ -59,6 +59,10 @@
   "rerate": "重新評級",
   "rerate_desc": "重新評級關卡，可選擇新增定數。",
   "rerate_desc_not_mod": "重新評級關卡。",
+  "show_resource_buttons": "顯示伺服器資源按鈕",
+  "like": "喜歡 ({num})",
+  "unlike": "不喜歡 ({num})",
+  "announcements": "公告",
   "search": {
     "FILTERS": "過濾器（第 {page}/{pageCount} 頁）",
     "ADVANCED_SEARCH": "進階搜尋",
@@ -101,6 +105,15 @@
     "VISIBILITY_PRIVATE": "私人"
   },
   "leaderboard": {
+    "YOU_ARE_BANNED": "您已被停權",
+    "ARCADE_SCORE_SPEED": "街機得分",
+    "ACCURACY_SCORE": "準確率得分",
+    "ARCADE_SCORE_NO_SPEED": "街機得分（無速度加成）",
+    "RANK_MATCH": "排位賽",
+    "LEAST_COMBO_BREAKS": "最少連擊中斷",
+    "LEAST_MISSES": "最少Miss判定",
+    "PERFECT": "Perfect判定計數",
+    "BAD_ENGINE": "引擎 {engine_name} 不支援提交分數。"
   },
   "background": {
     "BACKGROUNDSELECT": "背景選擇",
@@ -124,12 +137,13 @@
     "UNREAD": "未讀通知",
     "UNREAD_STATUS": "未讀",
     "READ_STATUS": "已讀",
-    "NOTIFICATION_DESC_UNREAD": "點擊「更多」即可查看所有過去的通知。您有未讀通知需要閱讀。",
-    "NOTIFICATION_DESC": "點擊「更多」即可查看所有過去的通知。您目前沒有未讀通知。",
+    "NOTIFICATION_DESC_UNREAD": "點擊「更多」即可查看所有過往通知和公告。您有一些未讀通知需要閱讀。",
+    "NOTIFICATION_DESC": "點擊「更多」即可查看所有過往通知和公告。您目前沒有任何未讀通知。",
     "templates": {
       "CHART_VISIBILITY_CHANGED": "您的譜面「{chart_name}」的可見性已更新為 {visibility_status}。請查看我們的上傳政策，以了解為何需要進行此更改。如果您已修改譜面以符合要求，則可以將其重新變更為「公開」。否則，請保持當前狀態，否則我們可能會被迫刪除它。",
       "COMMENT_DELETED": "您的評論已被刪除，因為它違反了我們的評論政策。請確保所有評論都遵守我們的社群準則。\n\n---------------------\n評論：\n\n{comment_content}",
-      "CHART_DELETED": "您的譜面「{chart_name}」因違反我們的上傳規則而被刪除。請花點時間查看我們的譜面上傳指南，以了解更多資訊。"
+      "CHART_DELETED": "您的譜面「{chart_name}」因違反我們的上傳規則而被刪除。請花點時間查看我們的譜面上傳指南，以了解更多資訊。",
+      "LEADERBOARD_SCORE_DELETED": "您在排行榜「{chart_name}」上的得分因違反規則而被刪除。請花點時間查看我們的規則以了解更多資訊。"
     }
   }
 }
