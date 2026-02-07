@@ -305,7 +305,7 @@ class Chart(BaseModel):
             authorUser=UserItem(
                 name=self.author,
                 title=self.author_full.rsplit("#", maxsplit=1)[0],
-                handle=self.author_handle,
+                handle=str(self.author_handle),
                 tags=[],
             ),
         )
