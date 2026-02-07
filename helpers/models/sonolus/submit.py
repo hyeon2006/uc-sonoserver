@@ -76,7 +76,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
     author_includes: str | None
     artists_includes: str | None
     sort_order: Literal["desc", "asc", None]
-    level_status: Literal["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE", None]
+    level_status: Literal["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]
     keywords: str | None
 
     @staticmethod
@@ -295,8 +295,8 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
                 detail=f"Invalid value for sort_order. Allowed values are: {', '.join(allowed_sort_order)}.",
             )
 
-        level_status = flattened_data.get("level_status")
-        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE", None]:
+        level_status = flattened_data.get("level_status", "ALL")
+        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]:
             raise HTTPException(status_code=400, detail="Invalid level_status.")
 
         keywords = flattened_data.get("keywords")
