@@ -36,11 +36,7 @@ async def main(
     updated_old_values = urlencode(
         ServerSubmitPlaylistActionRequest(values=old_values)
         .parse(request)
-        .model_copy(
-            update=data
-                .parse(request, plain_json=True)
-                .model_dump()
-        )
+        .model_copy(update=data.parse(request, plain_json=True).model_dump())
         .model_dump()
     )
 

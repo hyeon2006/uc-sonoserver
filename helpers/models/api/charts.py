@@ -40,6 +40,7 @@ class Chart(BaseModel):
     published_at: datetime | None = None
     updated_at: datetime
     author_full: str | None = None
+    author_handle: int
     chart_design: str
     is_first_publish: bool | None = None  # only returned on update_status
     liked: bool | None = None
@@ -304,6 +305,7 @@ class Chart(BaseModel):
             authorUser=UserItem(
                 name=self.author,
                 title=self.author_full.rsplit("#", maxsplit=1)[0],
+                handle=self.author_handle,
                 tags=[],
             ),
         )

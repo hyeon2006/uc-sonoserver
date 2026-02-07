@@ -57,7 +57,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         "decaying_likes",
         "abc",
         "random",
-        None
+        None,
     ]
     page: int | None
     staff_pick: Literal[True, False, None]
@@ -100,11 +100,9 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
             del data["page"]
 
         if "staff_pick" in data and data["staff_pick"] in (None, True, False):
-            data["staff_pick"] = {
-                None: "off",
-                True: "true",
-                False: "false"
-            }[data["staff_pick"]]
+            data["staff_pick"] = {None: "off", True: "true", False: "false"}[
+                data["staff_pick"]
+            ]
 
         if "tags" in data:
             if isinstance(data["tags"], list):
@@ -120,15 +118,14 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
 
     @classmethod
     def parse(cls, qs: str, request: SonolusRequest, plain_json: bool = False):
-        parsed_qs = parse_qs(base64.urlsafe_b64decode(qs.encode()) if not plain_json else qs)
+        parsed_qs = parse_qs(
+            base64.urlsafe_b64decode(qs.encode()) if not plain_json else qs
+        )
 
         if plain_json:
             flattened_data = {k: v for k, v in parsed_qs.items()}
         else:
-            flattened_data = {
-                k.decode(): v[0].decode()
-                for k, v in parsed_qs.items()
-            }
+            flattened_data = {k.decode(): v[0].decode() for k, v in parsed_qs.items()}
 
         sort_by = flattened_data.get("sort_by")
         allowed_sort_by = [
@@ -342,7 +339,9 @@ class ServerSubmitPlaylistActionRequest(ServerSubmitItemActionRequest):
                 status_code=status.HTTP_400_BAD_REQUEST, detail="why so long"
             )
 
-        return _ParsedServerSubmitPlaylistActionRequest.parse(self.values, request, plain_json)
+        return _ParsedServerSubmitPlaylistActionRequest.parse(
+            self.values, request, plain_json
+        )
 
 
 class ServerSubmitLevelResultRequest(BaseModel):
