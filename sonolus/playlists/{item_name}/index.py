@@ -46,7 +46,7 @@ async def main(request: SonolusRequest, item_name: str):
         staff_pick=params.staff_pick,
         min_rating=params.min_rating,
         max_rating=params.max_rating,
-        status=params.level_status,
+        status=params.level_status or "ALL",
         tags=params.tags,
         min_likes=params.min_likes,
         max_likes=params.max_likes,

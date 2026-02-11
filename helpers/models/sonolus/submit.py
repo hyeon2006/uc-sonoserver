@@ -123,7 +123,7 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
         )
 
         if plain_json:
-            flattened_data = {k: v for k, v in parsed_qs.items()}
+            flattened_data = {k: v[0] for k, v in parsed_qs.items()}
         else:
             flattened_data = {k.decode(): v[0].decode() for k, v in parsed_qs.items()}
 
@@ -295,8 +295,8 @@ class _ParsedServerSubmitPlaylistActionRequest(BaseModel):
                 detail=f"Invalid value for sort_order. Allowed values are: {', '.join(allowed_sort_order)}.",
             )
 
-        level_status = flattened_data.get("level_status", "ALL")
-        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE"]:
+        level_status = flattened_data.get("level_status")
+        if level_status not in ["ALL", "PUBLIC_MINE", "UNLISTED", "PRIVATE", None]:
             raise HTTPException(status_code=400, detail="Invalid level_status.")
 
         keywords = flattened_data.get("keywords")
