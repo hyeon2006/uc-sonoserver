@@ -59,13 +59,11 @@ async def main(
             page=page,
             meta_includes=keywords,
             sort_by="published_at",
-            staff_pick={"off": None, "true": True, "false": False}[
-                (
-                    staff_pick
-                    if staff_pick not in ["default", None]
-                    else request.state.staff_pick
-                )
-            ],
+            staff_pick=(
+                staff_pick
+                if staff_pick not in ["default", None]
+                else request.state.staff_pick
+            )
         ).send(auth)
     else:
         response = await request.app.api.charts_advanced_search(

@@ -277,14 +277,17 @@ class API:
             "abc",
             "random",
         ],
-        staff_pick: bool | None,
+        staff_pick: Literal["off", "true", "false", None],
     ) -> Request[ChartList]:
         params: dict[str, Any] = {"type": "quick", "page": page, "sort_by": sort_by}
 
         if meta_includes:
             params["meta_includes"] = meta_includes
-        if staff_pick:
-            params["staff_pick"] = staff_pick
+        match staff_pick:
+            case "true":
+                params["staff_pick"] = 1
+            case "false":
+                params["staff_pick"] = 0
 
         return Request(
             self._client_session, "GET", "/api/charts/", ChartList, params=params
